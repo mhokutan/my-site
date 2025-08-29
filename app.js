@@ -87,7 +87,7 @@ function sanitize(text) {
 // ---- 4) Başlat ----
 startBtn.addEventListener("click", async () => {
   if (appState.myId) {
-    attemptMatch(); // yeniden dene
+    attemptMatch();
     return;
   }
 
@@ -95,7 +95,13 @@ startBtn.addEventListener("click", async () => {
   setStatus("Başlatılıyor...");
   initFirebase();
   initPeer();
+
+  // 🔥 Giriş kartını gizle
+  document.querySelector(".intro").classList.add("hidden");
+  // Sohbet kartını göster
+  chatCard.classList.remove("hidden");
 });
+
 
 endBtn.addEventListener("click", async () => {
   endCurrent();
