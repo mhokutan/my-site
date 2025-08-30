@@ -10,15 +10,14 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 1. Firebase projesi oluştur: https://console.firebase.google.com  
 2. Realtime Database -> **Start in test mode** (deneme içindir).  
 3. `app.js` içindeki `firebaseConfig` alanını kendi proje ayarlarınla doldur.
-4. `.env.example` dosyasını `.env` olarak kopyala ve Google API anahtarı ile OAuth bilgilerini doldur:
+4. `.env.example` dosyasını `.env` olarak kopyala ve Google API anahtarını doldur:
    ```
    cp .env.example .env
-   # .env içinde GOOGLE_API_KEY ve GOOGLE_CLIENT_ID/SECRET değerlerini düzenle
+    # .env içinde GOOGLE_API_KEY değerini düzenle
    ```
 5. Gerekli paketleri yükle: `npm install`.
-6. Tarayıcıya gerekli OAuth bilgilerini aktarmak için `node inject-env.js` komutunu çalıştır (bu, `env.js` dosyasını üretir).
-7. Sunucuyu başlat: `node server.js` (statik dosyaları ve `/api/ai` uç noktasını sağlar).
-8. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
+6. Sunucuyu başlat: `node server.js` (statik dosyaları ve `/api/ai` uç noktasını sağlar).
+7. `index.html`, `styles.css` ve `app.js` dosyalarını yayınla.
 
 ### Yapay Zeka Kullanımı
 Tarayıcı Google API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `GOOGLE_API_KEY` değerini kullanarak Gemini API'ye istek yapar. Anahtar tanımlanmazsa yapay zeka modu devre dışı kalır ancak sunucu çalışmaya devam eder.
@@ -36,7 +35,7 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro
 ```
 
 ### Google OAuth
-Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur. Gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.
+Google ile kimlik doğrulaması yapmak için `index.html` dosyasında `window.GOOGLE_CLIENT_ID` tanımlayabilir ve gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.
 
 > Not: Test modunda veritabanı herkese açık olabilir. Üretimde güvenlik kurallarını kısıtla.
 

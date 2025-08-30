@@ -15,13 +15,5 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const envVars = {
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || ''
-};
-
-const content = `window.GOOGLE_CLIENT_ID = ${JSON.stringify(envVars.GOOGLE_CLIENT_ID)};
-window.GOOGLE_CLIENT_SECRET = ${JSON.stringify(envVars.GOOGLE_CLIENT_SECRET)};`;
-
-fs.writeFileSync(path.join(__dirname, 'env.js'), content);
-console.log('env.js generated');
+// Artık tarayıcıya değişken aktarmaya gerek yok.
+module.exports = process.env;
