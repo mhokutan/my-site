@@ -36,7 +36,7 @@ curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro
 ```
 
 ### Google OAuth
-Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur. Gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.
+Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur.
 
 > Not: Test modunda veritabanı herkese açık olabilir. Üretimde güvenlik kurallarını kısıtla.
 
