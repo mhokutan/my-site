@@ -13,7 +13,7 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 4. `.env.example` dosyasını `.env` olarak kopyala ve OpenAI (isteğe bağlı) ile Google OAuth bilgilerini doldur:
    ```
    cp .env.example .env
-   # .env içinde OPENAI_API_KEY ve GOOGLE_CLIENT_ID/SECRET değerlerini düzenle
+   # .env içinde OPENAI_API_KEY ve GOOGLE_CLIENT_ID değerlerini düzenle
    ```
 5. Ortam değişkenlerini frontende aktarmak için `node inject-env.js` komutunu çalıştır (bu, `env.js` dosyasını üretir).
 6. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
@@ -22,7 +22,7 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. `.env` dosyasında `OPENAI_API_KEY` değerini tanımla ve `node inject-env.js` komutunu çalıştır. Anahtar tarayıcıya `env.js` aracılığıyla aktarılır. Anahtar tanımlanmazsa kullanıcılar yalnızca diğer kullanıcılarla eşleşir; yapay zeka modu devre dışı kalır.
 
 ### Google OAuth
-Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur. Gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.
+Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` değerini doldur. Sunucu tarafında gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak `client_secret` değerini saklayabilirsin.
 
 > Not: Test modunda veritabanı herkese açık olabilir. Üretimde güvenlik kurallarını kısıtla.
 
