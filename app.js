@@ -244,9 +244,8 @@ function connectToPeer(otherId) {
 }
 
 function connectToAI() {
-  // OpenAI anahtarı yoksa yapay zeka moduna geçme
+  // OpenAI anahtarı yoksa sessizce beklemeye devam et
   if (!window.OPENAI_API_KEY) {
-    addMsg("Sistem: OPENAI_API_KEY tanımlı değil, yapay zeka devre dışı.", "sys");
     setStatus("Eşleştiriliyor...");
     appState.waiting = true;
     return;
@@ -269,10 +268,7 @@ function connectToAI() {
 
 function aiSend(text) {
   const apiKey = window.OPENAI_API_KEY || "";
-  if (!apiKey) {
-    addMsg("Sistem: OPENAI_API_KEY tanımlı değil.", "sys");
-    return;
-  }
+  if (!apiKey) return;
   appState.aiHistory.push({ role: "user", content: text });
   fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",

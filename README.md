@@ -19,7 +19,7 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 6. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
 
 ### Yapay Zeka Kullanımı
-Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. `.env` dosyasında `OPENAI_API_KEY` değerini tanımla ve `node inject-env.js` komutunu çalıştır. Anahtar tarayıcıya `env.js` aracılığıyla aktarılır. Anahtar tanımlanmazsa kullanıcılar yalnızca diğer kullanıcılarla eşleşir; yapay zeka modu devre dışı kalır.
+Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. `.env` dosyasında `OPENAI_API_KEY` değerini tanımla ve `node inject-env.js` komutunu çalıştır. Anahtar tarayıcıya `env.js` aracılığıyla aktarılır. Anahtar tanımlanmazsa kullanıcılar yalnızca diğer kullanıcılarla eşleşir; yapay zeka modu uyarı göstermeden devre dışı kalır.
 
 ### Google OAuth
 Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` değerini doldur. Sunucu tarafında gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak `client_secret` değerini saklayabilirsin.
