@@ -13,13 +13,15 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 4. `index.html`, `styles.css`, `app.js` dosyalarını GitHub Pages/Netlify ile yayınla.
 
 ### Yapay Zeka Kullanımı
-Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. Geçici olarak anahtarı konsoldan tanımlayabilirsin:
+Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. `index.html` dosyasındaki
 
 ```html
 <script>
-  window.OPENAI_API_KEY = "YOUR_KEY_HERE";
+  window.OPENAI_API_KEY = "BURAYA_OPENAI_API_ANAHTARINI_GİR";
 </script>
 ```
+
+satırını kendi anahtarınla güncelleyebilir veya geçici olarak konsoldan tanımlayabilirsin.
 
 Anahtar tanımlanmazsa yapay zeka modu çalışmaz.
 
