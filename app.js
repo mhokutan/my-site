@@ -258,9 +258,11 @@ function connectToAI() {
 
 function aiSend(text) {
   appState.aiHistory.push({ role: "user", content: text });
+  const headers = { "Content-Type": "application/json" };
+  if (window.AI_API_TOKEN) headers["X-API-Key"] = window.AI_API_TOKEN;
   fetch("/api/ai", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ messages: appState.aiHistory }),
   })
     .then((res) => res.json())
