@@ -23,6 +23,18 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 ### Yapay Zeka Kullanımı
 Tarayıcı Google API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `GOOGLE_API_KEY` değerini kullanarak Gemini API'ye istek yapar. Anahtar tanımlanmazsa yapay zeka modu devre dışı kalır ancak sunucu çalışmaya devam eder.
 
+### Gemini API'ye `curl` ile örnek istek
+
+```bash
+curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_GOOGLE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [
+      {"role": "user", "parts": [{"text": "yapay zekâ hakkında bir haiku yaz"}]}
+    ]
+  }'
+```
+
 ### Google OAuth
 Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur. Gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.
 
