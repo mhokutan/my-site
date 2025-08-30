@@ -4,16 +4,16 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 ## Nasıl Çalışır?
 - **Eşleştirme**: Firebase Realtime Database üzerinde tek slotluk basit bir kuyruk (`/queue`). İlk kullanıcı kuyruğa yazılır, ikinci geldiğinde eşleştirir ve kuyruğu temizler.
 - **Sohbet**: PeerJS ile WebRTC **DataChannel** üzerinden doğrudan eşler arası (P2P) metin aktarımı. Mesajlar sunucuda saklanmaz.
-- **Yapay Zeka Yedeği**: 5 saniye içinde başka bir kullanıcı bulunamazsa Google Gemini API'si aracılığıyla basit bir yapay zeka eşleşmesi yapılır.
+- **Yapay Zeka Yedeği**: 5 saniye içinde başka bir kullanıcı bulunamazsa OpenAI Chat Completions API'si aracılığıyla basit bir yapay zeka eşleşmesi yapılır.
 
 ## Kurulum
 1. Firebase projesi oluştur: https://console.firebase.google.com  
 2. Realtime Database -> **Start in test mode** (deneme içindir).  
 3. `app.js` içindeki `firebaseConfig` alanını kendi proje ayarlarınla doldur.
-4. `.env.example` dosyasını `.env` olarak kopyala ve Google API anahtarı ile OAuth bilgilerini doldur:
+4. `.env.example` dosyasını `.env` olarak kopyala ve OpenAI API anahtarı ile OAuth bilgilerini doldur:
    ```
    cp .env.example .env
-   # .env içinde GOOGLE_API_KEY ve GOOGLE_CLIENT_ID/SECRET değerlerini düzenle
+   # .env içinde OPENAI_API_KEY ve GOOGLE_CLIENT_ID/SECRET değerlerini düzenle
    ```
 5. Gerekli paketleri yükle: `npm install`.
 6. Tarayıcıya gerekli OAuth bilgilerini aktarmak için `node inject-env.js` komutunu çalıştır (bu, `env.js` dosyasını üretir).
@@ -21,17 +21,17 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 8. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
 
 ### Yapay Zeka Kullanımı
-Tarayıcı Google API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `GOOGLE_API_KEY` değerini kullanarak Gemini API'ye istek yapar. Anahtar tanımlanmazsa yapay zeka modu devre dışı kalır ancak sunucu çalışmaya devam eder.
+Tarayıcı OpenAI API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `OPENAI_API_KEY` değerini kullanarak OpenAI API'sine istek yapar. Anahtar tanımlanmazsa yapay zeka modu devre dışı kalır ancak sunucu çalışmaya devam eder.
 
-### Gemini API'ye `curl` ile örnek istek
+### OpenAI API'ye `curl` ile örnek istek
 
 ```bash
-curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_GOOGLE_API_KEY" \
+curl -X POST "https://api.openai.com/v1/chat/completions" \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_OPENAI_API_KEY" \
   -d '{
-    "contents": [
-      {"role": "user", "parts": [{"text": "yapay zekâ hakkında bir haiku yaz"}]}
-    ]
+    "model": "gpt-3.5-turbo",
+    "messages": [{"role": "user", "content": "yapay zekâ hakkında bir haiku yaz"}]
   }'
 ```
 
