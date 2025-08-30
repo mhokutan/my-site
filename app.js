@@ -251,32 +251,21 @@ function connectToAI() {
   }
   setStatus("Yapay zekayla sohbet ediyorsunuz.");
   roomChip.textContent = "AI";
-  peerInfo.textContent = "ChatGPT";
+  peerInfo.textContent = "Gemini";
   setConnectedUI(true);
   addMsg("Sistem: Yapay zeka bağlandı.", "sys");
 }
 
 function aiSend(text) {
-  const apiKey = window.OPENAI_API_KEY || "";
-  if (!apiKey) {
-    addMsg("Sistem: OPENAI_API_KEY tanımlı değil.", "sys");
-    return;
-  }
   appState.aiHistory.push({ role: "user", content: text });
-  fetch("https://api.openai.com/v1/chat/completions", {
+  fetch("/api/ai", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + apiKey,
-    },
-    body: JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: appState.aiHistory,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages: appState.aiHistory }),
   })
     .then((res) => res.json())
     .then((data) => {
-      const reply = data.choices?.[0]?.message?.content?.trim();
+      const reply = data.reply?.trim();
       if (reply) {
         appState.aiHistory.push({ role: "assistant", content: reply });
         addMsg(reply, "them");
