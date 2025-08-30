@@ -76,6 +76,27 @@ function sanitize(text) {
   return text.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 }
 
+// Google OAuth (optional)
+window.initGoogleAuth = function () {
+  if (!window.google || !window.GOOGLE_CLIENT_ID) {
+    console.warn("Google OAuth client ID missing.");
+    return;
+  }
+  window.google.accounts.id.initialize({
+    client_id: window.GOOGLE_CLIENT_ID,
+    callback: (res) => {
+      console.log("Google credential:", res.credential);
+    },
+  });
+  const btn = document.getElementById("googleSignIn");
+  if (btn) {
+    window.google.accounts.id.renderButton(btn, {
+      theme: "outline",
+      size: "large",
+    });
+  }
+};
+
 // Tema
 (function initTheme(){
   const key = "otc-theme";
