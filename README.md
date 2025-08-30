@@ -15,12 +15,13 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
    cp .env.example .env
    # .env içinde GOOGLE_API_KEY ve GOOGLE_CLIENT_ID/SECRET değerlerini düzenle
    ```
-5. Tarayıcıya gerekli OAuth bilgilerini aktarmak için `node inject-env.js` komutunu çalıştır (bu, `env.js` dosyasını üretir).
-6. Sunucuyu başlat: `node server.js` (statik dosyaları ve `/api/ai` uç noktasını sağlar).
-7. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
+5. Gerekli paketleri yükle: `npm install`.
+6. Tarayıcıya gerekli OAuth bilgilerini aktarmak için `node inject-env.js` komutunu çalıştır (bu, `env.js` dosyasını üretir).
+7. Sunucuyu başlat: `node server.js` (statik dosyaları ve `/api/ai` uç noktasını sağlar).
+8. `index.html`, `styles.css`, `app.js` dosyalarını ve üretilen `env.js`'i (git'e ekleme) yayınla.
 
 ### Yapay Zeka Kullanımı
-Tarayıcı Google API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `GOOGLE_API_KEY` değerini kullanarak Gemini API'ye istek yapar. Anahtar tanımlanmazsa yapay zeka modu çalışmaz.
+Tarayıcı Google API anahtarına doğrudan erişmez. `server.js`, `.env` dosyasındaki `GOOGLE_API_KEY` değerini kullanarak Gemini API'ye istek yapar. Anahtar tanımlanmazsa yapay zeka modu devre dışı kalır ancak sunucu çalışmaya devam eder.
 
 ### Google OAuth
 Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve `GOOGLE_CLIENT_SECRET` değerlerini doldur. Gerekirse `client_secret.json.example` dosyasını `client_secret.json` olarak kopyalayarak sunucu tarafında kullanabilirsin.

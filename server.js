@@ -2,13 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Ensure `fetch` is available in older Node versions
+const fetch = global.fetch || ((...args) =>
+  import('node-fetch').then(({ default: f }) => f(...args)));
+
 const PORT = process.env.PORT || 3000;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-
-if (!GOOGLE_API_KEY) {
-  console.error('Missing GOOGLE_API_KEY environment variable.');
-  process.exit(1);
-}
 
 function sendJson(res, status, obj) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -17,6 +16,9 @@ function sendJson(res, status, obj) {
 
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/api/ai') {
+    if (!GOOGLE_API_KEY) {
+      return sendJson(res, 500, { error: 'GOOGLE_API_KEY is not set' });
+    }
     let body = '';
     req.on('data', chunk => {
       body += chunk;
