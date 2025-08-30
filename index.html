@@ -23,6 +23,8 @@
         <input id="nickname" type="text" maxlength="20" placeholder="Örn: Deniz" />
       </div>
 
+      <div id="googleSignIn"></div>
+
       <div class="actions">
         <button id="startBtn" class="primary">Sohbete Başla</button>
         <button id="nextBtn" class="ghost" disabled>Sonraki</button>
@@ -70,10 +72,13 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleAuth()"></script>
+
+  <!-- Environment variables (generated) -->
+  <script src="env.js"></script>
+
   <!-- App -->
-  <script>
-    window.OPENAI_API_KEY = "BURAYA_OPENAI_API_ANAHTARINI_GİR";
-  </script>
   <script src="app.js"></script>
 </body>
 </html>
