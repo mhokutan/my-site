@@ -251,7 +251,7 @@ function connectToAI() {
   }
   setStatus("Yapay zekayla sohbet ediyorsunuz.");
   roomChip.textContent = "AI";
-  peerInfo.textContent = "Gemini";
+    peerInfo.textContent = "OpenAI";
   setConnectedUI(true);
   addMsg("Sistem: Yapay zeka bağlandı.", "sys");
 }

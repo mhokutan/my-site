@@ -7,7 +7,7 @@ const fetch = global.fetch || ((...args) =>
   import('node-fetch').then(({ default: f }) => f(...args)));
 
 const PORT = process.env.PORT || 3000;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 function sendJson(res, status, obj) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -16,8 +16,8 @@ function sendJson(res, status, obj) {
 
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/api/ai') {
-    if (!GOOGLE_API_KEY) {
-      return sendJson(res, 500, { error: 'GOOGLE_API_KEY is not set' });
+    if (!OPENAI_API_KEY) {
+      return sendJson(res, 500, { error: 'OPENAI_API_KEY is not set' });
     }
     let body = '';
     req.on('data', chunk => {
@@ -27,18 +27,24 @@ const server = http.createServer((req, res) => {
     req.on('end', async () => {
       try {
         const data = JSON.parse(body || '{}');
-        const messages = Array.isArray(data.messages) ? data.messages : [];
-        const contents = messages.map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: String(m.content || '').slice(0, 500) }]
+        const rawMessages = Array.isArray(data.messages) ? data.messages : [];
+        const messages = rawMessages.map(m => ({
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: String(m.content || '').slice(0, 500)
         }));
-        const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`, {
+        const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents })
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages
+          })
         });
         const apiJson = await apiRes.json();
-        const reply = apiJson.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
+        const reply = apiJson.choices?.[0]?.message?.content?.trim() || '';
         return sendJson(res, 200, { reply });
       } catch (err) {
         console.error('AI error', err);
