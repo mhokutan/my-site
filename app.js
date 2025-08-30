@@ -36,6 +36,9 @@ let appState = {
   nickname: null,
   queueRef: null,
   db: null,
+  ai: false,
+  aiHistory: [],
+  matchTimeout: null,
 };
 
 // ---- 3) Yardımcılar ----
@@ -114,12 +117,16 @@ nextBtn.addEventListener("click", async () => {
 
 sendForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (!appState.conn) return;
+  if (!appState.conn && !appState.ai) return;
   const text = sanitize(msgInput.value.trim());
   if (!text) return;
-  appState.conn.send({ type: "msg", text, name: appState.nickname });
   addMsg(text, "me");
   msgInput.value = "";
+  if (appState.conn) {
+    appState.conn.send({ type: "msg", text, name: appState.nickname });
+  } else if (appState.ai) {
+    aiSend(text);
+  }
 });
 
 // ---- 5) Firebase & PeerJS Kurulum ----
@@ -159,6 +166,13 @@ function attemptMatch() {
   appState.waiting = true;
   setStatus("Eşleştiriliyor...");
 
+  if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
+  appState.matchTimeout = setTimeout(() => {
+    if (appState.waiting) {
+      connectToAI();
+    }
+  }, 5000);
+
   let matchedWith = null;
   appState.queueRef
     .transaction((current) => {
@@ -179,6 +193,7 @@ function attemptMatch() {
       if (matchedWith) {
         // Ben arayanım -> karşıya bağlan
         appState.waiting = false;
+        if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
         connectToPeer(matchedWith);
       } else {
         // Kuyruğa yerleştim ve beklemedeyim
@@ -204,10 +219,61 @@ function connectToPeer(otherId) {
   bindConnection(conn, /*initiator*/ true);
 }
 
+function connectToAI() {
+  appState.waiting = false;
+  appState.ai = true;
+  if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
+  if (appState.queueRef && appState.myId) {
+    appState.queueRef.transaction((current) => {
+      return current === appState.myId ? null : current;
+    });
+  }
+  setStatus("Yapay zekayla sohbet ediyorsunuz.");
+  roomChip.textContent = "AI";
+  peerInfo.textContent = "ChatGPT";
+  setConnectedUI(true);
+  addMsg("Sistem: Yapay zeka bağlandı.", "sys");
+}
+
+function aiSend(text) {
+  const apiKey = window.OPENAI_API_KEY || "";
+  if (!apiKey) {
+    addMsg("Sistem: OPENAI_API_KEY tanımlı değil.", "sys");
+    return;
+  }
+  appState.aiHistory.push({ role: "user", content: text });
+  fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + apiKey,
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: appState.aiHistory,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const reply = data.choices?.[0]?.message?.content?.trim();
+      if (reply) {
+        appState.aiHistory.push({ role: "assistant", content: reply });
+        addMsg(reply, "them");
+      } else {
+        addMsg("Sistem: Yapay zekadan yanıt alınamadı.", "sys");
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      addMsg("Sistem: Yapay zeka hatası.", "sys");
+    });
+}
+
 function bindConnection(conn, initiator) {
   appState.conn = conn;
   appState.matchedWith = conn.peer;
   appState.waiting = false;
+  if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
 
   conn.on("open", () => {
     setStatus("Bağlandı! İyi sohbetler 🎉");
@@ -248,6 +314,11 @@ function bindConnection(conn, initiator) {
 
 // ---- 7) Bitir / Sıradaki ----
 function endCurrent(skipQueueCleanup = false) {
+  if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
+  if (appState.ai) {
+    appState.ai = false;
+    appState.aiHistory = [];
+  }
   try {
     if (appState.conn && appState.conn.open) {
       appState.conn.close();
@@ -271,5 +342,5 @@ function endCurrent(skipQueueCleanup = false) {
 
 // Küçük UX iyileştirmeleri
 msgInput.addEventListener("input", () => {
-  sendBtn.disabled = !msgInput.value.trim() || !appState.conn;
+  sendBtn.disabled = !msgInput.value.trim() || (!appState.conn && !appState.ai);
 });

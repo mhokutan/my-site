@@ -4,12 +4,24 @@ Rastgele eşleşme ile tek seferlik, P2P (WebRTC) metin sohbeti. **Tamamen istem
 ## Nasıl Çalışır?
 - **Eşleştirme**: Firebase Realtime Database üzerinde tek slotluk basit bir kuyruk (`/queue`). İlk kullanıcı kuyruğa yazılır, ikinci geldiğinde eşleştirir ve kuyruğu temizler.
 - **Sohbet**: PeerJS ile WebRTC **DataChannel** üzerinden doğrudan eşler arası (P2P) metin aktarımı. Mesajlar sunucuda saklanmaz.
+- **Yapay Zeka Yedeği**: 5 saniye içinde başka bir kullanıcı bulunamazsa OpenAI API'si aracılığıyla basit bir yapay zeka eşleşmesi yapılır.
 
 ## Kurulum
 1. Firebase projesi oluştur: https://console.firebase.google.com  
 2. Realtime Database -> **Start in test mode** (deneme içindir).  
-3. `app.js` içindeki `firebaseConfig` alanını kendi proje ayarlarınla doldur.  
+3. `app.js` içindeki `firebaseConfig` alanını kendi proje ayarlarınla doldur.
 4. `index.html`, `styles.css`, `app.js` dosyalarını GitHub Pages/Netlify ile yayınla.
+
+### Yapay Zeka Kullanımı
+Tarayıcıda yapay zekanın çalışabilmesi için bir OpenAI API anahtarına ihtiyaç vardır. Geçici olarak anahtarı konsoldan tanımlayabilirsin:
+
+```html
+<script>
+  window.OPENAI_API_KEY = "YOUR_KEY_HERE";
+</script>
+```
+
+Anahtar tanımlanmazsa yapay zeka modu çalışmaz.
 
 > Not: Test modunda veritabanı herkese açık olabilir. Üretimde güvenlik kurallarını kısıtla.
 
