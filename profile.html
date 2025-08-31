@@ -9,6 +9,7 @@
   <main class="container">
     <section class="card">
       <h1>Profil</h1>
+      <img id="avatar" class="avatar" alt="Profil resmi" />
       <form id="profileForm">
         <div class="row">
           <label for="firstName">Ad</label>
@@ -66,6 +67,16 @@
   document.getElementById('email').value = data.email || '';
   document.getElementById('phone').value = data.phone || '';
   document.getElementById('nickname').value = getOrCreateNickname();
+
+  const avatar = document.getElementById('avatar');
+  function updateAvatar() {
+    const g = document.getElementById('gender').value;
+    if (g === 'female') avatar.src = 'img/avatar-female.svg';
+    else if (g === 'male') avatar.src = 'img/avatar-male.svg';
+    else avatar.src = 'img/avatar-neutral.svg';
+  }
+  updateAvatar();
+  document.getElementById('gender').addEventListener('change', updateAvatar);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
