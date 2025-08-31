@@ -13,8 +13,9 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;cursor:pointer}
+    .list li{padding:4px 6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
     .list li.active{background:#1b1b1b}
+    .deleteBtn{background:none;border:none;color:#f55;cursor:pointer;font-size:12px}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -64,7 +65,12 @@
   </div>
 
   <div class="layout">
-    <aside class="pane"><div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularList" class="list"></ul></aside>
+    <aside class="pane">
+      <div class="pane-title">🔝 Popüler Kanallar</div>
+      <ul id="popularList" class="list"></ul>
+      <div class="pane-title">👤 Benim Kanallarım</div>
+      <ul id="myList" class="list"></ul>
+    </aside>
     <main class="center">
       <div id="topic" class="topic">#genel — 0 kişi</div>
       <div id="messages" class="messages"></div>
@@ -81,6 +87,9 @@ let usersInRoom=[];
 let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));
 localStorage.setItem("anonName",anonName);
 
+// kişisel kanallar
+let myChannels=JSON.parse(localStorage.getItem("myChannels")||"[]");
+
 // renkler
 const nickColors=["#4fc3f7","#a5d6a7","#ffcc80","#f48fb1","#ce93d8","#80cbc4","#e6ee9c"];
 let colorMap={};
@@ -95,7 +104,7 @@ const popularListEl=document.getElementById("popularList"),
       form=document.getElementById("form"),
       input=document.getElementById("input");
 
-// mobil menü elemanları
+// mobil menü el
 const popularListMobile=document.getElementById("popularListMobile"),
       myListMobile=document.getElementById("myListMobile"),
       userListMobile=document.getElementById("userListMobile");
@@ -113,6 +122,26 @@ function renderPopular(stats){
     li2.onclick=()=>{switchChannel(obj.channel);toggleMobileMenu(false)};
     popularListEl.appendChild(li);
     popularListMobile.appendChild(li2);
+  });
+}
+function renderMyChannels(){
+  myListEl.innerHTML="";
+  myListMobile.innerHTML="";
+  myChannels.forEach(ch=>{
+    let li=document.createElement("li");
+    let span=document.createElement("span");span.textContent=ch;
+    if(ch===currentChannel)li.classList.add("active");
+    span.onclick=()=>switchChannel(ch);
+    let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";
+    del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};
+    li.appendChild(span);li.appendChild(del);
+
+    let li2=li.cloneNode(true);
+    li2.querySelector("span").onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
+    li2.querySelector("button").onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);toggleMobileMenu(false);};
+
+    myListEl.appendChild(li);
+    myListMobile.appendChild(li2);
   });
 }
 function renderUsers(list){
@@ -140,8 +169,7 @@ function addMessage(from,text,cls){
   messagesByChannel[currentChannel].push({from,text,cls});
   let row=document.createElement("div");
   row.className="message "+cls;
-  let time=document.createElement("span");
-  time.className="time";time.textContent=`[${formatTime()}]`;
+  let time=document.createElement("span");time.className="time";time.textContent=`[${formatTime()}]`;
   let nick=document.createElement("span");
   nick.className="nick";nick.style.color=getNickColor(from);nick.textContent=from+":";
   row.appendChild(time);row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));
@@ -177,6 +205,21 @@ function switchChannel(ch){
   }
 }
 
+// kanal ekle/sil
+function addMyChannel(ch){
+  if(!ch.startsWith("#"))ch="#"+ch;
+  if(!myChannels.includes(ch)){
+    myChannels.push(ch);
+    localStorage.setItem("myChannels",JSON.stringify(myChannels));
+    renderMyChannels();
+  }
+}
+function removeMyChannel(ch){
+  myChannels=myChannels.filter(c=>c!==ch);
+  localStorage.setItem("myChannels",JSON.stringify(myChannels));
+  renderMyChannels();
+}
+
 // events
 form.onsubmit=e=>{
   e.preventDefault();
@@ -194,6 +237,7 @@ function toggleMobileMenu(force){
 }
 
 // başlat
+renderMyChannels();
 switchChannel(currentChannel);
 connectWS();
 </script>
