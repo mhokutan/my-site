@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Buton Örneği</title>
+  <style>
+    .button-group {
+      margin: 10px 0;
+    }
+    button {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sohbet Ekranı</h1>
+  <div id="chat-area">
+    <!-- Buraya sohbet mesajları gelecektir -->
+  </div>
+
+  <div class="button-group">
+    <button id="btnChange">Değiştir</button>
+    <button id="btnSkip">Geç</button>
+  </div>
+
+  <script>
+    const chatArea = document.getElementById('chat-area');
+    const btnChange = document.getElementById('btnChange');
+    const btnSkip = document.getElementById('btnSkip');
+
+    btnChange.addEventListener('click', () => {
+      chatArea.innerHTML += '<p>Değiştir butonuna basıldı!</p>';
+    });
+
+    btnSkip.addEventListener('click', () => {
+      chatArea.innerHTML += '<p>Geç butonuna basıldı!</p>';
+    });
+  </script>
+</body>
+</html>

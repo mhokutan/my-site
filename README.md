@@ -66,3 +66,6 @@ Google ile kimlik doğrulaması için `.env` dosyasındaki `GOOGLE_CLIENT_ID` ve
 - Bu repo içeriğini GitHub'a gönder.
 - Settings → Pages → Source: Deploy from branch → `main` + `/ (root)`.
 - 1–2 dk sonra site adresin: `https://kullaniciadiniz.github.io/repo-adiniz/`
+
+## Buton Örneği
+`button-demo.html` dosyası, "Değiştir" ve "Geç" butonlarının nasıl eklenebileceğini gösteren basit bir örnek içerir. Butonlara tıklayınca sohbet alanına bir mesaj eklenir.
