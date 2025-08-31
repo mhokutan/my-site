@@ -45,70 +45,22 @@ function addInfo(text) {
 }
 function clearMessages(){ messagesEl.innerHTML = ""; }
 
-/* ------------------ Demo Bot ------------------ */
-const BOT_DELAY_MIN = 600, BOT_DELAY_MAX = 1200;
-let botMsgCount = 0, botTimerEnd = null;
-
-const RESPONSES = {
-  "Genel Sohbet": [
-    "Merhaba! Günün nasıl geçiyor?",
-    "Hobilerin neler?",
-    "Bugün ilginç bir şey oldu mu?"
-  ],
-  "Teknoloji": [
-    "Son zamanlarda denediğin güzel bir uygulama var mı?",
-    "Yapay zekâ araçlarına ilgin var mı?",
-    "Hangi telefonu kullanıyorsun, memnun musun?"
-  ],
-  "Oyun": [
-    "Şu ara ne oynuyorsun?",
-    "Roguelike/indie oyunları seviyor musun?",
-    "En sevdiğin platform nedir?"
-  ],
-  "Spor": [
-    "Hangi takımı tutuyorsun?",
-    "Son maçları izledin mi?",
-    "Düzenli spor yapar mısın?"
-  ],
-  "Film & Dizi": [
-    "Son izlediğin film hangisiydi, önerir misin?",
-    "Dizi türünde favorin nedir?",
-    "Sinema mı, dijital platform mu?"
-  ],
-  "Müzik": [
-    "Ne tarz müzik dinlersin?",
-    "Favori sanatçın kim?",
-    "Son keşfettiğin şarkı nedir?"
-  ],
-  "Eğitim & Öğrenme": [
-    "Şu an hangi konuda kendini geliştiriyorsun?",
-    "Favori öğrenme kaynağın nedir?",
-    "Günlük çalışma rutinin var mı?"
-  ]
-};
-
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function randomDelay(){ return Math.floor(Math.random()*(BOT_DELAY_MAX-BOT_DELAY_MIN))+BOT_DELAY_MIN; }
-
-function botReply(userText) {
-  if (!currentCategory) return;
-  const pool = RESPONSES[currentCategory] || ["Devam edelim!"];
-  let text = pick(pool);
-
-  // ufak anahtar kelime varyasyonu
-  const kw = (userText||"").toLowerCase();
-  if (kw.includes("öner")) text += " Bir öneri de istersen söyleyebilirim.";
-  if (kw.includes("hangi")) text += " Sen ne önerirsin?";
-
+/* ------------------ OpenAI Backend ------------------ */
+async function botReplyWithAI(category, userText) {
   typingEl.hidden = false;
-  setTimeout(() => {
+  try {
+    const res = await fetch("https://chat-backend-xi60.onrender.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, message: userText })
+    });
+    const data = await res.json();
     typingEl.hidden = true;
-    addMessage("Bot", text, "bot");
-    botMsgCount++;
-    if (botMsgCount >= 25 || (botTimerEnd && Date.now() > botTimerEnd)) {
-      addInfo("Süper sohbetti! İstersen yeni bir kategori seçerek devam edebilirsin.");
-    }
-  }, randomDelay());
+    addMessage("AI", data.reply, "bot");
+  } catch (err) {
+    typingEl.hidden = true;
+    addMessage("AI", "Üzgünüm, cevap alınamadı.", "bot");
+  }
 }
 
 /* ------------------ Kategori seçimi ------------------ */
@@ -120,16 +72,8 @@ document.querySelectorAll("#categories li").forEach(li => {
 
     currentCategory = li.dataset.cat;
     clearMessages();
-    botMsgCount = 0;
-    botTimerEnd = Date.now() + 3*60*1000; // 3 dakika
-    statusEl.textContent = `Kategori: ${currentCategory} (Demo bot)`;
+    statusEl.textContent = `Kategori: ${currentCategory}`;
     addInfo(`${currentCategory} sohbetine bağlandın.`);
-
-    typingEl.hidden = false;
-    setTimeout(() => {
-      typingEl.hidden = true;
-      addMessage("Bot", "Merhaba! Küçük bir sohbet yapalım mı?", "bot");
-    }, 500);
   });
 });
 
@@ -141,5 +85,5 @@ form.addEventListener("submit", (e) => {
   if (!text) return;
   addMessage(nickname || "Ben", text, "me");
   input.value = "";
-  botReply(text);
+  botReplyWithAI(currentCategory, text);
 });
