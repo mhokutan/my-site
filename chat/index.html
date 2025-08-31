@@ -2,20 +2,54 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Hızlı Sohbet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kategori Sohbeti</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="login">
     <h2>Sohbete Katıl</h2>
-    <input id="nickname" placeholder="Takma ad" />
+    <input id="nickname" placeholder="Takma ad" maxlength="20" />
+    <select id="category">
+      <option value="genel">Genel Sohbet</option>
+      <option value="teknoloji">Teknoloji</option>
+      <option value="oyun">Oyun</option>
+      <option value="spor">Spor</option>
+    </select>
+    <div class="prefs">
+      <label>Tema:
+        <select id="themeSelect">
+          <option value="light">Açık</option>
+          <option value="dark">Koyu</option>
+        </select>
+      </label>
+      <label>Arka plan:
+        <input type="color" id="bgPicker" />
+      </label>
+    </div>
     <button id="joinBtn">Katıl</button>
   </div>
+
   <div id="chat" class="hidden">
+    <div id="infoBar">
+      <span id="peerStatus"></span>
+      <span id="typing" class="muted"></span>
+    </div>
     <div id="messages"></div>
-    <input id="msgInput" autocomplete="off" placeholder="Mesaj yaz..." />
-    <button id="sendBtn">Gönder</button>
+    <div id="compose">
+      <input id="msgInput" autocomplete="off" placeholder="Mesaj yaz..." />
+      <label class="ephemeral"><input type="checkbox" id="ephemeral" />30sn'de sil</label>
+      <button id="sendBtn">Gönder</button>
+    </div>
+    <div id="actions">
+      <button id="editBtn">Düzenle</button>
+      <button id="deleteBtn">Sil</button>
+      <button id="reactBtn">👍</button>
+      <button id="pollBtn">Anket</button>
+      <button id="rpsBtn">Taş-Kağıt-Makas</button>
+    </div>
   </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
