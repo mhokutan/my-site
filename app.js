@@ -55,6 +55,7 @@ const messagesEl = $("#messages");
 const roomChip = $("#roomChip");
 const peerInfo = $("#peerInfo");
 const themeToggle = $("#themeToggle");
+let nextBtnTimer = null;
 
 function setStatus(t) {
   statusEl.textContent = t;
@@ -74,6 +75,16 @@ function setConnectedUI(connected) {
 }
 function sanitize(text) {
   return text.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+}
+
+function scheduleNextButton() {
+  nextBtn.classList.add("hidden");
+  nextBtn.disabled = true;
+  if (nextBtnTimer) clearTimeout(nextBtnTimer);
+  nextBtnTimer = setTimeout(() => {
+    nextBtn.classList.remove("hidden");
+    nextBtn.disabled = false;
+  }, 30000);
 }
 
 // Tema
@@ -233,6 +244,7 @@ function connectToAI() {
   roomChip.textContent = "AI";
   peerInfo.textContent = "OpenAI";
   setConnectedUI(true);
+  scheduleNextButton();
   addMsg("Sistem: Yapay zeka bağlandı.", "sys");
 }
 
@@ -271,6 +283,7 @@ function bindConnection(conn, initiator) {
     peerInfo.textContent = `Karşı: ${conn.peer}`;
 
     setConnectedUI(true);
+    scheduleNextButton();
     addMsg("Sistem: Karşı taraf bağlandı.", "sys");
 
     // Selam mesajı (gönüllü)
@@ -305,6 +318,9 @@ function bindConnection(conn, initiator) {
 // ---- 7) Bitir / Sıradaki ----
 function endCurrent(skipQueueCleanup = false) {
   if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
+  if (nextBtnTimer) clearTimeout(nextBtnTimer);
+  nextBtn.classList.add("hidden");
+  nextBtn.disabled = true;
   if (appState.ai) {
     appState.ai = false;
     appState.aiHistory = [];
