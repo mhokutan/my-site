@@ -7,7 +7,7 @@
   <style>
     body{margin:0;font-family:"Courier New",monospace;background:#000;color:#eee}
     .menubar{display:flex;justify-content:space-between;align-items:center;background:#111;padding:6px;border-bottom:1px solid #333}
-    .menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer}
+    .menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer;margin-right:4px}
     .layout{display:grid;grid-template-columns:240px 1fr 200px;height:calc(100vh - 38px)}
     .pane{background:#111;border-right:1px solid #333;display:flex;flex-direction:column}
     .pane-right{border-left:1px solid #333}
@@ -29,8 +29,8 @@
 
     /* ---- Mobil uyum ---- */
     @media(max-width:768px){
-      .layout{grid-template-columns:1fr} /* sadece merkez */
-      .pane, .pane-right{display:none} /* yan paneller gizle */
+      .layout{grid-template-columns:1fr}
+      .pane, .pane-right{display:none}
       .menubar .mobile-toggle{display:inline-block}
     }
     @media(min-width:769px){
@@ -45,12 +45,22 @@
     }
     #mobileMenu.open{left:0}
     #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
+
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
+    .modal.open{display:flex}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
+    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-actions{display:flex;gap:8px;margin-top:6px}
   </style>
 </head>
 <body>
   <div class="menubar">
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
-    <div>/irc-web</div>
+    <div>
+      <button id="btnProfile">Profil</button>
+      <button id="btnAddChannel">+ Kanal</button>
+    </div>
   </div>
 
   <!-- Mobil yan menü -->
@@ -66,17 +76,45 @@
 
   <div class="layout">
     <aside class="pane">
-      <div class="pane-title">🔝 Popüler Kanallar</div>
-      <ul id="popularList" class="list"></ul>
-      <div class="pane-title">👤 Benim Kanallarım</div>
-      <ul id="myList" class="list"></ul>
+      <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularList" class="list"></ul>
+      <div class="pane-title">👤 Benim Kanallarım</div><ul id="myList" class="list"></ul>
     </aside>
     <main class="center">
       <div id="topic" class="topic">#genel — 0 kişi</div>
       <div id="messages" class="messages"></div>
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
-    <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
+    <aside class="pane pane-right">
+      <div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul>
+    </aside>
+  </div>
+
+  <!-- Kanal Ekle Modal -->
+  <div id="addChannelModal" class="modal">
+    <div class="modal-content">
+      <h3>Yeni Kanal</h3>
+      <input id="newChannelInput" placeholder="#kanal-adi"/>
+      <div class="modal-actions">
+        <button id="confirmAddChannel">Ekle</button>
+        <button id="cancelAddChannel">İptal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profil Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <h3>Profil (Opsiyonel)</h3>
+      <label>İsim</label><input id="firstName"/>
+      <label>Soyisim</label><input id="lastName"/>
+      <label>Email</label><input id="email"/>
+      <label>Ülke</label><input id="country"/>
+      <label>Şehir</label><input id="city"/>
+      <div class="modal-actions">
+        <button id="saveProfile">Kaydet</button>
+        <button id="skipProfile">Anonim</button>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -87,13 +125,12 @@ let usersInRoom=[];
 let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));
 localStorage.setItem("anonName",anonName);
 
-// kişisel kanallar
+// benim kanallarım
 let myChannels=JSON.parse(localStorage.getItem("myChannels")||"[]");
 
 // renkler
 const nickColors=["#4fc3f7","#a5d6a7","#ffcc80","#f48fb1","#ce93d8","#80cbc4","#e6ee9c"];
-let colorMap={};
-function getNickColor(nick){if(!colorMap[nick]){colorMap[nick]=nickColors[Object.keys(colorMap).length%nickColors.length];}return colorMap[nick];}
+let colorMap={};function getNickColor(nick){if(!colorMap[nick]){colorMap[nick]=nickColors[Object.keys(colorMap).length%nickColors.length];}return colorMap[nick];}
 
 // html
 const popularListEl=document.getElementById("popularList"),
@@ -104,63 +141,57 @@ const popularListEl=document.getElementById("popularList"),
       form=document.getElementById("form"),
       input=document.getElementById("input");
 
-// mobil menü el
 const popularListMobile=document.getElementById("popularListMobile"),
       myListMobile=document.getElementById("myListMobile"),
       userListMobile=document.getElementById("userListMobile");
 
 // render
 function renderPopular(stats){
-  popularListEl.innerHTML="";
-  popularListMobile.innerHTML="";
+  popularListEl.innerHTML="";popularListMobile.innerHTML="";
   stats.sort((a,b)=>b.count-a.count).slice(0,5).forEach(obj=>{
-    let li=document.createElement("li");
-    li.textContent=`${obj.channel} (${obj.count})`;
-    if(obj.channel===currentChannel)li.classList.add("active");
-    li.onclick=()=>{switchChannel(obj.channel);toggleMobileMenu(false)};
-    let li2=li.cloneNode(true);
-    li2.onclick=()=>{switchChannel(obj.channel);toggleMobileMenu(false)};
-    popularListEl.appendChild(li);
-    popularListMobile.appendChild(li2);
+    let li=createChannelLi(obj.channel,obj.count);
+    let liM=createChannelLi(obj.channel,obj.count);
+    popularListEl.appendChild(li);popularListMobile.appendChild(liM);
   });
 }
 function renderMyChannels(){
-  myListEl.innerHTML="";
-  myListMobile.innerHTML="";
+  myListEl.innerHTML="";myListMobile.innerHTML="";
   myChannels.forEach(ch=>{
-    let li=document.createElement("li");
-    let span=document.createElement("span");span.textContent=ch;
-    if(ch===currentChannel)li.classList.add("active");
-    span.onclick=()=>switchChannel(ch);
-    let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";
-    del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};
-    li.appendChild(span);li.appendChild(del);
-
-    let li2=li.cloneNode(true);
-    li2.querySelector("span").onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
-    li2.querySelector("button").onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);toggleMobileMenu(false);};
-
-    myListEl.appendChild(li);
-    myListMobile.appendChild(li2);
+    let li=createMyChannelLi(ch);let liM=createMyChannelLi(ch);
+    myListEl.appendChild(li);myListMobile.appendChild(liM);
   });
 }
 function renderUsers(list){
   usersInRoom=list||[];
-  userListEl.innerHTML="";
-  userListMobile.innerHTML="";
+  userListEl.innerHTML="";userListMobile.innerHTML="";
   (list||[]).forEach(n=>{
     let li=document.createElement("li");
     li.textContent=n;li.style.color=getNickColor(n);
-    userListEl.appendChild(li);
-    userListMobile.appendChild(li.cloneNode(true));
+    userListEl.appendChild(li);userListMobile.appendChild(li.cloneNode(true));
   });
-  let ai=document.createElement("li");
-  ai.textContent="AI";ai.style.color="#ffcc00";
-  userListEl.appendChild(ai);
-  userListMobile.appendChild(ai.cloneNode(true));
+  let ai=document.createElement("li");ai.textContent="AI";ai.style.color="#ffcc00";
+  userListEl.appendChild(ai);userListMobile.appendChild(ai.cloneNode(true));
   updateTopic();
 }
 function updateTopic(){topicEl.textContent=`${currentChannel} — ${usersInRoom.length} kişi`;}
+
+// yardımcı render
+function createChannelLi(ch,count){
+  let li=document.createElement("li");
+  li.textContent=`${ch} (${count})`;
+  if(ch===currentChannel)li.classList.add("active");
+  li.onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
+  return li;
+}
+function createMyChannelLi(ch){
+  let li=document.createElement("li");
+  let span=document.createElement("span");span.textContent=ch;span.onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
+  if(ch===currentChannel)li.classList.add("active");
+  let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";
+  del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};
+  li.appendChild(span);li.appendChild(del);
+  return li;
+}
 
 // mesaj
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
@@ -169,7 +200,8 @@ function addMessage(from,text,cls){
   messagesByChannel[currentChannel].push({from,text,cls});
   let row=document.createElement("div");
   row.className="message "+cls;
-  let time=document.createElement("span");time.className="time";time.textContent=`[${formatTime()}]`;
+  let time=document.createElement("span");
+  time.className="time";time.textContent=`[${formatTime()}]`;
   let nick=document.createElement("span");
   nick.className="nick";nick.style.color=getNickColor(from);nick.textContent=from+":";
   row.appendChild(time);row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));
@@ -220,6 +252,21 @@ function removeMyChannel(ch){
   renderMyChannels();
 }
 
+// profil
+document.getElementById("btnProfile").onclick=()=>profileModal.classList.add("open");
+document.getElementById("saveProfile").onclick=()=>{
+  const profile={
+    first:document.getElementById("firstName").value,
+    last:document.getElementById("lastName").value,
+    email:document.getElementById("email").value,
+    country:document.getElementById("country").value,
+    city:document.getElementById("city").value
+  };
+  localStorage.setItem("profile",JSON.stringify(profile));
+  profileModal.classList.remove("open");
+};
+document.getElementById("skipProfile").onclick=()=>profileModal.classList.remove("open");
+
 // events
 form.onsubmit=e=>{
   e.preventDefault();
@@ -229,7 +276,11 @@ form.onsubmit=e=>{
   input.value="";
   if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));
 };
+document.getElementById("btnAddChannel").onclick=()=>document.getElementById("addChannelModal").classList.add("open");
+document.getElementById("confirmAddChannel").onclick=()=>{let ch=document.getElementById("newChannelInput").value.trim();if(ch)addMyChannel(ch);document.getElementById("newChannelInput").value="";document.getElementById("addChannelModal").classList.remove("open");}
+document.getElementById("cancelAddChannel").onclick=()=>document.getElementById("addChannelModal").classList.remove("open");
 
+// mobil menü toggle
 function toggleMobileMenu(force){
   const el=document.getElementById("mobileMenu");
   if(force===false){el.classList.remove("open");return;}
