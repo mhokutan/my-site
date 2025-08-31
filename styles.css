@@ -44,6 +44,8 @@ body {
 }
 .site-footer { border-top: 1px solid var(--border); border-bottom: none; justify-content: center; }
 
+.header-buttons { display: flex; gap: 8px; }
+
 .brand { font-weight: 800; letter-spacing: 0.2px; }
 .brand span { color: var(--accent); }
 
@@ -76,6 +78,8 @@ body {
 .row input:focus { border-color: var(--accent); }
 
 .actions { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+
+.extraActions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 
 button {
   border: none;

@@ -10,7 +10,10 @@
 <body>
   <header class="site-header">
     <div class="brand">One‑Time <span>Chat</span></div>
-    <button id="themeToggle" aria-label="Tema değiştir">🌓</button>
+    <div class="header-buttons">
+      <button id="profileBtn" class="ghost">Profil</button>
+      <button id="themeToggle" aria-label="Tema değiştir">🌓</button>
+    </div>
   </header>
 
   <main class="container">
@@ -56,6 +59,12 @@
         <input id="messageInput" type="text" placeholder="Mesaj yaz..." autocomplete="off" maxlength="500" />
         <button id="sendBtn" class="primary" type="submit" disabled>Gönder</button>
       </form>
+      <div class="extraActions">
+        <button id="likeBtn" class="ghost" disabled>Beğendim</button>
+        <button id="dislikeBtn" class="ghost" disabled>Beğenmedim</button>
+        <button id="changeBtn" class="ghost" disabled>Değiştir</button>
+        <button id="skipBtn" class="ghost" disabled>Geç</button>
+      </div>
     </section>
   </main>
 
