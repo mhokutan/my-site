@@ -3,71 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hızlı Sohbet</title>
+  <title>Anonim Sohbet</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Profil modal (ilk adım) -->
-  <div id="profileModal" class="modal">
-    <div class="modal-content">
-      <h2>Profil Oluştur</h2>
-
-      <label>Cinsiyet</label>
-      <select id="gender">
-        <option value="">Seçiniz</option>
-        <option>Erkek</option>
-        <option>Kadın</option>
-        <option>Diğer</option>
-      </select>
-
-      <label>İsim</label><input id="firstName" />
-      <label>Soyisim</label><input id="lastName" />
-      <label>Email</label><input id="email" type="email" />
-      <label>Telefon</label><input id="phone" type="tel" />
-
-      <label>Ülke</label>
-      <select id="countrySelect">
-        <option value="">Seçiniz</option>
-        <option>Türkiye</option>
-        <option>ABD</option>
-        <option>Almanya</option>
-        <option>İngiltere</option>
-        <option>Fransa</option>
-      </select>
-
-      <label>Şehir</label>
-      <select id="citySelect"><option value="">Önce ülke seçiniz</option></select>
-
-      <label>Doğum Tarihi</label><input id="birthDate" type="date" />
-
-      <button id="saveProfile">Kaydet</button>
-    </div>
+  <!-- Menü Bar -->
+  <div class="menubar">
+    <button onclick="openProfile()">Profil</button>
+    <button onclick="openCategory()">Kategori Değiştir</button>
+    <button onclick="resetProfile()">Çıkış</button>
   </div>
 
-  <!-- Kategori modal (ikinci adım) -->
-  <div id="categoryModal" class="modal">
-    <div class="modal-content">
-      <h2>Sohbet Kategorisi</h2>
-      <label>Kategori Seç</label>
-      <select id="categorySelect">
-        <option>Genel Sohbet</option>
-        <option>Teknoloji</option>
-        <option>Oyun</option>
-        <option>Spor</option>
-        <option>Film & Dizi</option>
-        <option>Müzik</option>
-        <option>Eğitim & Öğrenme</option>
-      </select>
-      <button id="startChat">Sohbete Başla</button>
-    </div>
-  </div>
-
-  <!-- Sohbet ekranı (üçüncü adım) -->
-  <div class="container" id="chatContainer" style="display:none">
+  <!-- Ana Sohbet Arayüzü -->
+  <div class="container" id="chatContainer">
     <aside class="sidebar">
-      <h3>Profil</h3>
-      <p id="anonName"></p>
-      <button id="resetProfileBtn">Profili Değiştir</button>
+      <h3>Kullanıcılar</h3>
+      <ul id="userList">
+        <!-- kullanıcı listesi burada -->
+      </ul>
     </aside>
     <main class="chat">
       <div id="status" class="status"></div>
@@ -78,6 +31,44 @@
         <button type="submit">Gönder</button>
       </form>
     </main>
+  </div>
+
+  <!-- Profil Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <h2>Profil (Opsiyonel)</h2>
+      <label>İsim</label><input id="firstName" />
+      <label>Soyisim</label><input id="lastName" />
+      <label>Email</label><input id="email" type="email" />
+      <label>Ülke</label>
+      <select id="countrySelect">
+        <option value="">Seçiniz</option>
+        <option>Türkiye</option>
+        <option>ABD</option>
+        <option>Almanya</option>
+        <option>İngiltere</option>
+      </select>
+      <label>Şehir</label>
+      <select id="citySelect"><option value="">Önce ülke seçiniz</option></select>
+      <button id="saveProfile">Kaydet</button>
+      <button id="skipProfile">Anonim Devam Et</button>
+    </div>
+  </div>
+
+  <!-- Kategori Modal -->
+  <div id="categoryModal" class="modal">
+    <div class="modal-content">
+      <h2>Sohbet Kategorisi</h2>
+      <select id="categorySelect">
+        <option>Genel Sohbet</option>
+        <option>Teknoloji</option>
+        <option>Oyun</option>
+        <option>Spor</option>
+        <option>Film & Dizi</option>
+        <option>Müzik</option>
+      </select>
+      <button id="startChat">Sohbete Başla</button>
+    </div>
   </div>
 
   <script src="app.js" defer></script>
