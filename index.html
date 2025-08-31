@@ -3,8 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Anonim Sohbet</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>mIRC Tarzı Anonim Sohbet</title>
+  <style>
+    body {
+      margin:0;
+      font-family:"Courier New",monospace;
+      background:#000;
+      color:#eee;
+    }
+    .menubar {
+      background:#111;
+      padding:4px;
+      display:flex;
+      gap:8px;
+      border-bottom:1px solid #333;
+    }
+    .menubar button {
+      background:#222;
+      border:1px solid #444;
+      color:#eee;
+      padding:4px 8px;
+      cursor:pointer;
+    }
+    .menubar button:hover { background:#333; }
+
+    .container { display:flex; height:calc(100vh - 30px); }
+    .sidebar {
+      width:180px;
+      background:#111;
+      border-right:1px solid #333;
+      padding:8px;
+      color:#ccc;
+    }
+    .sidebar h3 { margin:0 0 8px; font-size:14px; color:#aaa; }
+    .sidebar ul { list-style:none; padding:0; margin:0; font-size:13px; }
+    .sidebar li { padding:3px 0; }
+
+    .chat { flex:1; display:flex; flex-direction:column; }
+    .status {
+      background:#111;
+      padding:6px;
+      text-align:center;
+      font-weight:bold;
+      border-bottom:1px solid #333;
+      color:#ccc;
+    }
+    .messages {
+      flex:1; padding:8px; overflow:auto; background:#000; font-size:13px;
+    }
+    .message { margin:4px 0; }
+    .message.me { color:#4FC3F7; }     /* mavi */
+    .message.bot { color:#A5D6A7; }    /* yeşil */
+    .info { color:#888; font-style:italic; text-align:center; }
+
+    .form { display:flex; border-top:1px solid #333; background:#111; }
+    .form input {
+      flex:1; padding:6px; border:none;
+      background:#000; color:#eee;
+      font-family:inherit; font-size:13px;
+    }
+    .form button {
+      background:#222; border:none;
+      padding:6px 12px; cursor:pointer; color:#eee;
+    }
+    .form button:hover { background:#333; }
+
+    /* Modal */
+    .modal {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.8);
+      display:none; align-items:center; justify-content:center;
+      z-index:10;
+    }
+    .modal.open { display:flex; }
+    .modal-content {
+      background:#111; padding:16px;
+      border:1px solid #444;
+      display:grid; gap:6px; min-width:280px;
+      color:#eee;
+    }
+    .modal-content input,
+    .modal-content select {
+      background:#000; border:1px solid #444;
+      color:#eee; padding:4px;
+    }
+    .modal-content button {
+      background:#222; border:1px solid #444;
+      color:#eee; padding:6px; cursor:pointer;
+    }
+    .modal-content button:hover { background:#333; }
+  </style>
 </head>
 <body>
   <!-- Menü Bar -->
@@ -18,9 +106,7 @@
   <div class="container" id="chatContainer">
     <aside class="sidebar">
       <h3>Kullanıcılar</h3>
-      <ul id="userList">
-        <!-- kullanıcı listesi burada -->
-      </ul>
+      <ul id="userList"></ul>
     </aside>
     <main class="chat">
       <div id="status" class="status"></div>
@@ -43,10 +129,8 @@
       <label>Ülke</label>
       <select id="countrySelect">
         <option value="">Seçiniz</option>
-        <option>Türkiye</option>
-        <option>ABD</option>
-        <option>Almanya</option>
-        <option>İngiltere</option>
+        <option>Türkiye</option><option>ABD</option>
+        <option>Almanya</option><option>İngiltere</option>
       </select>
       <label>Şehir</label>
       <select id="citySelect"><option value="">Önce ülke seçiniz</option></select>
@@ -71,6 +155,150 @@
     </div>
   </div>
 
-  <script src="app.js" defer></script>
+  <script>
+    const cities = {
+      "Türkiye": ["İstanbul","Ankara","İzmir"],
+      "ABD": ["New York","Los Angeles","Chicago"],
+      "Almanya": ["Berlin","Münih","Hamburg"],
+      "İngiltere": ["Londra","Manchester","Birmingham"]
+    };
+
+    let profile = JSON.parse(localStorage.getItem("profile")) || null;
+    let anonName = localStorage.getItem("anonName") || null;
+    let currentCategory = null;
+
+    const profileModal = document.getElementById("profileModal");
+    const categoryModal = document.getElementById("categoryModal");
+    const chatContainer = document.getElementById("chatContainer");
+
+    const messagesEl = document.getElementById("messages");
+    const typingEl = document.getElementById("typing");
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const statusEl = document.getElementById("status");
+    const userListEl = document.getElementById("userList");
+
+    function openModal(el){el.classList.add("open");}
+    function closeModal(el){el.classList.remove("open");}
+    function randomAnonName(){
+      const animals=["Tiger","Fox","Panda","Eagle","Shark","Lion"];
+      const colors=["Blue","Red","Green","Black","White","Golden"];
+      return colors[Math.floor(Math.random()*colors.length)] + animals[Math.floor(Math.random()*animals.length)] + Math.floor(Math.random()*1000);
+    }
+
+    /* Ülke/Şehir */
+    document.getElementById("countrySelect").addEventListener("change", e=>{
+      const c=e.target.value;
+      const cityEl=document.getElementById("citySelect");
+      cityEl.innerHTML='<option value="">Seçiniz</option>';
+      if(c && cities[c]){
+        cities[c].forEach(ct=>{
+          const opt=document.createElement("option");
+          opt.value=ct; opt.textContent=ct;
+          cityEl.appendChild(opt);
+        });
+      }
+    });
+
+    /* Profil Kaydet */
+    document.getElementById("saveProfile").addEventListener("click", ()=>{
+      profile={
+        firstName:document.getElementById("firstName").value,
+        lastName:document.getElementById("lastName").value,
+        email:document.getElementById("email").value,
+        country:document.getElementById("countrySelect").value,
+        city:document.getElementById("citySelect").value
+      };
+      localStorage.setItem("profile",JSON.stringify(profile));
+      if(!anonName){anonName=randomAnonName();localStorage.setItem("anonName",anonName);}
+      closeModal(profileModal); openModal(categoryModal);
+    });
+
+    /* Anonim devam et */
+    document.getElementById("skipProfile").addEventListener("click", ()=>{
+      profile=null;
+      if(!anonName){anonName=randomAnonName();localStorage.setItem("anonName",anonName);}
+      closeModal(profileModal); openModal(categoryModal);
+    });
+
+    /* Kategori seç */
+    document.getElementById("startChat").addEventListener("click", ()=>{
+      currentCategory=document.getElementById("categorySelect").value;
+      closeModal(categoryModal);
+      chatContainer.style.display="flex";
+      const loc=profile?`${profile.country}/${profile.city}`:"Anonim";
+      statusEl.textContent=`${loc} - ${currentCategory}`;
+      addInfo(`${currentCategory} sohbetine bağlandın.`);
+      renderUserList();
+    });
+
+    function resetProfile(){
+      localStorage.clear();
+      location.reload();
+    }
+
+    /* Kullanıcı listesi */
+    function renderUserList(){
+      userListEl.innerHTML="";
+      const li=document.createElement("li");
+      li.textContent=anonName||"Ben";
+      li.style.color="#4FC3F7";
+      userListEl.appendChild(li);
+      const li2=document.createElement("li");
+      li2.textContent="AI";
+      li2.style.color="#A5D6A7";
+      userListEl.appendChild(li2);
+    }
+
+    /* Mesajlaşma */
+    function addMessage(from,text,cls=""){
+      const div=document.createElement("div");
+      div.className=`message ${cls}`;
+      div.textContent=`${from}: ${text}`;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop=messagesEl.scrollHeight;
+    }
+    function addInfo(text){
+      const div=document.createElement("div");
+      div.className="info";div.textContent=text;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop=messagesEl.scrollHeight;
+    }
+
+    /* AI fallback */
+    async function botReplyWithAI(category,userText){
+      typingEl.hidden=false;
+      try{
+        const res=await fetch("https://chat-backend-xi60.onrender.com/chat",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({category,message:userText})
+        });
+        const data=await res.json();
+        typingEl.hidden=true;
+        addMessage("AI",data.reply,"bot");
+      }catch(err){
+        typingEl.hidden=true;
+        addMessage("AI","⚠️ Sunucuya bağlanılamadı.","bot");
+      }
+    }
+
+    form.addEventListener("submit",e=>{
+      e.preventDefault();
+      if(!currentCategory) return;
+      const text=input.value.trim();
+      if(!text) return;
+      addMessage(anonName,text,"me");
+      input.value="";
+      botReplyWithAI(currentCategory,text);
+    });
+
+    /* Menü fonksiyonları */
+    function openProfile(){openModal(profileModal);}
+    function openCategory(){openModal(categoryModal);}
+
+    /* Başlat */
+    openModal(profileModal);
+  </script>
 </body>
 </html>
