@@ -73,57 +73,65 @@ const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let currentChannel="#genel";let messagesByChannel={};let usersInRoom=[];
 let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));localStorage.setItem("anonName",anonName);
 
-// Varsayılan popüler kanallar
-let popularChannels=["#genel","#teknoloji","#oyun","#spor","#müzik"];
-// Kullanıcıya ait kanallar localStorage'dan yüklenir
+// benim kanallarım
 let myChannels=JSON.parse(localStorage.getItem("myChannels")||"[]");
 
-// Renkler
+// renkler
 const nickColors=["#4fc3f7","#a5d6a7","#ffcc80","#f48fb1","#ce93d8","#80cbc4","#e6ee9c"];
 let colorMap={};function getNickColor(nick){if(!colorMap[nick]){colorMap[nick]=nickColors[Object.keys(colorMap).length%nickColors.length];}return colorMap[nick];}
 
-// HTML
+// html
 const popularListEl=document.getElementById("popularList"),myListEl=document.getElementById("myList"),userListEl=document.getElementById("userList"),messagesEl=document.getElementById("messages"),topicEl=document.getElementById("topic"),form=document.getElementById("form"),input=document.getElementById("input");
 
-// Render Fonksiyonları
-function renderLists(){
-  // popüler
-  popularListEl.innerHTML="";popularChannels.forEach(ch=>{
-    let li=document.createElement("li");li.textContent=ch;if(ch===currentChannel)li.classList.add("active");li.onclick=()=>switchChannel(ch);popularListEl.appendChild(li);
+// render
+function renderPopular(stats){
+  popularListEl.innerHTML="";
+  stats.sort((a,b)=>b.count-a.count).slice(0,5).forEach(obj=>{
+    let li=document.createElement("li");
+    li.textContent=`${obj.channel} (${obj.count})`;
+    if(obj.channel===currentChannel)li.classList.add("active");
+    li.onclick=()=>switchChannel(obj.channel);
+    popularListEl.appendChild(li);
   });
-  // benim kanallarım
-  myListEl.innerHTML="";myChannels.forEach(ch=>{
-    let li=document.createElement("li");let span=document.createElement("span");span.textContent=ch;li.appendChild(span);
-    if(ch===currentChannel)li.classList.add("active");span.onclick=()=>switchChannel(ch);
-    let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};li.appendChild(del);
+}
+function renderMyChannels(){
+  myListEl.innerHTML="";
+  myChannels.forEach(ch=>{
+    let li=document.createElement("li");
+    let span=document.createElement("span");span.textContent=ch;
+    if(ch===currentChannel)li.classList.add("active");
+    span.onclick=()=>switchChannel(ch);
+    let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";
+    del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};
+    li.appendChild(span);li.appendChild(del);
     myListEl.appendChild(li);
   });
 }
 function renderUsers(list){usersInRoom=list||[];userListEl.innerHTML="";(list||[]).forEach(n=>{let li=document.createElement("li");li.textContent=n;li.style.color=getNickColor(n);userListEl.appendChild(li);});let ai=document.createElement("li");ai.textContent="AI";ai.style.color="#ffcc00";userListEl.appendChild(ai);updateTopic();}
 function updateTopic(){topicEl.textContent=`${currentChannel} — ${usersInRoom.length} kişi`;}
 
-// Mesaj
+// mesaj
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
 function addMessage(from,text,cls){if(!messagesByChannel[currentChannel])messagesByChannel[currentChannel]=[];messagesByChannel[currentChannel].push({from,text,cls});let row=document.createElement("div");row.className="message "+cls;let time=document.createElement("span");time.className="time";time.textContent=`[${formatTime()}]`;let nick=document.createElement("span");nick.className="nick";nick.style.color=getNickColor(from);nick.textContent=from+":";row.appendChild(time);row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;}
 function addInfo(text){let div=document.createElement("div");div.className="info";div.textContent=text;messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;}
 
-// WS
-let ws;function connectWS(){ws=new WebSocket(WS_URL);ws.onopen=()=>{ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName}));};ws.onmessage=ev=>{let msg=JSON.parse(ev.data);if(msg.type==="info")addInfo(msg.message);else if(msg.type==="users")renderUsers(msg.users);else if(msg.type==="message")addMessage(msg.from,msg.text,"other");};}
+// ws
+let ws;function connectWS(){ws=new WebSocket(WS_URL);ws.onopen=()=>{ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName}));};ws.onmessage=ev=>{let msg=JSON.parse(ev.data);if(msg.type==="info")addInfo(msg.message);else if(msg.type==="users")renderUsers(msg.users);else if(msg.type==="message")addMessage(msg.from,msg.text,"other");else if(msg.type==="channels")renderPopular(msg.stats);};}
 function switchChannel(ch){currentChannel=ch;messagesEl.innerHTML="";addInfo(ch+" kanalına girdin.");if(ws&&ws.readyState===1){ws.send(JSON.stringify({type:"join",channel:ch,nick:anonName}));}}
 
-// Kanal Ekle/Sil
-function addMyChannel(ch){if(!ch.startsWith("#"))ch="#"+ch;if(!myChannels.includes(ch)){myChannels.push(ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderLists();}}
-function removeMyChannel(ch){myChannels=myChannels.filter(c=>c!==ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderLists();}
+// kanal ekle/sil
+function addMyChannel(ch){if(!ch.startsWith("#"))ch="#"+ch;if(!myChannels.includes(ch)){myChannels.push(ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderMyChannels();}}
+function removeMyChannel(ch){myChannels=myChannels.filter(c=>c!==ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderMyChannels();}
 
-// Eventler
+// events
 form.onsubmit=e=>{e.preventDefault();let text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));};
 document.getElementById("btnClear").onclick=()=>{localStorage.clear();location.reload();}
 document.getElementById("btnAddChannel").onclick=()=>document.getElementById("addChannelModal").style.display="flex";
 document.getElementById("confirmAddChannel").onclick=()=>{let ch=document.getElementById("newChannelInput").value.trim();if(ch)addMyChannel(ch);document.getElementById("newChannelInput").value="";document.getElementById("addChannelModal").style.display="none";}
 document.getElementById("cancelAddChannel").onclick=()=>document.getElementById("addChannelModal").style.display="none";
 
-// Başlat
-renderLists();switchChannel(currentChannel);connectWS();
+// başlat
+renderMyChannels();switchChannel(currentChannel);connectWS();
 </script>
 </body>
 </html>
