@@ -14,6 +14,22 @@ saveProfile.addEventListener("click", () => {
 
 let currentCategory = null;
 const messagesEl = document.getElementById("messages");
+const categoryEls = Array.from(document.querySelectorAll("#categories li"));
+
+const pending = [];
+
+function joinCategory(cat) {
+  const payload = JSON.stringify({
+    type: "join",
+    category: cat,
+    nickname,
+  });
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(payload);
+  } else {
+    pending.push(payload);
+  }
+}
 
 function addMessage(from, text) {
   const div = document.createElement("div");
@@ -35,6 +51,7 @@ function clearMessages() {
   messagesEl.innerHTML = "";
 }
 
+// ✅ Conflict çözümü: attachCategory fonksiyonu tanımlı ve her li için çağrılıyor
 function attachCategory(li) {
   li.addEventListener("click", () => {
     if (!nickname) {
@@ -43,17 +60,10 @@ function attachCategory(li) {
     }
     currentCategory = li.dataset.cat;
     clearMessages();
-    ws.send(
-      JSON.stringify({
-        type: "join",
-        category: currentCategory,
-        nickname,
-      })
-    );
+    joinCategory(currentCategory);
   });
 }
-
-document.querySelectorAll("#categories li").forEach(attachCategory);
+categoryEls.forEach(attachCategory);
 
 const categoriesEl = document.getElementById("categories");
 const customCategoryInput = document.getElementById("customCategory");
@@ -99,29 +109,18 @@ addCategoryBtn.addEventListener("click", () => {
   customCategoryInput.value = "";
 });
 
+ws.addEventListener("open", () => {
+  while (pending.length) ws.send(pending.shift());
+  if (!currentCategory && categoryEls.length) {
+    const random = categoryEls[Math.floor(Math.random() * categoryEls.length)];
+    currentCategory = random.dataset.cat;
+    clearMessages();
+    joinCategory(currentCategory);
+  }
+});
+
 ws.onmessage = (event) => {
   const msg = JSON.parse(event.data);
   if (msg.type === "info") {
     addInfo(msg.message);
-  } else if (msg.type === "message") {
-    addMessage(msg.from, msg.text);
-  }
-};
-
-const form = document.getElementById("form");
-const input = document.getElementById("input");
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (!currentCategory) return;
-  const text = input.value.trim();
-  if (!text) return;
-  addMessage(nickname, text);
-  ws.send(
-    JSON.stringify({
-      type: "message",
-      text,
-    })
-  );
-  input.value = "";
-});
-
+  } else if (msg.type
