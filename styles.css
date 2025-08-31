@@ -1,34 +1,18 @@
-/* ==== mIRC DARK THEME ==== */
 :root{
   --bg:#000; --panel:#111; --panel2:#0e0e0e;
   --border:#333; --text:#eee; --muted:#aaa;
   --brand:#4fc3f7; --me:#4fc3f7; --other:#a5d6a7; --info:#888;
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0;
-  font-family:"Courier New",monospace;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* Menubar */
-.menubar{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--border);
-}
-.menubar button{
-  background:#222;border:1px solid var(--border);color:var(--text);
-  padding:4px 10px;cursor:pointer
-}
+body{margin:0;font-family:"Courier New",monospace;background:var(--bg);color:var(--text)}
+.menubar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--border)}
+.menubar button{background:#222;border:1px solid var(--border);color:var(--text);padding:4px 10px;cursor:pointer}
 .menubar button:hover{background:#2a2a2a}
 .brand{color:var(--brand);opacity:.9}
 
-/* Layout */
 .layout{display:grid;grid-template-columns:220px 1fr 220px;grid-template-rows:calc(100vh - 38px)}
-.pane{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;min-width:0}
+.pane{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
 .pane-right{border-left:1px solid var(--border);border-right:none}
 .pane-title{padding:8px;font-weight:700;border-bottom:1px solid var(--border);color:var(--muted)}
 .list{list-style:none;margin:0;padding:6px 8px;overflow:auto}
@@ -44,30 +28,18 @@ body{
 .message.me{color:var(--me)}
 .message.other{color:var(--other)}
 .info{color:var(--info);font-style:italic;text-align:center;margin:6px 0}
-
 .typing{color:#bbb;padding:0 8px;margin:4px 0}
 
 .inputbar{display:flex;gap:8px;border-top:1px solid var(--border);background:var(--panel2);padding:8px}
-.inputbar input{
-  flex:1;background:#000;border:1px solid var(--border);
-  color:var(--text);padding:8px;font-family:inherit;font-size:13px;
-}
-.inputbar button{
-  background:#222;border:1px solid var(--border);color:var(--text);
-  padding:8px 12px;cursor:pointer
-}
+.inputbar input{flex:1;background:#000;border:1px solid var(--border);color:var(--text);padding:8px;font-family:inherit;font-size:13px}
+.inputbar button{background:#222;border:1px solid var(--border);color:var(--text);padding:8px 12px;cursor:pointer}
 .inputbar button:hover{background:#2a2a2a}
 
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:10}
 .modal.open{display:flex}
-.modal-content{
-  background:#111;border:1px solid var(--border);min-width:300px;max-width:92%;
-  display:grid;gap:8px;padding:14px
-}
-.modal-content input,.modal-content select{
-  background:#000;border:1px solid var(--border);color:var(--text);padding:6px
-}
+.modal-content{background:#111;border:1px solid var(--border);min-width:300px;max-width:92%;display:grid;gap:8px;padding:14px}
+.modal-content input,.modal-content select{background:#000;border:1px solid var(--border);color:var(--text);padding:6px}
 .modal-actions{display:flex;gap:8px;margin-top:6px}
 .modal-actions .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
 
