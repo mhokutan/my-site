@@ -22,7 +22,7 @@ body.noscroll{overflow:hidden}
 .form button{padding:10px 14px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
 .form button:hover{filter:brightness(.9)}
 
-/* Modals: varsayılan kapalı */
+/* Modals */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}
 .modal.open{display:flex}
 .modal-content{background:#fff;padding:18px;border-radius:8px;display:grid;gap:8px;min-width:280px;max-width:90%}
