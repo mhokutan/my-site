@@ -66,6 +66,16 @@ body {
 .intro h1 { margin: 0 0 8px; }
 .muted { color: var(--muted); }
 
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--chip);
+  display: block;
+  margin: 0 auto 16px;
+}
+
 .row { display: grid; gap: 6px; margin: 14px 0; }
 .row input {
   padding: 12px 14px;
