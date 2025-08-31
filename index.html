@@ -7,10 +7,11 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Profil modal -->
-  <div id="profileModal" class="modal">
+  <!-- Profil modal (ilk adım) -->
+  <div id="profileModal" class="modal" aria-modal="true" role="dialog">
     <div class="modal-content">
       <h2>Profil Oluştur</h2>
+
       <label>Cinsiyet</label>
       <select id="gender">
         <option value="">Seçiniz</option>
@@ -18,10 +19,12 @@
         <option>Kadın</option>
         <option>Diğer</option>
       </select>
+
       <label>İsim</label><input id="firstName" />
       <label>Soyisim</label><input id="lastName" />
       <label>Email</label><input id="email" type="email" />
       <label>Telefon</label><input id="phone" type="tel" />
+
       <label>Ülke</label>
       <select id="countrySelect">
         <option value="">Seçiniz</option>
@@ -31,15 +34,18 @@
         <option>İngiltere</option>
         <option>Fransa</option>
       </select>
+
       <label>Şehir</label>
       <select id="citySelect"><option value="">Önce ülke seçiniz</option></select>
+
       <label>Doğum Tarihi</label><input id="birthDate" type="date" />
+
       <button id="saveProfile">Kaydet</button>
     </div>
   </div>
 
-  <!-- Kategori modal -->
-  <div id="categoryModal" class="modal">
+  <!-- Kategori modal (ikinci adım) -->
+  <div id="categoryModal" class="modal" aria-modal="true" role="dialog">
     <div class="modal-content">
       <h2>Sohbet Kategorisi</h2>
       <label>Kategori Seç</label>
@@ -56,14 +62,14 @@
     </div>
   </div>
 
-  <!-- Sohbet ekranı -->
+  <!-- Sohbet ekranı (üçüncü adım) -->
   <div class="container" id="chatContainer" style="display:none">
     <aside class="sidebar">
       <h3>Profil</h3>
       <p id="anonName"></p>
-      <button onclick="resetProfile()">Profili Değiştir</button>
+      <button id="resetProfileBtn">Profili Değiştir</button>
     </aside>
-    <main class="chat">
+    <main class="chat" aria-live="polite">
       <div id="status" class="status"></div>
       <div id="messages" class="messages"></div>
       <div id="typing" class="typing" hidden>AI yazıyor…</div>
