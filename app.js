@@ -19,15 +19,8 @@ const profileModal   = document.getElementById("profileModal");
 const categoryModal  = document.getElementById("categoryModal");
 const chatContainer  = document.getElementById("chatContainer");
 
-const genderEl    = document.getElementById("gender");
-const firstEl     = document.getElementById("firstName");
-const lastEl      = document.getElementById("lastName");
-const emailEl     = document.getElementById("email");
-const phoneEl     = document.getElementById("phone");
 const countryEl   = document.getElementById("countrySelect");
 const cityEl      = document.getElementById("citySelect");
-const birthEl     = document.getElementById("birthDate");
-
 const saveProfileBtn   = document.getElementById("saveProfile");
 const startChatBtn     = document.getElementById("startChat");
 const resetProfileBtn  = document.getElementById("resetProfileBtn");
@@ -39,17 +32,11 @@ const form       = document.getElementById("form");
 const input      = document.getElementById("input");
 const anonNameEl = document.getElementById("anonName");
 
-/* ---------- Yardımcılar ---------- */
+/* ---------- Modal yardımcı ---------- */
 function openModal(el){ el.classList.add("open"); document.body.classList.add("noscroll"); }
 function closeModal(el){
   el.classList.remove("open");
-  // başka açık modal yoksa scroll serbest
   if(!document.querySelector(".modal.open")) document.body.classList.remove("noscroll");
-}
-function isProfileComplete(p){
-  if(!p) return false;
-  // zorunlu alanlar
-  return p.gender && p.firstName && p.lastName && p.email && p.country && p.city && p.birthDate;
 }
 function randomAnonName(){
   const animals=["Tiger","Fox","Panda","Eagle","Shark","Lion"];
@@ -57,10 +44,10 @@ function randomAnonName(){
   return colors[Math.floor(Math.random()*colors.length)] + animals[Math.floor(Math.random()*animals.length)] + Math.floor(Math.random()*1000);
 }
 
-/* ---------- Ülke/Şehir dinamiği ---------- */
+/* ---------- Ülke/Şehir ---------- */
 countryEl.addEventListener("change", e=>{
-  const c = e.target.value;
-  cityEl.innerHTML = '<option value="">Seçiniz</option>';
+  const c=e.target.value;
+  cityEl.innerHTML='<option value="">Seçiniz</option>';
   if(c && cities[c]){
     cities[c].forEach(ct=>{
       const opt=document.createElement("option");
@@ -73,53 +60,44 @@ countryEl.addEventListener("change", e=>{
 /* ---------- Profil Kaydet ---------- */
 saveProfileBtn.addEventListener("click", ()=>{
   const data={
-    gender:genderEl.value.trim(),
-    firstName:firstEl.value.trim(),
-    lastName:lastEl.value.trim(),
-    email:emailEl.value.trim(),
-    phone:phoneEl.value.trim(),
-    country:countryEl.value.trim(),
-    city:cityEl.value.trim(),
-    birthDate:birthEl.value
+    gender:document.getElementById("gender").value,
+    firstName:document.getElementById("firstName").value,
+    lastName:document.getElementById("lastName").value,
+    email:document.getElementById("email").value,
+    phone:document.getElementById("phone").value,
+    country:countryEl.value,
+    city:cityEl.value,
+    birthDate:document.getElementById("birthDate").value
   };
-  if(!isProfileComplete(data)){
-    alert("Lütfen tüm zorunlu alanları doldurun (cinsiyet, isim, soyisim, email, ülke, şehir, doğum tarihi).");
+  if(!data.gender || !data.firstName || !data.lastName || !data.email || !data.country || !data.city || !data.birthDate){
+    alert("Lütfen tüm alanları doldurun");
     return;
   }
-  profile = data;
+  profile=data;
   localStorage.setItem("profile",JSON.stringify(data));
   if(!anonName){
-    anonName = randomAnonName();
-    localStorage.setItem("anonName", anonName);
+    anonName=randomAnonName();
+    localStorage.setItem("anonName",anonName);
   }
-  // Profil bitti -> sadece profil modalı kapanır, sonra kategori modalı açılır.
   closeModal(profileModal);
   openModal(categoryModal);
 });
 
 /* ---------- Kategori Başlat ---------- */
 startChatBtn.addEventListener("click", ()=>{
-  currentCategory = document.getElementById("categorySelect").value;
+  currentCategory=document.getElementById("categorySelect").value;
   if(!currentCategory){ alert("Lütfen kategori seçin."); return; }
-
-  // Sırayla: kategori modal kapanır, chat açılır.
   closeModal(categoryModal);
   chatContainer.style.display="flex";
-
-  anonNameEl.textContent = "Takma Ad: " + anonName;
-  statusEl.textContent   = `${profile.country}/${profile.city} - ${currentCategory}`;
+  anonNameEl.textContent="Takma Ad: "+anonName;
+  statusEl.textContent=`${profile.country}/${profile.city} - ${currentCategory}`;
   addInfo(`${currentCategory} sohbetine bağlandın.`);
 });
 
 /* ---------- Profil sıfırla ---------- */
 resetProfileBtn.addEventListener("click", ()=>{
-  localStorage.removeItem("profile");
-  localStorage.removeItem("anonName");
-  profile = null; anonName = null; currentCategory = null;
-  messagesEl.innerHTML = "";
-  chatContainer.style.display="none";
-  // yalnızca profil modalını aç
-  openModal(profileModal);
+  localStorage.clear();
+  location.reload();
 });
 
 /* ---------- Mesajlaşma ---------- */
@@ -137,7 +115,7 @@ function addInfo(text){
   messagesEl.scrollTop=messagesEl.scrollHeight;
 }
 
-/* OpenAI backend (senin Render servisin) */
+/* AI fallback */
 async function botReplyWithAI(category,userText){
   typingEl.hidden=false;
   try{
@@ -152,32 +130,19 @@ async function botReplyWithAI(category,userText){
   }catch(err){
     typingEl.hidden=true;
     addMessage("AI","⚠️ Sunucuya bağlanılamadı.","bot");
-    console.error(err);
   }
 }
 
 form.addEventListener("submit",e=>{
   e.preventDefault();
-  if(!currentCategory){ alert("Önce kategori seçin."); return; }
+  if(!currentCategory) return;
   const text=input.value.trim();
   if(!text) return;
-  addMessage(anonName || "Ben", text, "me");
+  addMessage(anonName,text,"me");
   input.value="";
   botReplyWithAI(currentCategory,text);
 });
 
-/* ---------- Başlangıç akışı (tek modal kuralı) ---------- */
-function initFlow(){
-  // Başta tüm modallar kapalı
-  closeModal(profileModal);
-  closeModal(categoryModal);
-
-  if(!isProfileComplete(profile)){
-    openModal(profileModal);             // 1) önce profil
-    return;
-  }
-  // Profil tamamsa kategori
-  openModal(categoryModal);              // 2) sonra kategori
-}
-
-initFlow();
+/* ---------- Akış başlat ---------- */
+if(!profile) openModal(profileModal);
+else openModal(categoryModal);
