@@ -294,6 +294,7 @@ function connectToPeer(otherId) {
 function connectToAI() {
   appState.waiting = false;
   appState.ai = true;
+  appState.aiHistory = [];
   if (appState.matchTimeout) clearTimeout(appState.matchTimeout);
   if (appState.queueRef && appState.myId) {
     appState.queueRef.transaction((current) => {
@@ -306,8 +307,31 @@ function connectToAI() {
   setConnectedUI(true);
   scheduleNextButton();
   addMsg("Sistem: Yapay zeka bağlandı.", "sys");
-}
 
+  const systemPrompt = `Sen bu sohbet uygulamasında hızlı sohbet için atanmış bir yapay zekâ eşisin.
+Kuralların:
+- Oda temasına göre konuş (ör. Teknoloji odası → tech meraklısı, Oyun odası → gamer arkadaşı, Genel sohbet → arkadaş canlısı muhabbet arkadaşı).
+- Cevaplarını kısa ve samimi tut (1–3 cümle).
+- Arada soru sorarak sohbeti devam ettir.
+- Kullanıcı hangi dilde yazıyorsa o dilde devam et (Türkçe ↔ İngilizce otomatik).
+- Kişisel/mahrem bilgi isteme veya paylaşma.
+- Küfür, nefret, şiddet, cinsellik ve 18 yaş altı uygunsuz içerikten kaçın.
+- Gereksiz uzun paragraflar, teknik açıklamalar veya yapay zekâ olduğuna dair vurgulardan kaçın.
+- Sohbet 20–25 mesajı geçerse ya da 3 dakika sürerse kibarca özetle ve sohbeti kapat.
+- Eğer kullanıcı “gerçek kişi istiyorum” gibi bir şey derse, onu gerçek eşleşmeye yönlendir.
+
+Başlangıç tarzın:
+- Kullanıcıyı selamla, oda konusuna uygun minik bir soru sor.
+- Örneğin:
+   - Teknoloji odası → “Selam! Son zamanlarda denediğin ilginç bir uygulama var mı?”
+   - Oyun odası → “Hey! Şu ara hangi oyunu oynuyorsun? Ben roguelike türünü seviyorum.”
+   - Genel sohbet → “Merhaba! Günün nasıl geçti?”`;
+  appState.aiHistory.push({ role: "system", content: systemPrompt });
+
+  const greeting = "Merhaba! Günün nasıl geçti? Bugün seni en çok ne mutlu etti?";
+  addMsg(greeting, "them");
+  appState.aiHistory.push({ role: "assistant", content: greeting });
+}
 function aiSend(text) {
   appState.aiHistory.push({ role: "user", content: text });
   fetch("/api/ai", {

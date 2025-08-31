@@ -30,7 +30,7 @@ const server = http.createServer((req, res) => {
         const data = JSON.parse(body || '{}');
         const messages = Array.isArray(data.messages) ? data.messages : [];
         const formattedMessages = messages.map(m => ({
-          role: m.role === 'assistant' ? 'assistant' : 'user',
+          role: ['assistant', 'system', 'user'].includes(m.role) ? m.role : 'user',
           content: String(m.content || '').slice(0, 500)
         }));
         const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
