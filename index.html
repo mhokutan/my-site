@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Random Chat</title>
+  <title>mIRC Tarzı Anonim Sohbet</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Menü Bar -->
   <div class="menubar">
     <div class="menu-left">
       <button id="btnProfile">Profil</button>
@@ -19,26 +18,22 @@
     </div>
   </div>
 
-  <!-- Ana Layout -->
   <div class="layout">
-    <!-- Kanallar -->
     <aside class="pane pane-left">
       <div class="pane-title">Kanallar</div>
       <ul id="channelList" class="list"></ul>
     </aside>
 
-    <!-- Sohbet -->
     <main class="center">
       <div id="topic" class="topic">#genel — Anonim</div>
       <div id="messages" class="messages" aria-live="polite"></div>
-      <div id="typing" class="typing" hidden>• karşı taraf yazıyor…</div>
+      <div id="typing" class="typing" hidden>• yazıyor…</div>
       <form id="form" class="inputbar" autocomplete="off">
         <input id="input" placeholder="Mesaj yaz… (Enter)" />
         <button type="submit">Gönder</button>
       </form>
     </main>
 
-    <!-- Kullanıcılar -->
     <aside class="pane pane-right">
       <div class="pane-title">Kullanıcılar</div>
       <ul id="userList" class="list"></ul>
