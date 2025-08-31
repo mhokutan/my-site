@@ -6,19 +6,30 @@
 body{margin:0;background:var(--bg);color:var(--text)}
 
 .container{display:flex;height:100vh}
-.sidebar{width:200px;background:var(--muted);padding:12px;border-right:1px solid #ccc}
+.sidebar{width:200px;background:var(--muted);padding:12px;border-right:1px solid #ccc;flex-shrink:0}
 .sidebar h3{margin:0 0 10px}
-.chat{flex:1;display:flex;flex-direction:column}
-.status{background:#eee;padding:10px;text-align:center;font-weight:600}
+.chat{flex:1;display:flex;flex-direction:column;min-width:0}
+.status{background:#eee;padding:10px;text-align:center;font-weight:600;flex-shrink:0}
 .messages{flex:1;padding:12px;overflow:auto;background:#fff}
 .message{margin:6px 0;padding:8px 12px;border-radius:10px;max-width:70%;word-wrap:break-word}
 .message.me{background:var(--me);margin-left:auto}
 .message.bot{background:var(--bot);margin-right:auto}
 .info{color:#555;font-size:.9rem;text-align:center;margin:10px 0}
-.form{display:flex;gap:8px;border-top:1px solid #ddd;padding:10px;background:#fff}
+.form{display:flex;gap:8px;border-top:1px solid #ddd;padding:10px;background:#fff;flex-shrink:0}
 .form input{flex:1;padding:10px;border:1px solid #ccc;border-radius:6px}
 .form button{padding:10px 14px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
 .form button:hover{filter:brightness(.9)}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
-.modal-content{background:#fff;padding:18px;border-radius:8px;display:grid;gap:8px;min-width:280px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10}
+.modal-content{background:#fff;padding:18px;border-radius:8px;display:grid;gap:8px;min-width:280px;max-width:90%}
+
+/* 🔹 Mobil uyum */
+@media (max-width: 768px){
+  .container{flex-direction:column}
+  .sidebar{width:100%;border-right:none;border-bottom:1px solid #ccc}
+  .messages{font-size:0.95rem;padding:8px}
+  .message{max-width:85%}
+  .form{flex-direction:row;gap:6px}
+  .form input{padding:8px}
+  .form button{padding:8px 10px;font-size:0.9rem}
+}
