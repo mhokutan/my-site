@@ -1,27 +1,83 @@
-body{margin:0;font-family:"Courier New",monospace;background:#dcdcdc;color:#111}
-.menubar{background:#bcbcbc;padding:4px;display:flex;gap:8px;border-bottom:2px solid #999}
-.menubar button{background:#eee;border:1px solid #888;padding:4px 8px;cursor:pointer}
-.menubar button:hover{background:#ddd}
+/* ==== mIRC DARK THEME ==== */
+:root{
+  --bg:#000; --panel:#111; --panel2:#0e0e0e;
+  --border:#333; --text:#eee; --muted:#aaa;
+  --brand:#4fc3f7; --me:#4fc3f7; --other:#a5d6a7; --info:#888;
+}
 
-.container{display:flex;height:calc(100vh - 30px)}
-.sidebar{width:180px;background:#efefef;border-right:2px solid #999;padding:8px}
-.sidebar h3{margin:0 0 8px;font-size:14px}
-.sidebar ul{list-style:none;padding:0;margin:0;font-size:13px}
-.sidebar li{padding:3px 0}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Courier New",monospace;
+  background:var(--bg);
+  color:var(--text);
+}
 
-.chat{flex:1;display:flex;flex-direction:column}
-.status{background:#ccc;padding:6px;text-align:center;font-weight:bold;border-bottom:2px solid #999}
-.messages{flex:1;padding:8px;overflow:auto;background:#fff;font-size:13px}
-.message{margin:4px 0}
-.message.me{color:blue}
-.message.bot{color:green}
-.info{color:#666;font-style:italic;text-align:center}
-.form{display:flex;border-top:2px solid #999}
-.form input{flex:1;padding:6px;border:none;font-family:inherit;font-size:13px}
-.form button{background:#ccc;border:none;padding:6px 12px;cursor:pointer}
-.form button:hover{background:#bbb}
+/* Menubar */
+.menubar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--border);
+}
+.menubar button{
+  background:#222;border:1px solid var(--border);color:var(--text);
+  padding:4px 10px;cursor:pointer
+}
+.menubar button:hover{background:#2a2a2a}
+.brand{color:var(--brand);opacity:.9}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:220px 1fr 220px;grid-template-rows:calc(100vh - 38px)}
+.pane{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;min-width:0}
+.pane-right{border-left:1px solid var(--border);border-right:none}
+.pane-title{padding:8px;font-weight:700;border-bottom:1px solid var(--border);color:var(--muted)}
+.list{list-style:none;margin:0;padding:6px 8px;overflow:auto}
+.list li{padding:4px 6px;border-radius:4px;cursor:pointer}
+.list li.active{background:#1b1b1b}
+.list li:hover{background:#1a1a1a}
+
+.center{display:flex;flex-direction:column;background:#000}
+.topic{padding:8px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted)}
+.messages{flex:1;overflow:auto;padding:8px;font-size:13px}
+.message{margin:3px 0}
+.message .nick{font-weight:700;margin-right:4px}
+.message.me{color:var(--me)}
+.message.other{color:var(--other)}
+.info{color:var(--info);font-style:italic;text-align:center;margin:6px 0}
+
+.typing{color:#bbb;padding:0 8px;margin:4px 0}
+
+.inputbar{display:flex;gap:8px;border-top:1px solid var(--border);background:var(--panel2);padding:8px}
+.inputbar input{
+  flex:1;background:#000;border:1px solid var(--border);
+  color:var(--text);padding:8px;font-family:inherit;font-size:13px;
+}
+.inputbar button{
+  background:#222;border:1px solid var(--border);color:var(--text);
+  padding:8px 12px;cursor:pointer
+}
+.inputbar button:hover{background:#2a2a2a}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:10}
 .modal.open{display:flex}
-.modal-content{background:#fff;padding:16px;border:2px solid #333;display:grid;gap:6px;min-width:280px}
+.modal-content{
+  background:#111;border:1px solid var(--border);min-width:300px;max-width:92%;
+  display:grid;gap:8px;padding:14px
+}
+.modal-content input,.modal-content select{
+  background:#000;border:1px solid var(--border);color:var(--text);padding:6px
+}
+.modal-actions{display:flex;gap:8px;margin-top:6px}
+.modal-actions .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+
+/* Responsive */
+@media (max-width: 960px){
+  .layout{grid-template-columns: 180px 1fr; grid-template-rows: calc(100vh - 38px)}
+  .pane-right{display:none}
+}
+@media (max-width: 720px){
+  .layout{grid-template-columns:1fr}
+  .pane-left{display:none}
+  .topic{font-size:12px}
+}
