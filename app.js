@@ -134,6 +134,7 @@ function initFirebase() {
   const app = firebase.initializeApp(firebaseConfig);
   appState.db = firebase.database();
   appState.queueRef = appState.db.ref("queue"); // tek-slotluk basit kuyruk
+  appState.db.ref("queue").onDisconnect().remove();
 }
 
 function initPeer() {
