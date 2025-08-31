@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hızlı Sohbet</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="login">
+    <h2>Sohbete Katıl</h2>
+    <input id="nickname" placeholder="Takma ad" />
+    <button id="joinBtn">Katıl</button>
+  </div>
+  <div id="chat" class="hidden">
+    <div id="messages"></div>
+    <input id="msgInput" autocomplete="off" placeholder="Mesaj yaz..." />
+    <button id="sendBtn">Gönder</button>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
