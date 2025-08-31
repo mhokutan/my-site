@@ -6,13 +6,9 @@ const modal = document.getElementById("modal");
 const nicknameInput = document.getElementById("nicknameInput");
 const saveProfile = document.getElementById("saveProfile");
 
-function closeModal() {
-  modal.style.display = "none";
-}
-function openModal() {
-  modal.style.display = "flex";
-  setTimeout(() => nicknameInput?.focus(), 0);
-}
+function closeModal() { modal.style.display = "none"; }
+function openModal() { modal.style.display = "flex"; setTimeout(() => nicknameInput?.focus(), 0); }
+
 if (!nickname) openModal(); else closeModal();
 
 saveProfile?.addEventListener("click", () => {
@@ -36,7 +32,6 @@ function addMessage(from, text, cls="") {
   div.className = `message ${cls}`.trim();
   div.textContent = `${from}: ${text}`;
   messagesEl.appendChild(div);
-  // auto-scroll (kullanıcı en aşağıdaysa)
   const nearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 40;
   if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
 }
@@ -98,19 +93,18 @@ function randomDelay(){ return Math.floor(Math.random()*(BOT_DELAY_MAX-BOT_DELAY
 function botReply(userText) {
   if (!currentCategory) return;
   const pool = RESPONSES[currentCategory] || ["Devam edelim!"];
-  // basit anahtar kelime süsü
+  let text = pick(pool);
+
+  // ufak anahtar kelime varyasyonu
   const kw = (userText||"").toLowerCase();
-  let extra = "";
-  if (kw.includes("öner")) extra = " Bir öneri de istersen söyleyebilirim.";
-  if (kw.includes("hangi")) extra = " Sen ne önerirsin?";
-  const text = pick(pool) + extra;
+  if (kw.includes("öner")) text += " Bir öneri de istersen söyleyebilirim.";
+  if (kw.includes("hangi")) text += " Sen ne önerirsin?";
 
   typingEl.hidden = false;
   setTimeout(() => {
     typingEl.hidden = true;
     addMessage("Bot", text, "bot");
     botMsgCount++;
-    // 25 mesaj veya 3 dakika sınırı
     if (botMsgCount >= 25 || (botTimerEnd && Date.now() > botTimerEnd)) {
       addInfo("Süper sohbetti! İstersen yeni bir kategori seçerek devam edebilirsin.");
     }
@@ -121,7 +115,6 @@ function botReply(userText) {
 document.querySelectorAll("#categories li").forEach(li => {
   li.addEventListener("click", () => {
     if (!nickname) { openModal(); return; }
-    // aktif sınıf
     document.querySelectorAll("#categories li").forEach(el => el.classList.remove("active"));
     li.classList.add("active");
 
@@ -131,7 +124,7 @@ document.querySelectorAll("#categories li").forEach(li => {
     botTimerEnd = Date.now() + 3*60*1000; // 3 dakika
     statusEl.textContent = `Kategori: ${currentCategory} (Demo bot)`;
     addInfo(`${currentCategory} sohbetine bağlandın.`);
-    // kategoriyi açar açmaz kısa karşılama
+
     typingEl.hidden = false;
     setTimeout(() => {
       typingEl.hidden = true;
