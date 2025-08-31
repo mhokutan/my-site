@@ -1,92 +1,84 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
 
-// Ensure `fetch` is available in older Node versions
-const fetch = global.fetch || ((...args) =>
-  import('node-fetch').then(({ default: f }) => f(...args)));
+dotenv.config();
 
-const PORT = process.env.PORT || 3000;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const PUBLIC_DIR = __dirname;
+const app = express();
+app.use(express.static('.'));
 
-function sendJson(res, status, obj) {
-  res.writeHead(status, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(obj));
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
+
+const waiting = new Map(); // category => array of sockets
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+wss.on('connection', (ws) => {
+  ws.on('message', async (data) => {
+    let msg;
+    try {
+      msg = JSON.parse(data);
+    } catch {
+      return;
+    }
+    if (msg.type === 'join') {
+      ws.nickname = msg.nickname;
+      ws.category = msg.category;
+      let queue = waiting.get(ws.category);
+      if (queue && queue.length > 0) {
+        const partner = queue.shift();
+        ws.partner = partner;
+        partner.partner = ws;
+        ws.send(JSON.stringify({ type: 'info', message: `${partner.nickname} ile sohbettesiniz.` }));
+        partner.send(JSON.stringify({ type: 'info', message: `${ws.nickname} ile sohbettesiniz.` }));
+      } else {
+        if (!queue) {
+          queue = [];
+          waiting.set(ws.category, queue);
+        }
+        queue.push(ws);
+        ws.send(JSON.stringify({ type: 'info', message: 'Eşleşme bekleniyor...' }));
+      }
+    } else if (msg.type === 'message') {
+      if (ws.partner && ws.partner.readyState === ws.OPEN) {
+        ws.partner.send(JSON.stringify({ type: 'message', from: ws.nickname, text: msg.text }));
+      } else {
+        const reply = await aiReply(ws.category, msg.text);
+        ws.send(JSON.stringify({ type: 'message', from: 'AI', text: reply }));
+      }
+    }
+  });
+
+  ws.on('close', () => {
+    if (ws.partner && ws.partner.readyState === ws.OPEN) {
+      ws.partner.send(JSON.stringify({ type: 'info', message: 'Karşı kullanıcı ayrıldı.' }));
+      ws.partner.partner = null;
+    } else {
+      const queue = waiting.get(ws.category);
+      if (queue) {
+        const idx = queue.indexOf(ws);
+        if (idx >= 0) queue.splice(idx, 1);
+        if (queue.length === 0) waiting.delete(ws.category);
+      }
+    }
+  });
+});
+
+async function aiReply(category, text) {
+  if (!process.env.OPENAI_API_KEY) {
+    return 'OpenAI anahtarı bulunamadı.';
+  }
+  const response = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      { role: 'system', content: `Sen ${category} konusunda sohbet eden yardımsever bir asistansın.` },
+      { role: 'user', content: text }
+    ]
+  });
+  return response.choices[0].message.content.trim();
 }
 
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/ai') {
-    if (!OPENAI_API_KEY) {
-      return sendJson(res, 500, { error: 'OPENAI_API_KEY is not set' });
-    }
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk;
-      if (body.length > 1e6) req.connection.destroy(); // limit body size
-    });
-    req.on('end', async () => {
-      try {
-        const data = JSON.parse(body || '{}');
-        const messages = Array.isArray(data.messages) ? data.messages : [];
-        const formattedMessages = messages.map(m => ({
-          role: ['assistant', 'system', 'user'].includes(m.role) ? m.role : 'user',
-          content: String(m.content || '').slice(0, 500)
-        }));
-        const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENAI_API_KEY}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: formattedMessages
-          })
-        });
-        const apiJson = await apiRes.json();
-        if (!apiRes.ok) {
-          const message = apiJson.error?.message || 'OpenAI API request failed';
-          return sendJson(res, 500, { error: message });
-        }
-        const reply = apiJson.choices?.[0]?.message?.content || '';
-        return sendJson(res, 200, { reply });
-      } catch (err) {
-        console.error('AI error', err);
-        return sendJson(res, 500, { error: 'AI request failed' });
-      }
-    });
-  } else {
-    try {
-      const requestPath = decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
-      if (requestPath.split('/').includes('..')) {
-        res.writeHead(400);
-        return res.end('Bad request');
-      }
-      const normalizedPath = path.normalize(requestPath);
-      const filePath = path.join(PUBLIC_DIR, normalizedPath === '/' ? 'index.html' : normalizedPath);
-      const resolvedPath = path.resolve(filePath);
-      if (!resolvedPath.startsWith(PUBLIC_DIR)) {
-        res.writeHead(403);
-        return res.end('Forbidden');
-      }
-      fs.readFile(resolvedPath, (err, content) => {
-        if (err) {
-          res.writeHead(404);
-          return res.end('Not found');
-        }
-        const ext = path.extname(resolvedPath);
-        const map = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
-        res.writeHead(200, { 'Content-Type': map[ext] || 'text/plain' });
-        res.end(content);
-      });
-    } catch (err) {
-      res.writeHead(400);
-      res.end('Bad request');
-    }
-  }
-});
-
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Sunucu ${PORT} portunda çalışıyor`));
