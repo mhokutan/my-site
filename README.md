@@ -1,16 +1,19 @@
-# Hızlı Sohbet (Statik Demo)
+# Hızlı Sohbet (AI destekli)
 
-Bu, kategori bazlı hızlı sohbet sitesinin **tamamen statik** (GitHub Pages uyumlu) demo sürümüdür.  
-Gerçek eşleştirme yoktur; eşleşme olmadığında **yerel demo bot** sohbeti sürdürür.
+Bu proje kategori bazlı hızlı sohbet sitesidir.  
+Frontend (statik) → GitHub Pages  
+Backend (AI proxy) → Render
 
-## Kurulum
-1. Repo köküne şu 4 dosyayı koy: `index.html`, `styles.css`, `app.js`, `README.md`
-2. GitHub → Settings → Pages → `Branch: main` ve `/ (root)` seç.
-3. Site: `https://<kullanıcı>.github.io/<repo>/`
+## Özellikler
+- Rumuz girerek giriş
+- Kategori seçimi
+- Mesaj yazma
+- OpenAI GPT-3.5 destekli cevaplar (Render backend üzerinden)
 
-## Kullanım
-- İlk açılışta rumuz gir → sol menüden kategori seç → mesaj yaz.
-- Bot bazı kısa, kategoriye uygun cevaplar verir.
+## Deploy
+1. Frontend: Bu repo → GitHub Pages
+2. Backend: Ayrı repo → Render → Web Service (`node server.js`)
 
-## Not
-Gerçek kullanıcı eşleştirme için ayrı bir WebSocket backend gerekir (ileride eklenebilir).
+## Çalıştırma
+- Site: `https://<kullanıcı>.github.io/my-site/`
+- Backend: `https://chat-backend-xi60.onrender.com`
