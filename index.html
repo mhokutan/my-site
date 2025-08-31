@@ -32,7 +32,11 @@
 </head>
 <body>
   <div class="menubar">
-    <div><button id="btnProfile">Profil</button><button id="btnClear">Çıkış</button></div>
+    <div>
+      <button id="btnProfile">Profil</button>
+      <button id="btnRandom">Rastgele Oda 🎲</button>
+      <button id="btnClear">Çıkış</button>
+    </div>
     <div>/irc-web</div>
   </div>
   <div class="layout">
@@ -40,7 +44,7 @@
     <main class="center">
       <div id="topic" class="topic">#genel — 0 kişi</div>
       <div id="messages" class="messages"></div>
-      <form id="form" class="inputbar"><input id="input"/><button>Gönder</button></form>
+      <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz /oyun başlat"/><button>Gönder</button></form>
     </main>
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
@@ -62,32 +66,61 @@ const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let currentChannel="#genel";let messagesByChannel={};let usersInRoom=[];
 let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));localStorage.setItem("anonName",anonName);
 
-// nick renkleri
+// Nick renkleri
 const nickColors=["#4fc3f7","#a5d6a7","#ffcc80","#f48fb1","#ce93d8","#80cbc4","#e6ee9c"];
 let colorMap={};
 function getNickColor(nick){if(!colorMap[nick]){colorMap[nick]=nickColors[Object.keys(colorMap).length%nickColors.length];}return colorMap[nick];}
 
+// HTML el
 const channelListEl=document.getElementById("channelList"),userListEl=document.getElementById("userList"),messagesEl=document.getElementById("messages"),topicEl=document.getElementById("topic"),form=document.getElementById("form"),input=document.getElementById("input"),profileModal=document.getElementById("profileModal");
 
+// Fonksiyonlar
 function renderChannels(){channelListEl.innerHTML="";["#genel","#teknoloji","#oyun"].forEach(ch=>{let li=document.createElement("li");li.textContent=ch;if(ch===currentChannel)li.classList.add("active");li.onclick=()=>switchChannel(ch);channelListEl.appendChild(li);});}
 function renderUsers(list){usersInRoom=list||[];userListEl.innerHTML="";(list||[]).forEach(n=>{let li=document.createElement("li");li.textContent=n;li.style.color=getNickColor(n);userListEl.appendChild(li);});let ai=document.createElement("li");ai.textContent="AI";ai.style.color="#ffcc00";userListEl.appendChild(ai);updateTopic();}
 function updateTopic(){topicEl.textContent=`${currentChannel} — ${usersInRoom.length} kişi`;}
 
-// mesajlara saat
+// Saat
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
 function addMessage(from,text,cls){if(!messagesByChannel[currentChannel])messagesByChannel[currentChannel]=[];messagesByChannel[currentChannel].push({from,text,cls});let row=document.createElement("div");row.className="message "+cls;let time=document.createElement("span");time.className="time";time.textContent=`[${formatTime()}]`;let nick=document.createElement("span");nick.className="nick";nick.style.color=getNickColor(from);nick.textContent=from+":";row.appendChild(time);row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;}
 function addInfo(text){let div=document.createElement("div");div.className="info";div.textContent=text;messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;}
 
+// WebSocket
 let ws;function connectWS(){ws=new WebSocket(WS_URL);ws.onopen=()=>{ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName}));};ws.onmessage=ev=>{let msg=JSON.parse(ev.data);if(msg.type==="info")addInfo(msg.message);else if(msg.type==="users")renderUsers(msg.users);else if(msg.type==="message")addMessage(msg.from,msg.text,"other");};}
 function switchChannel(ch){currentChannel=ch;messagesEl.innerHTML="";addInfo(ch+" kanalına girdin.");if(ws&&ws.readyState===1){ws.send(JSON.stringify({type:"join",channel:ch,nick:anonName}));}}
-form.onsubmit=e=>{e.preventDefault();let text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));};
 
+// Form gönderme
+form.onsubmit=e=>{
+  e.preventDefault();
+  let text=input.value.trim();
+  if(!text)return;
+
+  // Oyun modu (/oyun komutu)
+  if(text==="/oyun"){
+    addInfo("🎮 AI Minigame başladı: Taş-Kağıt-Makas! Yaz: taş / kağıt / makas");
+    input.value="";
+    return;
+  }
+
+  addMessage(anonName,text,"me");input.value="";
+  if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));
+};
+
+// Butonlar
 document.getElementById("btnProfile").onclick=()=>profileModal.classList.add("open");
 document.getElementById("btnClear").onclick=()=>{localStorage.clear();location.reload();}
 document.getElementById("saveProfile").onclick=()=>{let p={first:document.getElementById("firstName").value,last:document.getElementById("lastName").value,email:document.getElementById("email").value,country:document.getElementById("countrySelect").value,city:document.getElementById("citySelect").value};localStorage.setItem("profile",JSON.stringify(p));profileModal.classList.remove("open");}
 document.getElementById("skipProfile").onclick=()=>profileModal.classList.remove("open");
 
+// Random oda
+document.getElementById("btnRandom").onclick=()=>{
+  let chans=["#genel","#teknoloji","#oyun"];
+  let next=chans[Math.floor(Math.random()*chans.length)];
+  switchChannel(next);
+};
+
+// Otomatik konum
 async function detectLocation(){try{const res=await fetch("https://ipapi.co/json/");const data=await res.json();if(data.country_name)document.getElementById("countrySelect").value=data.country_name;if(data.city)document.getElementById("citySelect").value=data.city;}catch(e){console.error("Konum alınamadı",e);}}
+
 renderChannels();switchChannel(currentChannel);connectWS();profileModal.classList.add("open");detectLocation();
 </script>
 </body>
