@@ -4,8 +4,9 @@ Bu klasör, kullanıcıların kategori seçerek hızlıca eşleştiği ve kullan
 
 ## Özellikler
 - Takma ad ile giriş
+- Sol panelde kategoriler: Genel, Teknoloji, Oyun, Spor, Film & Dizi, Müzik, Eğitim & Öğrenme
 - Kategorilere göre 1-1 eşleştirme
-- Eşleşme yoksa OpenAI ile sohbet
+- Eşleşme yoksa OpenAI ile sohbet (kullanıcının dilinde cevap verir)
 - Gerçek zamanlı mesajlaşma (Socket.io)
 - "Yazıyor" göstergesi
 - Mesaj gönderildi / okundu bilgisi
@@ -15,6 +16,7 @@ Bu klasör, kullanıcıların kategori seçerek hızlıca eşleştiği ve kullan
 - Anket oluşturma ve oy kullanma
 - Taş-kağıt-makas mini oyunu
 - Tema ve arka plan seçimi
+- Raporla ve engelle seçenekleri
 - Basit küfür filtresi
 
 ## Kurulum

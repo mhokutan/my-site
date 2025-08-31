@@ -16,24 +16,49 @@ body {
   font-family: Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   margin: 0;
+  height: 100vh;
 }
 
 .hidden { display: none; }
 
-#chat { width: 360px; }
+#login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+
+#main {
+  display: flex;
+  height: 100%;
+}
+
+#categories {
+  width: 200px;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+  background: var(--bg);
+}
+#categories ul { list-style: none; margin: 0; padding: 0; }
+#categories li { padding: 10px; cursor: pointer; }
+#categories li:hover { background: rgba(0,0,0,0.1); }
+
+#chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+}
 
 #messages {
-  height: 300px;
+  flex: 1;
   overflow-y: auto;
-  border: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   background: var(--bubble-peer);
   padding: 5px;
-  margin-bottom: 5px;
 }
 
 .msg {
@@ -41,7 +66,6 @@ body {
   padding: 4px;
   border-radius: 4px;
 }
-
 .msg.self { background: var(--bubble-self); text-align: right; }
 .msg.peer { background: var(--bubble-peer); }
 .msg .meta { font-size: 0.75em; color: #666; }
@@ -66,3 +90,7 @@ body {
   flex-wrap: wrap;
 }
 #typing { height: 1em; }
+
+@media (max-width: 600px) {
+  #categories { width: 120px; }
+}

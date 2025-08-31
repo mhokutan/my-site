@@ -1,9 +1,8 @@
 const socket = io();
 
 const login = document.getElementById('login');
-const chat = document.getElementById('chat');
+const main = document.getElementById('main');
 const nicknameInput = document.getElementById('nickname');
-const categorySelect = document.getElementById('category');
 const joinBtn = document.getElementById('joinBtn');
 const messages = document.getElementById('messages');
 const msgInput = document.getElementById('msgInput');
@@ -16,9 +15,13 @@ const deleteBtn = document.getElementById('deleteBtn');
 const reactBtn = document.getElementById('reactBtn');
 const pollBtn = document.getElementById('pollBtn');
 const rpsBtn = document.getElementById('rpsBtn');
+const reportBtn = document.getElementById('reportBtn');
+const blockBtn = document.getElementById('blockBtn');
 
 const themeSelect = document.getElementById('themeSelect');
 const bgPicker = document.getElementById('bgPicker');
+
+let nickname = '';
 
 // load preferences
 window.addEventListener('load', () => {
@@ -47,10 +50,20 @@ bgPicker.addEventListener('change', e => {
 joinBtn.addEventListener('click', () => {
   const nick = nicknameInput.value.trim();
   if (!nick) return;
-  socket.emit('join', { nickname: nick, category: categorySelect.value });
+  nickname = nick;
   login.classList.add('hidden');
-  chat.classList.remove('hidden');
+  main.classList.remove('hidden');
 });
+
+document.querySelectorAll('#categories li').forEach(li => {
+  li.addEventListener('click', () => joinCategory(li.dataset.cat, li.textContent));
+});
+
+function joinCategory(cat, label) {
+  messages.innerHTML = '';
+  document.getElementById('peerStatus').textContent = `Kategori: ${label}`;
+  socket.emit('join', { nickname, category: cat });
+}
 
 function uniqueId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -183,6 +196,16 @@ rpsBtn.addEventListener('click', () => {
 });
 
 socket.on('rpsResult', msg => addSystem(msg));
+
+reportBtn.addEventListener('click', () => {
+  socket.emit('report');
+  addSystem('Rapor gönderildi');
+});
+
+blockBtn.addEventListener('click', () => {
+  socket.emit('block');
+  addSystem('Kullanıcı engellendi');
+});
 
 function addSystem(text) {
   const div = document.createElement('div');

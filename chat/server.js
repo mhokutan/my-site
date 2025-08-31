@@ -27,6 +27,16 @@ io.on('connection', socket => {
   let timeout;
 
   socket.on('join', ({ nickname, category }) => {
+    if (timeout) clearTimeout(timeout);
+    if (socket.room) {
+      socket.leave(socket.room);
+      if (!socket.isWithAI) socket.to(socket.room).emit('system', 'Sohbetten ayrıldı.');
+    }
+    if (socket.category && waiting[socket.category]) {
+      const idx = waiting[socket.category].indexOf(socket);
+      if (idx !== -1) waiting[socket.category].splice(idx, 1);
+    }
+    socket.isWithAI = false;
     socket.nickname = nickname || 'Anon';
     socket.category = category || 'genel';
     const list = waiting[socket.category] || (waiting[socket.category] = []);
@@ -64,7 +74,7 @@ io.on('connection', socket => {
         const completion = await openai.chat.completions.create({
           model: 'gpt-3.5-turbo',
           messages: [
-            { role: 'system', content: `Sen ${socket.category} hakkında doğal ve samimi sohbet eden bir asistansın.` },
+            { role: 'system', content: `Sen ${socket.category} hakkında doğal ve samimi sohbet eden bir asistansın. Kullanıcı hangi dilde konuşuyorsa o dilde cevap ver.` },
             { role: 'user', content: msg.text }
           ]
         });
@@ -124,6 +134,20 @@ io.on('connection', socket => {
       result = 'Kazandın';
     else result = 'Kaybettin';
     socket.emit('rpsResult', `AI ${ai} seçti, ${result}.`);
+  });
+
+  socket.on('report', () => {
+    if (socket.room && !socket.isWithAI) {
+      socket.to(socket.room).emit('system', 'Karşı taraf sizi raporladı.');
+    }
+  });
+
+  socket.on('block', () => {
+    if (socket.room && !socket.isWithAI) {
+      socket.to(socket.room).emit('system', 'Karşı taraf bağlantıyı sonlandırdı.');
+    }
+    socket.leave(socket.room);
+    socket.room = null;
   });
 
   socket.on('disconnect', () => {
