@@ -55,6 +55,11 @@ const messagesEl = $("#messages");
 const roomChip = $("#roomChip");
 const peerInfo = $("#peerInfo");
 const themeToggle = $("#themeToggle");
+const likeBtn = $("#likeBtn");
+const dislikeBtn = $("#dislikeBtn");
+const changeBtn = $("#changeBtn");
+const skipBtn = $("#skipBtn");
+const profileBtn = $("#profileBtn");
 let nextBtnTimer = null;
 
 function setStatus(t) {
@@ -71,6 +76,10 @@ function setConnectedUI(connected) {
   sendBtn.disabled = !connected;
   endBtn.disabled = !connected && !appState.waiting;
   nextBtn.disabled = !connected && !appState.waiting;
+  likeBtn.disabled = !connected;
+  dislikeBtn.disabled = !connected;
+  changeBtn.disabled = !connected;
+  skipBtn.disabled = !connected;
   chatCard.classList.toggle("hidden", !connected && !appState.waiting);
 }
 function sanitize(text) {
@@ -138,6 +147,26 @@ sendForm.addEventListener("submit", (e) => {
   } else if (appState.ai) {
     aiSend(text);
   }
+});
+
+likeBtn.addEventListener("click", () => {
+  addMsg("Sistem: Kullanıcıyı beğendiniz.", "sys");
+});
+
+dislikeBtn.addEventListener("click", () => {
+  addMsg("Sistem: Kullanıcıyı beğenmediniz.", "sys");
+});
+
+changeBtn.addEventListener("click", () => {
+  addMsg("Sistem: Değiştir butonuna basıldı.", "sys");
+});
+
+skipBtn.addEventListener("click", () => {
+  addMsg("Sistem: Geç butonuna basıldı.", "sys");
+});
+
+profileBtn.addEventListener("click", () => {
+  window.location.href = "profile.html";
 });
 
 // ---- 5) Firebase & PeerJS Kurulum ----
