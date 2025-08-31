@@ -4,7 +4,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>mIRC Tarzı Anonim Sohbet</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root{
+      --bg:#000; --panel:#111; --panel2:#0e0e0e;
+      --border:#333; --text:#eee; --muted:#aaa;
+      --brand:#4fc3f7; --me:#4fc3f7; --other:#a5d6a7; --info:#888;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:"Courier New",monospace;background:var(--bg);color:var(--text)}
+    .menubar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--border)}
+    .menubar button{background:#222;border:1px solid var(--border);color:var(--text);padding:4px 10px;cursor:pointer}
+    .menubar button:hover{background:#2a2a2a}
+    .brand{color:var(--brand);opacity:.9}
+
+    .layout{display:grid;grid-template-columns:220px 1fr 220px;grid-template-rows:calc(100vh - 38px)}
+    .pane{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
+    .pane-right{border-left:1px solid var(--border);border-right:none}
+    .pane-title{padding:8px;font-weight:700;border-bottom:1px solid var(--border);color:var(--muted)}
+    .list{list-style:none;margin:0;padding:6px 8px;overflow:auto}
+    .list li{padding:4px 6px;border-radius:4px;cursor:pointer}
+    .list li.active{background:#1b1b1b}
+    .list li:hover{background:#1a1a1a}
+
+    .center{display:flex;flex-direction:column;background:#000}
+    .topic{padding:8px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted)}
+    .messages{flex:1;overflow:auto;padding:8px;font-size:13px}
+    .message{margin:3px 0}
+    .message .nick{font-weight:700;margin-right:4px}
+    .message.me{color:var(--me)}
+    .message.other{color:var(--other)}
+    .info{color:var(--info);font-style:italic;text-align:center;margin:6px 0}
+    .typing{color:#bbb;padding:0 8px;margin:4px 0}
+
+    .inputbar{display:flex;gap:8px;border-top:1px solid var(--border);background:var(--panel2);padding:8px}
+    .inputbar input{flex:1;background:#000;border:1px solid var(--border);color:var(--text);padding:8px;font-family:inherit;font-size:13px}
+    .inputbar button{background:#222;border:1px solid var(--border);color:var(--text);padding:8px 12px;cursor:pointer}
+    .inputbar button:hover{background:#2a2a2a}
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:10}
+    .modal.open{display:flex}
+    .modal-content{background:#111;border:1px solid var(--border);min-width:300px;max-width:92%;display:grid;gap:8px;padding:14px}
+    .modal-content input,.modal-content select{background:#000;border:1px solid var(--border);color:var(--text);padding:6px}
+    .modal-actions{display:flex;gap:8px;margin-top:6px}
+    .modal-actions .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+
+    @media (max-width: 960px){
+      .layout{grid-template-columns: 180px 1fr; grid-template-rows: calc(100vh - 38px)}
+      .pane-right{display:none}
+    }
+    @media (max-width: 720px){
+      .layout{grid-template-columns:1fr}
+      .pane-left{display:none}
+      .topic{font-size:12px}
+    }
+  </style>
 </head>
 <body>
   <div class="menubar">
@@ -40,7 +94,7 @@
     </aside>
   </div>
 
-  <!-- Profil Modal (opsiyonel) -->
+  <!-- Profil Modal -->
   <div id="profileModal" class="modal">
     <div class="modal-content">
       <h3>Profil (Opsiyonel)</h3>
@@ -56,7 +110,6 @@
       </select>
       <label>Şehir</label>
       <select id="citySelect"><option value="">Önce ülke seçiniz</option></select>
-
       <div class="modal-actions">
         <button id="saveProfile">Kaydet</button>
         <button id="skipProfile" class="ghost">Anonim Devam Et</button>
@@ -68,7 +121,6 @@
   <div id="addChannelModal" class="modal">
     <div class="modal-content">
       <h3>Yeni Kanal</h3>
-      <label>Kanal Adı (ör. #istanbul, #teknoloji)</label>
       <input id="newChannelInput" placeholder="#kanal-adi" />
       <div class="modal-actions">
         <button id="confirmAddChannel">Ekle</button>
@@ -77,6 +129,45 @@
     </div>
   </div>
 
-  <script src="app.js" defer></script>
+  <script>
+    const WS_URL = "wss://chat-backend-1-iq7t.onrender.com";
+
+    let channels = ["#genel","#teknoloji","#oyun","#spor","#film-dizi","#muzik","#egitim"];
+    let currentChannel = "#genel";
+    let messagesByChannel = {};
+    let profile = null;
+    let anonName = localStorage.getItem("anonName") || null;
+    if(!anonName){ anonName = "User"+Math.floor(Math.random()*1000); localStorage.setItem("anonName", anonName); }
+
+    const channelListEl=document.getElementById("channelList");
+    const userListEl=document.getElementById("userList");
+    const messagesEl=document.getElementById("messages");
+    const topicEl=document.getElementById("topic");
+    const typingEl=document.getElementById("typing");
+    const form=document.getElementById("form"); const input=document.getElementById("input");
+
+    const profileModal=document.getElementById("profileModal");
+    const addChannelModal=document.getElementById("addChannelModal");
+    document.getElementById("btnProfile").onclick=()=>profileModal.classList.add("open");
+    document.getElementById("btnAddChannel").onclick=()=>{document.getElementById("newChannelInput").value="#";addChannelModal.classList.add("open");}
+    document.getElementById("btnClear").onclick=()=>{localStorage.clear();location.reload();}
+    document.getElementById("saveProfile").onclick=()=>{profile={first:document.getElementById("firstName").value,last:document.getElementById("lastName").value,email:document.getElementById("email").value,country:document.getElementById("countrySelect").value,city:document.getElementById("citySelect").value};localStorage.setItem("profile",JSON.stringify(profile));profileModal.classList.remove("open");}
+    document.getElementById("skipProfile").onclick=()=>profileModal.classList.remove("open");
+    document.getElementById("confirmAddChannel").onclick=()=>{let ch=document.getElementById("newChannelInput").value;if(!ch.startsWith("#"))ch="#"+ch; if(!channels.includes(ch)){channels.push(ch);renderChannels();}addChannelModal.classList.remove("open");}
+    document.getElementById("cancelAddChannel").onclick=()=>addChannelModal.classList.remove("open");
+
+    function renderChannels(){channelListEl.innerHTML="";channels.forEach(ch=>{let li=document.createElement("li");li.textContent=ch;if(ch===currentChannel)li.classList.add("active");li.onclick=()=>switchChannel(ch);channelListEl.appendChild(li);});}
+    function renderUsers(list){userListEl.innerHTML="";let me=document.createElement("li");me.textContent=anonName;me.style.color="#4fc3f7";userListEl.appendChild(me);(list||[]).forEach(n=>{if(n!==anonName){let li=document.createElement("li");li.textContent=n;li.style.color="#a5d6a7";userListEl.appendChild(li);}});}
+    function addMessage(from,text,cls){if(!messagesByChannel[currentChannel])messagesByChannel[currentChannel]=[];messagesByChannel[currentChannel].push({from,text,cls});let row=document.createElement("div");row.className="message "+cls;let nick=document.createElement("span");nick.className="nick";nick.textContent=from+":";row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;}
+    function addInfo(text){let div=document.createElement("div");div.className="info";div.textContent=text;messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;}
+
+    let ws;
+    function connectWS(){ws=new WebSocket(WS_URL);ws.onopen=()=>{ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName}));};ws.onmessage=ev=>{let msg=JSON.parse(ev.data);if(msg.type==="info")addInfo(msg.message);else if(msg.type==="users")renderUsers(msg.users);else if(msg.type==="message")addMessage(msg.from,msg.text,"other");};ws.onclose=()=>setTimeout(connectWS,1000);}
+    function switchChannel(ch){currentChannel=ch;renderChannels();messagesEl.innerHTML="";addInfo(ch+" kanalına girdin.");if(ws&&ws.readyState===1){ws.send(JSON.stringify({type:"join",channel:ch,nick:anonName}));}}
+
+    form.onsubmit=e=>{e.preventDefault();let text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));};
+
+    renderChannels();switchChannel(currentChannel);connectWS();profileModal.classList.add("open");
+  </script>
 </body>
 </html>
