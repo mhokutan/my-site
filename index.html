@@ -1,52 +1,36 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Hızlı Sohbet</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="profile">
-      <h2>Profil</h2>
-      <input id="nickname" placeholder="Rumuz girin" />
-      <button id="saveProfile">Kaydet</button>
-    </div>
-    <h2>Kategoriler</h2>
-    <ul id="categories">
-      <li data-cat="#Teknoloji">#Teknoloji</li>
-      <li data-cat="#Oyun">#Oyun</li>
-      <li data-cat="#Genel Sohbet">#Genel Sohbet</li>
-      <li data-cat="#Spor">#Spor</li>
-    </ul>
-    <div class="add-category">
-      <h3>Yeni Kategori</h3>
-      <select id="countrySelect">
-        <option value="">Ülke Seç</option>
-        <option value="Türkiye">Türkiye</option>
-        <option value="USA">USA</option>
-        <option value="Almanya">Almanya</option>
-        <option value="İngiltere">İngiltere</option>
-        <option value="Fransa">Fransa</option>
-        <option value="Hollanda">Hollanda</option>
-      </select>
-      <select id="citySelect">
-        <option value="">Şehir Seç</option>
-      </select>
-      <input id="customCategory" placeholder="#Kategori ekle" />
-      <button id="addCategory">Ekle</button>
-    </div>
-  </aside>
-  <main class="chat">
-    <div id="messages" class="messages"></div>
-    <form id="form" class="input">
-      <input id="input" autocomplete="off" placeholder="Mesaj yaz..." />
-      <button>Gönder</button>
-    </form>
-  </main>
-</div>
-<script src="script.js"></script>
+  <div class="container">
+    <aside class="sidebar">
+      <h3>Kategoriler</h3>
+      <ul id="categories">
+        <li data-cat="Genel Sohbet">Genel Sohbet</li>
+        <li data-cat="Teknoloji">Teknoloji</li>
+        <li data-cat="Oyun">Oyun</li>
+        <li data-cat="Spor">Spor</li>
+        <li data-cat="Film & Dizi">Film & Dizi</li>
+        <li data-cat="Müzik">Müzik</li>
+        <li data-cat="Eğitim & Öğrenme">Eğitim & Öğrenme</li>
+      </ul>
+    </aside>
+
+    <main class="chat">
+      <div id="status" class="status">Kategori seçiniz</div>
+      <div id="messages" class="messages"></div>
+      <form id="form" class="form">
+        <input id="input" autocomplete="off" placeholder="Mesaj yaz...">
+        <button type="submit">Gönder</button>
+      </form>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
+
