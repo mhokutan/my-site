@@ -8,6 +8,7 @@ const fetch = global.fetch || ((...args) =>
 
 const PORT = process.env.PORT || 3000;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const PUBLIC_DIR = __dirname;
 
 function sendJson(res, status, obj) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -56,17 +57,33 @@ const server = http.createServer((req, res) => {
       }
     });
   } else {
-    const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
-    fs.readFile(filePath, (err, content) => {
-      if (err) {
-        res.writeHead(404);
-        return res.end('Not found');
+    try {
+      const requestPath = decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
+      if (requestPath.split('/').includes('..')) {
+        res.writeHead(400);
+        return res.end('Bad request');
       }
-      const ext = path.extname(filePath);
-      const map = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
-      res.writeHead(200, { 'Content-Type': map[ext] || 'text/plain' });
-      res.end(content);
-    });
+      const normalizedPath = path.normalize(requestPath);
+      const filePath = path.join(PUBLIC_DIR, normalizedPath === '/' ? 'index.html' : normalizedPath);
+      const resolvedPath = path.resolve(filePath);
+      if (!resolvedPath.startsWith(PUBLIC_DIR)) {
+        res.writeHead(403);
+        return res.end('Forbidden');
+      }
+      fs.readFile(resolvedPath, (err, content) => {
+        if (err) {
+          res.writeHead(404);
+          return res.end('Not found');
+        }
+        const ext = path.extname(resolvedPath);
+        const map = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
+        res.writeHead(200, { 'Content-Type': map[ext] || 'text/plain' });
+        res.end(content);
+      });
+    } catch (err) {
+      res.writeHead(400);
+      res.end('Bad request');
+    }
   }
 });
 
