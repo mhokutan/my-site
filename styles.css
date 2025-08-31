@@ -1,39 +1,27 @@
-:root{
-  --bg:#f9f9f9; --text:#111; --muted:#f0f0f0;
-  --accent:#4f46e5; --me:#d1ffd1; --bot:#d1e7ff;
-}
-*{box-sizing:border-box;font-family:Arial, sans-serif}
-body{margin:0;background:var(--bg);color:var(--text)}
-body.noscroll{overflow:hidden}
+body{margin:0;font-family:"Courier New",monospace;background:#dcdcdc;color:#111}
+.menubar{background:#bcbcbc;padding:4px;display:flex;gap:8px;border-bottom:2px solid #999}
+.menubar button{background:#eee;border:1px solid #888;padding:4px 8px;cursor:pointer}
+.menubar button:hover{background:#ddd}
 
-/* Layout */
-.container{display:flex;height:100vh}
-.sidebar{width:200px;background:var(--muted);padding:12px;border-right:1px solid #ccc;flex-shrink:0}
-.sidebar h3{margin:0 0 10px}
-.chat{flex:1;display:flex;flex-direction:column;min-width:0}
-.status{background:#eee;padding:10px;text-align:center;font-weight:600;flex-shrink:0}
-.messages{flex:1;padding:12px;overflow:auto;background:#fff}
-.message{margin:6px 0;padding:8px 12px;border-radius:10px;max-width:70%;word-wrap:break-word}
-.message.me{background:var(--me);margin-left:auto}
-.message.bot{background:var(--bot);margin-right:auto}
-.info{color:#555;font-size:.9rem;text-align:center;margin:10px 0}
-.form{display:flex;gap:8px;border-top:1px solid #ddd;padding:10px;background:#fff;flex-shrink:0}
-.form input{flex:1;padding:10px;border:1px solid #ccc;border-radius:6px}
-.form button{padding:10px 14px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
-.form button:hover{filter:brightness(.9)}
+.container{display:flex;height:calc(100vh - 30px)}
+.sidebar{width:180px;background:#efefef;border-right:2px solid #999;padding:8px}
+.sidebar h3{margin:0 0 8px;font-size:14px}
+.sidebar ul{list-style:none;padding:0;margin:0;font-size:13px}
+.sidebar li{padding:3px 0}
 
-/* Modals */
+.chat{flex:1;display:flex;flex-direction:column}
+.status{background:#ccc;padding:6px;text-align:center;font-weight:bold;border-bottom:2px solid #999}
+.messages{flex:1;padding:8px;overflow:auto;background:#fff;font-size:13px}
+.message{margin:4px 0}
+.message.me{color:blue}
+.message.bot{color:green}
+.info{color:#666;font-style:italic;text-align:center}
+.form{display:flex;border-top:2px solid #999}
+.form input{flex:1;padding:6px;border:none;font-family:inherit;font-size:13px}
+.form button{background:#ccc;border:none;padding:6px 12px;cursor:pointer}
+.form button:hover{background:#bbb}
+
+/* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}
 .modal.open{display:flex}
-.modal-content{background:#fff;padding:18px;border-radius:8px;display:grid;gap:8px;min-width:280px;max-width:90%}
-
-/* Mobil uyum */
-@media (max-width: 768px){
-  .container{flex-direction:column}
-  .sidebar{width:100%;border-right:none;border-bottom:1px solid #ccc}
-  .messages{font-size:0.95rem;padding:8px}
-  .message{max-width:85%}
-  .form{gap:6px}
-  .form input{padding:8px}
-  .form button{padding:8px 10px;font-size:0.9rem}
-}
+.modal-content{background:#fff;padding:16px;border:2px solid #333;display:grid;gap:6px;min-width:280px}
