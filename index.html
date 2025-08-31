@@ -3,28 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hızlı Sohbet</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Kategorili Hızlı Sohbet</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-<div class="app">
-  <aside class="sidebar">
-    <h2>Kategoriler</h2>
-    <ul id="categories">
-      <li data-cat="Teknoloji">Teknoloji</li>
-      <li data-cat="Oyun">Oyun</li>
-      <li data-cat="Genel Sohbet">Genel Sohbet</li>
-      <li data-cat="Spor">Spor</li>
-    </ul>
-  </aside>
-  <main class="chat">
-    <div id="messages" class="messages"></div>
-    <form id="form" class="input">
-      <input id="input" autocomplete="off" placeholder="Mesaj yaz..." />
-      <button>Gönder</button>
-    </form>
-  </main>
-</div>
-<script src="script.js"></script>
+<body class="light">
+  <div id="nicknameModal" class="modal">
+    <div class="modal-content">
+      <h2>Rumuz Seç</h2>
+      <input id="nicknameInput" type="text" placeholder="Rumuzun" />
+      <button id="saveNickname">Kaydet</button>
+    </div>
+  </div>
+  <div id="app">
+    <aside class="sidebar">
+      <h3>Kategoriler</h3>
+      <ul id="categoryList">
+        <li data-cat="Genel Sohbet" class="active">Genel Sohbet</li>
+        <li data-cat="Teknoloji">Teknoloji</li>
+        <li data-cat="Oyun">Oyun</li>
+        <li data-cat="Spor">Spor</li>
+        <li data-cat="Film & Dizi">Film & Dizi</li>
+        <li data-cat="Müzik">Müzik</li>
+        <li data-cat="Eğitim & Öğrenme">Eğitim & Öğrenme</li>
+      </ul>
+      <div class="theme-toggle">
+        <button id="themeToggle">🌙</button>
+      </div>
+    </aside>
+    <main class="chat">
+      <header class="chat-header">
+        <span id="currentCategory">Genel Sohbet</span>
+        <span id="pairStatus">Eşleşme bekleniyor...</span>
+      </header>
+      <section id="messages" class="messages"></section>
+      <div id="typing" class="typing hidden">Typing...</div>
+      <footer class="input-area">
+        <input id="messageInput" placeholder="Mesaj yaz..." autocomplete="off" />
+        <button id="sendBtn">Gönder</button>
+      </footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,32 +1,25 @@
-# Hızlı Sohbet
+# Kategorili Hızlı Sohbet
 
-Bu proje, kullanıcıların seçtikleri kategoriye göre başka bir kullanıcıyla 1-1 sohbet etmelerini sağlar. Aynı kategoride çevrimiçi kullanıcı yoksa, sohbet otomatik olarak yapay zekâ ile başlar.
+Bu proje, GitHub Pages üzerinde çalışacak statik bir sohbet arayüzüdür. WebSocket sunucusu verilmediğinde demo botu devreye girer.
 
 ## Özellikler
-- Rumuzla giriş
-- Sol tarafta kategori listesi
-- WebSocket ile gerçek zamanlı eşleştirme
-- Kategoriye göre OpenAI desteği
 
-## Kurulum
-1. Bağımlılıkları yükleyin:
-   ```bash
-   npm install
-   ```
-2. OpenAI anahtarınızı içeren `.env` dosyası oluşturun:
-   ```
-   OPENAI_API_KEY=ANAHTARINIZ
-   ```
-3. Sunucuyu çalıştırın:
-   ```bash
-   npm start
-   ```
-4. Tarayıcıdan `http://localhost:3000` adresine gidin.
+- Kategorilere göre sohbet (Genel Sohbet, Teknoloji, Oyun, Spor, Film & Dizi, Müzik, Eğitim & Öğrenme)
+- Rumuz seçme modali
+- Light/Dark tema değiştirici
+- WebSocket entegrasyonu (join, message, system, paired, unpaired, typing)
+- Demo Bot (600-1200ms gecikmeli yanıtlar, kategoriye göre sorular)
+- Mesaj baloncukları, gönderildi/okundu simülasyonu
+- Mesaj düzenleme/silme (10 sn içinde)
+- Emoji reaksiyonları (👍❤️😂😮😢)
+- Anket mesajları (`/poll soru | seçenek1 | seçenek2`)
+- Kaybolan mesaj (`/vanish mesaj`)
+- 25 mesaj veya 3 dakika sonra sohbet sonlandırma önerisi
 
-## Kategoriler
-- Teknoloji
-- Oyun
-- Genel Sohbet
-- Spor
+## Kullanım
 
-Bu proje eğitim amaçlıdır.
+Dosyaları GitHub Pages deposunun köküne yerleştirin.  `CONFIG.WS_URL` değerini gerçek bir WebSocket adresi ile güncellerseniz gerçek zamanlı sohbet mümkündür.
+
+## Geliştirme
+
+Bu proje düz HTML/CSS/JS kullanır, bağımlılık yoktur. Test veya derleme adımı gerekmez.
