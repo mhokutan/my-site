@@ -4,7 +4,9 @@
 }
 *{box-sizing:border-box;font-family:Arial, sans-serif}
 body{margin:0;background:var(--bg);color:var(--text)}
+body.noscroll{overflow:hidden}
 
+/* Layout */
 .container{display:flex;height:100vh}
 .sidebar{width:200px;background:var(--muted);padding:12px;border-right:1px solid #ccc;flex-shrink:0}
 .sidebar h3{margin:0 0 10px}
@@ -20,16 +22,18 @@ body{margin:0;background:var(--bg);color:var(--text)}
 .form button{padding:10px 14px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
 .form button:hover{filter:brightness(.9)}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10}
+/* Modals: varsayılan kapalı */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}
+.modal.open{display:flex}
 .modal-content{background:#fff;padding:18px;border-radius:8px;display:grid;gap:8px;min-width:280px;max-width:90%}
 
-/* 🔹 Mobil uyum */
+/* Mobil uyum */
 @media (max-width: 768px){
   .container{flex-direction:column}
   .sidebar{width:100%;border-right:none;border-bottom:1px solid #ccc}
   .messages{font-size:0.95rem;padding:8px}
   .message{max-width:85%}
-  .form{flex-direction:row;gap:6px}
+  .form{gap:6px}
   .form input{padding:8px}
   .form button{padding:8px 10px;font-size:0.9rem}
 }
