@@ -1,16 +1,24 @@
-# Hızlı Sohbet Uygulaması
+# Kategori Tabanlı Hızlı Sohbet
 
-Bu klasör, kullanıcıları hızlı şekilde eşleştiren ve kısa süre içinde eşleşme bulunamazsa yapay zekâ ile sohbet başlatan basit bir örnek uygulama içerir.
+Bu klasör, kullanıcıların kategori seçerek hızlıca eşleştiği ve kullanıcı bulunamazsa yapay zekâ ile sohbet edebildiği örnek bir uygulama içerir.
 
 ## Özellikler
 - Takma ad ile giriş
-- 1-1 hızlı sohbet için gerçek kullanıcı eşleştirmesi
-- 5 saniye içinde kullanıcı bulunamazsa otomatik yapay zekâ sohbeti
-- OpenAI API entegrasyonu
-- Socket.io ile gerçek zamanlı mesajlaşma
+- Kategorilere göre 1-1 eşleştirme
+- Eşleşme yoksa OpenAI ile sohbet
+- Gerçek zamanlı mesajlaşma (Socket.io)
+- "Yazıyor" göstergesi
+- Mesaj gönderildi / okundu bilgisi
+- Mesaj düzenleme ve silme
+- 30 sn sonra kaybolan mesajlar
+- Emoji reaksiyonları
+- Anket oluşturma ve oy kullanma
+- Taş-kağıt-makas mini oyunu
+- Tema ve arka plan seçimi
+- Basit küfür filtresi
 
 ## Kurulum
-1. Bağımlılıkları yükleyin (depo kökünde):
+1. Bağımlılıkları yükleyin (repo kökünde):
    ```bash
    npm install
    ```
@@ -25,4 +33,4 @@ Bu klasör, kullanıcıları hızlı şekilde eşleştiren ve kısa süre içind
 4. Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresini açın.
 
 ## Not
-Bu örnek basit olması için hazırlanmıştır; gerçek üretim ortamları için ek güvenlik ve hata kontrolleri gereklidir.
+Bu örnek eğitim amaçlıdır; gerçek ortamlar için ek güvenlik ve kalıcılık önlemleri gerekir.
