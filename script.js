@@ -5,6 +5,22 @@ while (!nickname) {
 }
 let currentCategory = null;
 const messagesEl = document.getElementById("messages");
+const categoryEls = Array.from(document.querySelectorAll("#categories li"));
+
+const pending = [];
+
+function joinCategory(cat) {
+  const payload = JSON.stringify({
+    type: "join",
+    category: cat,
+    nickname,
+  });
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(payload);
+  } else {
+    pending.push(payload);
+  }
+}
 
 function addMessage(from, text) {
   const div = document.createElement("div");
@@ -26,18 +42,22 @@ function clearMessages() {
   messagesEl.innerHTML = "";
 }
 
-document.querySelectorAll("#categories li").forEach((li) => {
+categoryEls.forEach((li) => {
   li.addEventListener("click", () => {
     currentCategory = li.dataset.cat;
     clearMessages();
-    ws.send(
-      JSON.stringify({
-        type: "join",
-        category: currentCategory,
-        nickname,
-      })
-    );
+    joinCategory(currentCategory);
   });
+});
+
+ws.addEventListener("open", () => {
+  while (pending.length) ws.send(pending.shift());
+  if (!currentCategory && categoryEls.length) {
+    const random = categoryEls[Math.floor(Math.random() * categoryEls.length)];
+    currentCategory = random.dataset.cat;
+    clearMessages();
+    joinCategory(currentCategory);
+  }
 });
 
 ws.onmessage = (event) => {
