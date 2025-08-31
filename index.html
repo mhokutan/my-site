@@ -22,8 +22,8 @@
       <p class="muted">HTML, CSS ve JavaScript ile çalışan; ücretsiz, uçtan uca eşleştirmeli, tek seferlik bir metin sohbeti.</p>
 
       <div class="row">
-        <label for="nickname">Takma ad (isteğe bağlı)</label>
-        <input id="nickname" type="text" maxlength="20" placeholder="Örn: Deniz" />
+        <label for="nickname">Takma ad</label>
+        <input id="nickname" type="text" maxlength="20" placeholder="Örn: Deniz" readonly />
       </div>
 
       <div class="actions">
@@ -81,6 +81,11 @@
 
   <!-- Environment variables (generated) -->
   <script src="env.js"></script>
+
+  <script src="profile.js"></script>
+  <script>
+    document.getElementById('nickname').value = getOrCreateNickname();
+  </script>
 
   <!-- App -->
   <script src="app.js"></script>
