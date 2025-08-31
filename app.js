@@ -61,6 +61,8 @@ const changeBtn = $("#changeBtn");
 const skipBtn = $("#skipBtn");
 const addFriendBtn = $("#addFriendBtn");
 const profileBtn = $("#profileBtn");
+const myAvatar = $("#myAvatar");
+const peerAvatar = $("#peerAvatar");
 let nextBtnTimer = null;
 
 function setStatus(t) {
@@ -88,6 +90,16 @@ function setConnectedUI(connected) {
 function sanitize(text) {
   return text.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
 }
+
+function setAvatar(el, gender) {
+  if (!el) return;
+  if (gender === "female") el.src = "img/avatar-female.svg";
+  else if (gender === "male") el.src = "img/avatar-male.svg";
+  else el.src = "img/avatar-neutral.svg";
+}
+
+setAvatar(myAvatar, getProfile().gender);
+setAvatar(peerAvatar, null);
 
 function scheduleNextButton() {
   nextBtn.classList.add("hidden");
@@ -177,7 +189,8 @@ addFriendBtn.addEventListener("click", () => {
 });
 
 skipBtn.addEventListener("click", () => {
-  addMsg("Sistem: Geç butonuna basıldı.", "sys");
+  endCurrent(true);
+  attemptMatch();
 });
 
 profileBtn.addEventListener("click", () => {
@@ -218,6 +231,9 @@ function initPeer() {
 // Basit tek-kuyruk: queue null ise ID'ni yazıp bekle, doluysa al ve sıfırla.
 function attemptMatch() {
   if (!appState.queueRef || !appState.myId) return;
+  messagesEl.innerHTML = "";
+  setAvatar(peerAvatar, null);
+  setAvatar(myAvatar, getProfile().gender);
   appState.matchedWith = null;
   appState.waiting = true;
   setStatus("Eşleştiriliyor...");
@@ -332,7 +348,8 @@ function bindConnection(conn, initiator) {
 
     // Selam mesajı (gönüllü)
     if (appState.nickname) {
-      conn.send({ type: "hello", name: appState.nickname });
+      const profile = getProfile();
+      conn.send({ type: "hello", name: appState.nickname, gender: profile.gender });
     }
   });
 
@@ -342,6 +359,7 @@ function bindConnection(conn, initiator) {
       addMsg(String(data.text).slice(0, 500), "them");
     } else if (data.type === "hello") {
       addMsg(`Sistem: Karşı taraf takma adı → ${String(data.name).slice(0,20)}`, "sys");
+      setAvatar(peerAvatar, data.gender);
     }
   });
 
