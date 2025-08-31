@@ -32,16 +32,14 @@ function addMessage(from, text, cls="") {
   div.className = `message ${cls}`.trim();
   div.textContent = `${from}: ${text}`;
   messagesEl.appendChild(div);
-  const nearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 40;
-  if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 function addInfo(text) {
   const div = document.createElement("div");
   div.className = "info";
   div.textContent = text;
   messagesEl.appendChild(div);
-  const nearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 40;
-  if (nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 function clearMessages(){ messagesEl.innerHTML = ""; }
 
@@ -59,7 +57,8 @@ async function botReplyWithAI(category, userText) {
     addMessage("AI", data.reply, "bot");
   } catch (err) {
     typingEl.hidden = true;
-    addMessage("AI", "Üzgünüm, cevap alınamadı.", "bot");
+    addMessage("AI", "⚠️ Sunucuya bağlanılamadı.", "bot");
+    console.error("API error:", err);
   }
 }
 
