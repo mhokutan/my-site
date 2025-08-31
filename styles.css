@@ -67,9 +67,9 @@ body {
 .muted { color: var(--muted); }
 
 .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
   border: 2px solid var(--border);
   background: var(--chip);
   display: block;

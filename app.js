@@ -59,6 +59,7 @@ const likeBtn = $("#likeBtn");
 const dislikeBtn = $("#dislikeBtn");
 const changeBtn = $("#changeBtn");
 const skipBtn = $("#skipBtn");
+const addFriendBtn = $("#addFriendBtn");
 const profileBtn = $("#profileBtn");
 let nextBtnTimer = null;
 
@@ -80,6 +81,8 @@ function setConnectedUI(connected) {
   dislikeBtn.disabled = !connected;
   changeBtn.disabled = !connected;
   skipBtn.disabled = !connected;
+  addFriendBtn.disabled = true;
+  addFriendBtn.classList.add("hidden");
   chatCard.classList.toggle("hidden", !connected && !appState.waiting);
 }
 function sanitize(text) {
@@ -151,14 +154,26 @@ sendForm.addEventListener("submit", (e) => {
 
 likeBtn.addEventListener("click", () => {
   addMsg("Sistem: Kullanıcıyı beğendiniz.", "sys");
+  addFriendBtn.classList.remove("hidden");
+  addFriendBtn.disabled = false;
 });
 
 dislikeBtn.addEventListener("click", () => {
   addMsg("Sistem: Kullanıcıyı beğenmediniz.", "sys");
+  endCurrent(true);
+  attemptMatch();
 });
 
 changeBtn.addEventListener("click", () => {
   addMsg("Sistem: Değiştir butonuna basıldı.", "sys");
+  endCurrent(true);
+  attemptMatch();
+});
+
+addFriendBtn.addEventListener("click", () => {
+  addMsg("Sistem: Kullanıcı arkadaş olarak eklendi.", "sys");
+  addFriendBtn.classList.add("hidden");
+  addFriendBtn.disabled = true;
 });
 
 skipBtn.addEventListener("click", () => {
