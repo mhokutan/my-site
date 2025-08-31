@@ -3,94 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>One-Time Chat</title>
-  <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="Rastgele eşleşme ile tek seferlik sohbet." />
+  <title>Hızlı Sohbet</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="brand">One‑Time <span>Chat</span></div>
-    <div class="header-buttons">
-      <button id="profileBtn" class="ghost">Profil</button>
-      <button id="themeToggle" aria-label="Tema değiştir">🌓</button>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card intro">
-      <h1>Rastgele Tek Seferlik Sohbet</h1>
-      <p class="muted">HTML, CSS ve JavaScript ile çalışan; ücretsiz, uçtan uca eşleştirmeli, tek seferlik bir metin sohbeti.</p>
-
-      <div class="row">
-        <label for="nickname">Takma ad</label>
-        <input id="nickname" type="text" maxlength="20" placeholder="Örn: Deniz" readonly />
-      </div>
-
-      <div class="actions">
-        <button id="startBtn" class="primary">Sohbete Başla</button>
-        <button id="nextBtn" class="ghost hidden" disabled>Sonraki</button>
-        <button id="endBtn" class="danger" disabled>Bitir</button>
-      </div>
-
-      <div id="status" class="status">Hazır.</div>
-
-      <details class="help">
-        <summary>Nasıl çalışır?</summary>
-          <ul>
-            <li>Hiçbir mesaj sunucuda saklanmaz. Mesajlar eşler arası (P2P) aktarılır.</li>
-            <li>Eşleştirme için ücretsiz <b>Firebase Realtime Database</b>, bağlantı için <b>PeerJS (WebRTC)</b> kullanılır.</li>
-            <li>İlk kurulum için <code>app.js</code> içindeki <code>firebaseConfig</code>'i doldurmalısın.</li>
-            <li>5 saniye içinde eşleşme bulunamazsa OpenAI ile basit bir yapay zekayla sohbet başlar.</li>
-          </ul>
-        </details>
-      </section>
-
-    <section class="card chat hidden" id="chatCard" aria-live="polite">
-      <div class="chatHeader">
-        <img id="peerAvatar" class="avatar" alt="Karşı profil" />
-        <div class="chatInfo">
-          <div class="chip" id="roomChip">Bağlı değil</div>
-          <div class="subtle" id="peerInfo"></div>
-        </div>
-        <img id="myAvatar" class="avatar" alt="Profilim" />
-      </div>
-
-      <div id="messages" class="messages" aria-label="Mesajlar"></div>
-
-      <form id="sendForm" class="sendBar">
-        <input id="messageInput" type="text" placeholder="Mesaj yaz..." autocomplete="off" maxlength="500" />
-        <button id="sendBtn" class="primary" type="submit" disabled>Gönder</button>
-      </form>
-      <div class="extraActions">
-        <button id="likeBtn" class="ghost" disabled>Beğendim</button>
-        <button id="dislikeBtn" class="ghost" disabled>Beğenmedim</button>
-        <button id="changeBtn" class="ghost" disabled>Değiştir</button>
-        <button id="skipBtn" class="ghost" disabled>Geç</button>
-        <button id="addFriendBtn" class="ghost hidden" disabled>Arkadaş olarak ekle</button>
-      </div>
-    </section>
+<div class="app">
+  <aside class="sidebar">
+    <h2>Kategoriler</h2>
+    <ul id="categories">
+      <li data-cat="Teknoloji">Teknoloji</li>
+      <li data-cat="Oyun">Oyun</li>
+      <li data-cat="Genel Sohbet">Genel Sohbet</li>
+      <li data-cat="Spor">Spor</li>
+    </ul>
+  </aside>
+  <main class="chat">
+    <div id="messages" class="messages"></div>
+    <form id="form" class="input">
+      <input id="input" autocomplete="off" placeholder="Mesaj yaz..." />
+      <button>Gönder</button>
+    </form>
   </main>
-
-  <footer class="site-footer">
-    <small class="muted">
-      Uyarı: Lütfen kişisel bilgi paylaşma. Bu demo eğitim amaçlıdır.
-    </small>
-  </footer>
-
-  <!-- Firebase & PeerJS (CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-
-  <!-- Environment variables (generated) -->
-  <script src="env.js"></script>
-
-  <script src="profile.js"></script>
-  <script>
-    document.getElementById('nickname').value = getOrCreateNickname();
-  </script>
-
-  <!-- App -->
-  <script src="app.js"></script>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
