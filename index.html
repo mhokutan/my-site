@@ -13,7 +13,7 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer}
+    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -24,6 +24,8 @@
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
     .avatar{font-size:16px}
+    .star{cursor:pointer;color:#666}
+    .star.following{color:gold}
 
     @media(max-width:768px){
       .layout{grid-template-columns:1fr}
@@ -64,14 +66,22 @@
   </div>
 
   <div class="layout">
-    <aside class="pane"><div class="pane-title">Kanallar</div><ul id="channelList" class="list"></ul></aside>
+    <aside class="pane">
+      <div class="pane-title">Kanallar</div>
+      <ul id="channelList" class="list"></ul>
+    </aside>
     <main class="center">
       <div id="topic" class="topic">#genel</div>
       <div id="messages" class="messages"></div>
       <div id="typingArea"></div>
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
-    <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
+    <aside class="pane pane-right">
+      <div class="pane-title">Kullanıcılar</div>
+      <ul id="userList" class="list"></ul>
+      <div class="pane-title">Takip Ettiklerim</div>
+      <ul id="followList" class="list"></ul>
+    </aside>
   </div>
 
   <!-- Mobil Menü -->
@@ -79,6 +89,7 @@
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
     <div class="pane-title">Kanallar</div><ul id="channelListMobile" class="list"></ul>
     <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
+    <div class="pane-title">Takip Ettiklerim</div><ul id="followListMobile" class="list"></ul>
     <div class="pane-title">Hesap</div>
     <button onclick="btnLogin.click()">Giriş</button>
     <button onclick="btnProfile.click()">Profil Düzenle</button>
@@ -124,6 +135,11 @@ const AVATARS={
   default:"<span class='avatar' style='color:#aaa'>👤</span>"
 };
 
+// takip listesi localStorage
+let follows=JSON.parse(localStorage.getItem("follows")||"[]");
+
+function saveFollows(){localStorage.setItem("follows",JSON.stringify(follows));renderFollows();}
+
 // küfür filtresi
 const bannedWords=["küfür1","küfür2","badword"];
 function cleanMessage(text){
@@ -156,11 +172,37 @@ function renderUsers(list){
   list.forEach(u=>{
     const avatar=AVATARS[u.avatar]||AVATARS.default;
     const li=document.createElement("li");
+    const star=document.createElement("span");
+    star.className="star"+(follows.find(f=>f.uid===u.uid)?" following":"");
+    star.textContent="★";
+    star.onclick=(e)=>{e.stopPropagation();toggleFollow(u,star);};
     li.innerHTML=avatar+" "+u.display;
+    li.appendChild(star);
     li.onclick=()=>startDM(u);
     userList.appendChild(li);
     userListMobile.appendChild(li.cloneNode(true));
   });
+  renderFollows();
+}
+
+function renderFollows(){
+  followList.innerHTML="";followListMobile.innerHTML="";
+  follows.forEach(u=>{
+    const avatar=AVATARS[u.avatar]||AVATARS.default;
+    const li=document.createElement("li");
+    li.innerHTML=avatar+" "+u.display;
+    li.onclick=()=>startDM(u);
+    followList.appendChild(li);
+    followListMobile.appendChild(li.cloneNode(true));
+  });
+}
+
+function toggleFollow(u,starEl){
+  const exists=follows.find(f=>f.uid===u.uid);
+  if(exists){follows=follows.filter(f=>f.uid!==u.uid);}
+  else{follows.push(u);}
+  saveFollows();
+  if(starEl)starEl.classList.toggle("following");
 }
 
 function connectWS(){
@@ -225,12 +267,9 @@ function sendDM(room,formEl){
   box.innerHTML+=`<div><span class="time">[${time}]</span> <b>Ben:</b> ${text}</div>`;
   box.scrollTop=box.scrollHeight;
   ws.send(JSON.stringify({type:"message",text,channel:room}));
-
-  // localStorage’a kaydet
   const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
   history.push(entry);
   localStorage.setItem("dmHistory_"+room,JSON.stringify(history));
-
   formEl.text.value="";
 }
 
@@ -258,7 +297,6 @@ saveProfile.onclick=async()=>{
   let avatar="default";
   if(genderVal==="erkek") avatar="male";
   else if(genderVal==="kadın") avatar="female";
-
   const profile={
     firstName:firstName.value,
     lastName:lastName.value,
