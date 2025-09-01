@@ -42,7 +42,8 @@
 <body>
   <div class="menubar">
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
-    <button id="btnProfile">Profil</button>
+    <span id="authStatus">Anonim</span>
+    <button id="btnLogout" style="display:none">Çıkış</button>
   </div>
 
   <div id="mobileMenu">
@@ -67,30 +68,29 @@
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
 
-  <!-- Profil Modal -->
-  <div id="profileModal" class="modal">
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal open">
     <div class="modal-content">
-      <h3>Profil (opsiyonel)</h3>
-      <label>İsim</label><input id="firstName"/>
-      <label>Soyisim</label><input id="lastName"/>
-      <label>Email</label><input id="email"/>
-      <label>Ülke</label><input id="country"/>
-      <label>Şehir</label><input id="city"/>
+      <h3 id="authTitle">Giriş Yap</h3>
+      <label>Email</label><input id="authEmail"/>
+      <label>Şifre</label><input type="password" id="authPassword"/>
+      <label>Ülke</label><input id="authCountry"/>
+      <label>Şehir</label><input id="authCity"/>
       <div class="modal-actions">
-        <button id="saveProfile">Kaydet</button>
-        <button id="skipProfile">Anonim</button>
+        <button id="btnDoLogin">Giriş</button>
+        <button id="btnDoRegister">Kayıt</button>
       </div>
     </div>
   </div>
 
 <script>
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
-let currentChannel="#genel",ws,usersInRoom=[];
-let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));
-localStorage.setItem("anonName",anonName);
-let profile=JSON.parse(localStorage.getItem("profile")||"{}");
+const API_URL="https://chat-backend-1-iq7t.onrender.com";
+let currentChannel="#genel",ws,onlineUsers=[];
+let anonName="User"+Math.floor(Math.random()*1000);
+let token=localStorage.getItem("token");
+let profile={};
 let followed=JSON.parse(localStorage.getItem("followedUsers")||"[]");
-let onlineUsers=[];
 
 function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
@@ -104,10 +104,13 @@ function renderUsers(list){
   (list||[]).forEach(u=>{
     const li=document.createElement("li");
     const span=document.createElement("span"); span.className="item"; span.textContent=u.display||u.nick;
-    const star=document.createElement("button");star.textContent=followed.includes(u.uid)?"★":"☆";star.className="dmBtn";
-    star.onclick=(e)=>{e.stopPropagation();toggleFollow(u.uid);renderFollowed();renderUsers(list);};
-    const dm=document.createElement("button");dm.textContent="DM";dm.className="dmBtn";dm.onclick=(e)=>{e.stopPropagation();startDM(u.uid,u.display);};
-    li.appendChild(span);li.appendChild(star);li.appendChild(dm);
+    if(token){ // sadece giriş yapanlar için
+      const star=document.createElement("button");star.textContent=followed.includes(u.uid)?"★":"☆";star.className="dmBtn";
+      star.onclick=(e)=>{e.stopPropagation();toggleFollow(u.uid);renderFollowed();renderUsers(list);};
+      const dm=document.createElement("button");dm.textContent="DM";dm.className="dmBtn";dm.onclick=(e)=>{e.stopPropagation();startDM(u.uid,u.display);};
+      li.appendChild(star);li.appendChild(dm);
+    }
+    li.appendChild(span);
     userList.appendChild(li); userListMobile.appendChild(li.cloneNode(true));
   });
   updateTopic();
@@ -120,12 +123,12 @@ function renderFollowed(){
     const isOnline=onlineUsers.some(u=>u.uid===uid);
     const status=isOnline?"🟢":"🔴";
     const li=document.createElement("li"); li.textContent=`${status} ${uid}`;
-    li.onclick=()=>startDM(uid,uid);
+    if(token) li.onclick=()=>startDM(uid,uid);
     followedList.appendChild(li); followedListMobile.appendChild(li.cloneNode(true));
   });
 }
 
-function startDM(toUid,label){ws.send(JSON.stringify({type:"dm",toUid}));topic.textContent=`DM: ${label}`;}
+function startDM(toUid,label){if(!token){alert("DM için giriş yapmalısın");return;}ws.send(JSON.stringify({type:"dm",toUid}));topic.textContent=`DM: ${label}`;}
 function handleDMHistory(msg){messages.innerHTML="";(msg.history||[]).forEach(m=>addMessage(m.from,m.text,"other"));}
 
 function connectWS(){
@@ -140,21 +143,36 @@ function connectWS(){
     if(msg.type==="dm-history")handleDMHistory(msg);
   };
 }
-function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,profile:{country:profile.country,city:profile.city}}));}
+function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,token}));}
 
-form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";ws.send(JSON.stringify({type:"message",text}));};
-
-// Profil modal
-btnProfile.onclick=()=>profileModal.classList.add("open");
-saveProfile.onclick=()=>{
-  profile={first:firstName.value,last:lastName.value,email:email.value,country:country.value,city:city.value};
-  localStorage.setItem("profile",JSON.stringify(profile));
-  profileModal.classList.remove("open");
-  if(ws&&ws.readyState===1)sendJoin();
+form.onsubmit=e=>{
+  e.preventDefault();
+  const text=input.value.trim();
+  if(!text)return;
+  addMessage(anonName,text,"me");
+  input.value="";
+  ws.send(JSON.stringify({type:"message",text}));
 };
-skipProfile.onclick=()=>profileModal.classList.remove("open");
 
-renderFollowed();updateTopic();connectWS();
+/* ------------------ Auth ------------------ */
+btnDoLogin.onclick=async()=>{
+  const email=authEmail.value, password=authPassword.value;
+  const res=await fetch(API_URL+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+  const data=await res.json();
+  if(data.success){token=data.token;localStorage.setItem("token",token);profile=data.profile;authModal.classList.remove("open");authStatus.textContent=email;btnLogout.style.display="inline-block";connectWS();}
+  else alert(data.error);
+};
+btnDoRegister.onclick=async()=>{
+  const email=authEmail.value,password=authPassword.value,country=authCountry.value,city=authCity.value;
+  const res=await fetch(API_URL+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password,profile:{country,city}})});
+  const data=await res.json();
+  if(data.success){alert("Kayıt başarılı, şimdi giriş yapabilirsiniz");}
+  else alert(data.error);
+};
+btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
+
+if(token){authModal.classList.remove("open");authStatus.textContent="Giriş yapıldı";btnLogout.style.display="inline-block";connectWS();}
+else {authStatus.textContent="Anonim";btnLogout.style.display="none";connectWS();}
 </script>
 </body>
 </html>
