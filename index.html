@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Anonim Sohbet</title>
   <style>
     body{margin:0;font-family:"Courier New",monospace;background:#000;color:#eee}
@@ -16,7 +16,7 @@
     .list li{padding:4px 6px;display:flex;gap:6px;align-items:center;justify-content:space-between}
     .list li span.item{flex:1;cursor:pointer}
     .list li.active{background:#1b1b1b}
-    .deleteBtn,.dmBtn{background:none;border:1px solid #444;color:#eee;cursor:pointer;font-size:12px;padding:2px 6px}
+    .dmBtn{background:none;border:1px solid #444;color:#eee;cursor:pointer;font-size:12px;padding:2px 6px}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -27,280 +27,90 @@
     .inputbar{display:flex;border-top:1px solid #333;background:#111}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
-
-    /* Mobil uyum */
-    @media(max-width:768px){
-      .layout{grid-template-columns:1fr}
-      .pane,.pane-right{display:none}
-      .menubar .mobile-toggle{display:inline-block}
-    }
+    @media(max-width:768px){.layout{grid-template-columns:1fr}.pane,.pane-right{display:none}.menubar .mobile-toggle{display:inline-block}}
     @media(min-width:769px){.menubar .mobile-toggle{display:none}}
     #mobileMenu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px}
     #mobileMenu.open{left:0}
     #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
-
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
-    .modal.open{display:flex}
-    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
-    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
-    .modal-actions{display:flex;gap:8px;margin-top:6px}
   </style>
 </head>
 <body>
   <div class="menubar">
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
-    <div>
-      <button id="btnProfile">Profil</button>
-      <button id="btnAddChannel">+ Kanal</button>
-    </div>
   </div>
-
-  <!-- Mobil Menü -->
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
+    <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedListMobile" class="list"></ul>
     <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularListMobile" class="list"></ul>
-    <div class="pane-title">👤 Benim Kanallarım</div><ul id="myListMobile" class="list"></ul>
+    <div class="pane-title">👤 Kanallarım</div><ul id="myListMobile" class="list"></ul>
     <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
   </div>
-
   <div class="layout">
     <aside class="pane">
+      <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedList" class="list"></ul>
       <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularList" class="list"></ul>
-      <div class="pane-title">👤 Benim Kanallarım</div><ul id="myList" class="list"></ul>
+      <div class="pane-title">👤 Kanallarım</div><ul id="myList" class="list"></ul>
     </aside>
     <main class="center">
-      <div id="topic" class="topic">#genel — 0 kişi</div>
-      <div id="messages" class="messages" id="messages"></div>
+      <div id="topic" class="topic">#genel</div>
+      <div id="messages" class="messages"></div>
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
-    <aside class="pane pane-right">
-      <div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul>
-    </aside>
-  </div>
-
-  <!-- Kanal Modal -->
-  <div id="addChannelModal" class="modal">
-    <div class="modal-content">
-      <h3>Yeni Kanal</h3>
-      <input id="newChannelInput" placeholder="#kanal-adi"/>
-      <div class="modal-actions">
-        <button id="confirmAddChannel">Ekle</button>
-        <button id="cancelAddChannel">İptal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profil Modal -->
-  <div id="profileModal" class="modal">
-    <div class="modal-content">
-      <h3>Profil (Opsiyonel)</h3>
-      <label>İsim</label><input id="firstName"/>
-      <label>Soyisim</label><input id="lastName"/>
-      <label>Email</label><input id="email"/>
-      <label>Ülke</label><input id="country"/>
-      <label>Şehir</label><input id="city"/>
-      <div class="modal-actions">
-        <button id="saveProfile">Kaydet</button>
-        <button id="skipProfile">Anonim</button>
-      </div>
-    </div>
+    <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
 
 <script>
-/* ---- Config & State ---- */
-const WS_URL = "wss://chat-backend-1-iq7t.onrender.com";
-let currentChannel = "#genel";
-let usersInRoom = [];
-let messagesByChannel = {};
-let anonName = localStorage.getItem("anonName") || ("User" + Math.floor(Math.random()*1000));
-localStorage.setItem("anonName", anonName);
-let myChannels = JSON.parse(localStorage.getItem("myChannels") || "[]");
-let profile = JSON.parse(localStorage.getItem("profile") || "{}");
-let peerLabelInDM = null; // Topic'te DM partner ismi göstermek için
+const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
+let currentChannel="#genel",ws,usersInRoom=[];
+let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));
+localStorage.setItem("anonName",anonName);
+let profile=JSON.parse(localStorage.getItem("profile")||"{}");
+let followed=JSON.parse(localStorage.getItem("followedUsers")||"[]");
 
-/* ---- Helpers ---- */
-function toggleMobileMenu(force){
-  const el = document.getElementById("mobileMenu");
-  if (force === false) { el.classList.remove("open"); return; }
-  el.classList.toggle("open");
-}
-function formatTime(){ return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}); }
-function formatFrom(nick, prof){ return (prof?.country && prof?.city) ? `${nick} (${prof.country}/${prof.city})` : nick; }
-function addInfo(text){
-  const div = document.createElement("div"); div.className="info"; div.textContent = text;
-  messagesEl.appendChild(div); messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-function addMessage(from, text, cls){
-  const row = document.createElement("div"); row.className="message "+cls;
-  row.innerHTML = `<span class="time">[${formatTime()}]</span><span class="nick">${from}:</span> ${text}`;
-  messagesEl.appendChild(row); messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-function updateTopic(){
-  const base = peerLabelInDM ? `${currentChannel} — ${peerLabelInDM}` : `${currentChannel} — ${usersInRoom.length} kişi`;
-  topicEl.textContent = base;
-}
+function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
+function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
+function addMessage(from,text,cls){const row=document.createElement("div");row.className="message "+cls;row.innerHTML=`<span class="time">[${formatTime()}]</span><span class="nick">${from}:</span> ${text}`;messages.appendChild(row);messages.scrollTop=messages.scrollHeight;}
+function addInfo(text){const div=document.createElement("div");div.className="info";div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
+function updateTopic(){topic.textContent=currentChannel;}
 
-/* ---- DOM ---- */
-const popularListEl = document.getElementById("popularList");
-const myListEl      = document.getElementById("myList");
-const userListEl    = document.getElementById("userList");
-const messagesEl    = document.getElementById("messages");
-const topicEl       = document.getElementById("topic");
-const form          = document.getElementById("form");
-const input         = document.getElementById("input");
-
-const popularListMobile = document.getElementById("popularListMobile");
-const myListMobile      = document.getElementById("myListMobile");
-const userListMobile    = document.getElementById("userListMobile");
-
-/* ---- Renderers ---- */
-function createChannelLi(ch, count){
-  const li = document.createElement("li");
-  const span = document.createElement("span"); span.className="item"; span.textContent = count!=null ? `${ch} (${count})` : ch;
-  span.onclick = () => { switchChannel(ch); toggleMobileMenu(false); };
-  li.appendChild(span);
-  return li;
-}
-function createMyChannelLi(ch){
-  const li = document.createElement("li");
-  const span = document.createElement("span"); span.className="item"; span.textContent = ch;
-  span.onclick = () => { switchChannel(ch); toggleMobileMenu(false); };
-  const del = document.createElement("button"); del.className="deleteBtn"; del.textContent="❌";
-  del.onclick = (e)=>{ e.stopPropagation(); removeMyChannel(ch); };
-  li.appendChild(span); li.appendChild(del); return li;
-}
-function renderPopular(stats){
-  // DM odalarını zaten backend filtreliyor; yine de güvenlik için bir kez daha filtreleyelim
-  const list = (stats||[]).filter(s=>!String(s.channel).startsWith("@dm:")).sort((a,b)=>b.count-a.count).slice(0,5);
-  popularListEl.innerHTML = ""; popularListMobile.innerHTML = "";
-  list.forEach(s=>{
-    const a = createChannelLi(s.channel, s.count);
-    const b = createChannelLi(s.channel, s.count);
-    popularListEl.appendChild(a); popularListMobile.appendChild(b);
-  });
-}
-function renderMyChannels(){
-  myListEl.innerHTML = ""; myListMobile.innerHTML = "";
-  myChannels.forEach(ch=>{
-    const a = createMyChannelLi(ch);
-    const b = createMyChannelLi(ch);
-    myListEl.appendChild(a); myListMobile.appendChild(b);
-  });
-}
 function renderUsers(list){
-  usersInRoom = list || [];
-  userListEl.innerHTML = ""; userListMobile.innerHTML = "";
+  userList.innerHTML=""; userListMobile.innerHTML="";
   (list||[]).forEach(u=>{
-    const li = document.createElement("li");
-    const span = document.createElement("span"); span.className="item"; span.textContent = u.display || u.nick;
-    const dm = document.createElement("button"); dm.className="dmBtn"; dm.textContent = "DM";
-    dm.onclick = (e)=>{ e.stopPropagation(); startDM(u.uid, u.display || u.nick); };
-    li.appendChild(span); li.appendChild(dm);
-    userListEl.appendChild(li);
-    userListMobile.appendChild(li.cloneNode(true));
+    const li=document.createElement("li");
+    const span=document.createElement("span"); span.className="item"; span.textContent=u.display||u.nick;
+    const star=document.createElement("button");star.textContent=followed.includes(u.uid)?"★":"☆";star.className="dmBtn";
+    star.onclick=(e)=>{e.stopPropagation();toggleFollow(u.uid);renderFollowed();renderUsers(list);};
+    const dm=document.createElement("button");dm.textContent="DM";dm.className="dmBtn";dm.onclick=(e)=>{e.stopPropagation();startDM(u.uid,u.display);};
+    li.appendChild(span);li.appendChild(star);li.appendChild(dm);
+    userList.appendChild(li); userListMobile.appendChild(li.cloneNode(true));
   });
-  // DM partner etiketi yoksa kişi sayısını göster
-  if (!peerLabelInDM) updateTopic();
+  updateTopic();
 }
 
-/* ---- Kanallarım ---- */
-function addMyChannel(ch){
-  if (!ch) return;
-  if (!ch.startsWith("#") && !ch.startsWith("@dm:")) ch = "#"+ch;
-  if (!myChannels.includes(ch)) {
-    myChannels.push(ch);
-    localStorage.setItem("myChannels", JSON.stringify(myChannels));
-    renderMyChannels();
-  }
-}
-function removeMyChannel(ch){
-  myChannels = myChannels.filter(x=>x!==ch);
-  localStorage.setItem("myChannels", JSON.stringify(myChannels));
-  renderMyChannels();
-}
+function toggleFollow(uid){if(followed.includes(uid))followed=followed.filter(x=>x!==uid);else followed.push(uid);localStorage.setItem("followedUsers",JSON.stringify(followed));}
+function renderFollowed(){followedList.innerHTML="";followedListMobile.innerHTML="";followed.forEach(uid=>{const li=document.createElement("li");li.textContent=uid;li.onclick=()=>startDM(uid,uid);followedList.appendChild(li);followedListMobile.appendChild(li.cloneNode(true));});}
 
-/* ---- WS ---- */
-let ws;
+function startDM(toUid,label){ws.send(JSON.stringify({type:"dm",toUid}));topic.textContent=`DM: ${label}`;}
+function handleDMHistory(msg){messages.innerHTML="";(msg.history||[]).forEach(m=>addMessage(m.from,m.text,"other"));}
+
 function connectWS(){
-  ws = new WebSocket(WS_URL);
-  ws.onopen = () => sendJoin(); // mevcut kanal ile katıl
-  ws.onmessage = (ev) => {
-    let msg; try { msg = JSON.parse(ev.data); } catch { return; }
-    if (msg.type === "info") addInfo(msg.message);
-    if (msg.type === "users") { peerLabelInDM = currentChannel.startsWith("@dm:") ? (peerLabelInDM || "") : null; renderUsers(msg.users); }
-    if (msg.type === "message") addMessage(msg.from, msg.text, "other");
-    if (msg.type === "channels") renderPopular(msg.stats);
-    if (msg.type === "dm-start") handleDMStart(msg);
+  ws=new WebSocket(WS_URL);
+  ws.onopen=()=>sendJoin();
+  ws.onmessage=ev=>{
+    const msg=JSON.parse(ev.data);
+    if(msg.type==="info")addInfo(msg.message);
+    if(msg.type==="users")renderUsers(msg.users);
+    if(msg.type==="message")addMessage(msg.from,msg.text,"other");
+    if(msg.type==="channels"){} // popüler listesi eklenebilir
+    if(msg.type==="dm-start"){currentChannel=msg.room;topic.textContent=`DM: ${msg.peer.display}`;sendJoin();}
+    if(msg.type==="dm-history")handleDMHistory(msg);
   };
 }
-function sendJoin(){
-  ws.send(JSON.stringify({
-    type: "join",
-    channel: currentChannel,
-    nick: anonName,
-    profile: { country: profile.country, city: profile.city }
-  }));
-}
-function switchChannel(ch){
-  currentChannel = ch;
-  peerLabelInDM = ch.startsWith("@dm:") ? (peerLabelInDM || "Özel sohbet") : null;
-  messagesEl.innerHTML = "";
-  addInfo(`${ch} kanalına girdin.`);
-  if (ws && ws.readyState === 1) sendJoin();
-}
+function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,profile:{country:profile.country,city:profile.city}}));}
 
-/* ---- DM ---- */
-function startDM(toUid, label){
-  if (!toUid) return;
-  ws.send(JSON.stringify({ type: "dm", toUid }));
-  // label'ı topic'te göstermek için sakla (server'dan da gelecek ama UX hızlı olsun)
-  peerLabelInDM = `Özel sohbet — ${label}`;
-}
-function handleDMStart(msg){
-  const { room, peer } = msg; // peer.display
-  peerLabelInDM = `Özel sohbet — ${peer.display}`;
-  switchChannel(room);
-  // DM odasını kanallarıma otomatik eklemek istersen:
-  // addMyChannel(room);
-}
+form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";ws.send(JSON.stringify({type:"message",text}));};
 
-/* ---- Events ---- */
-form.onsubmit = (e) => {
-  e.preventDefault();
-  const text = input.value.trim();
-  if (!text) return;
-  addMessage(formatFrom(anonName, profile), text, "me");
-  input.value = "";
-  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: "message", text }));
-};
-
-// Kanal modal
-document.getElementById("btnAddChannel").onclick = () => addChannelModal.classList.add("open");
-document.getElementById("confirmAddChannel").onclick = () => {
-  const ch = newChannelInput.value.trim();
-  if (ch) addMyChannel(ch);
-  newChannelInput.value = "";
-  addChannelModal.classList.remove("open");
-};
-document.getElementById("cancelAddChannel").onclick = () => addChannelModal.classList.remove("open");
-
-// Profil modal
-document.getElementById("btnProfile").onclick = () => profileModal.classList.add("open");
-document.getElementById("saveProfile").onclick = () => {
-  profile = {
-    first: firstName.value, last: lastName.value, email: email.value,
-    country: country.value, city: city.value
-  };
-  localStorage.setItem("profile", JSON.stringify(profile));
-  profileModal.classList.remove("open");
-  if (ws && ws.readyState === 1) sendJoin();
-};
-document.getElementById("skipProfile").onclick = () => profileModal.classList.remove("open");
-
-/* ---- Başlat ---- */
-renderMyChannels();
-switchChannel(currentChannel);
-connectWS();
+renderFollowed();updateTopic();connectWS();
 </script>
 </body>
 </html>
