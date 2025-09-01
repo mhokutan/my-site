@@ -19,6 +19,7 @@
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
     .time{color:#888;font-size:11px;margin-right:6px}
     .info{color:#888;text-align:center;font-style:italic;margin:4px 0}
+    .typing{color:#4af;font-size:12px;margin:2px 0;font-style:italic}
     .inputbar{display:flex;border-top:1px solid #333;background:#111}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
@@ -65,6 +66,7 @@
     <main class="center">
       <div id="topic" class="topic">#genel</div>
       <div id="messages" class="messages"></div>
+      <div id="typingArea"></div>
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
@@ -123,6 +125,11 @@ function addMessage(from,text){
 }
 function addInfo(t){messages.innerHTML+=`<div class="info">${t}</div>`;messages.scrollTop=messages.scrollHeight;}
 
+function showTyping(name){
+  typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;
+  setTimeout(()=>{typingArea.innerHTML="";},1500);
+}
+
 function connectWS(){
   ws=new WebSocket(WS_URL);
   ws.onopen=()=>sendJoin();
@@ -137,10 +144,12 @@ function connectWS(){
         userList.appendChild(li);userListMobile.appendChild(li.cloneNode(true));
       });
     }
+    if(msg.type==="typing"){ showTyping(msg.from); }
   };
 }
 function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));}
 form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage("Ben",text);ws.send(JSON.stringify({type:"message",text}));input.value="";};
+input.addEventListener("input",()=>{if(ws&&ws.readyState===WebSocket.OPEN){ws.send(JSON.stringify({type:"typing"}));}});
 
 btnLogin.onclick=()=>loginModal.classList.add("open");
 doLogin.onclick=async()=>{
