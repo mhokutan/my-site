@@ -13,7 +13,7 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px}
+    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -69,6 +69,10 @@
     <aside class="pane">
       <div class="pane-title">Kanallar</div>
       <ul id="channelList" class="list"></ul>
+      <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
+        <input id="newChannel" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
+        <button id="btnAddChannel" style="width:100%">Ekle</button>
+      </div>
     </aside>
     <main class="center">
       <div id="topic" class="topic">#genel</div>
@@ -88,6 +92,10 @@
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
     <div class="pane-title">Kanallar</div><ul id="channelListMobile" class="list"></ul>
+    <div id="addChannelBoxMobile" style="display:none;padding:6px;border-top:1px solid #333">
+      <input id="newChannelMobile" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
+      <button id="btnAddChannelMobile" style="width:100%">Ekle</button>
+    </div>
     <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
     <div class="pane-title">Takip Ettiklerim</div><ul id="followListMobile" class="list"></ul>
     <div class="pane-title">Hesap</div>
@@ -129,41 +137,17 @@ const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let token=localStorage.getItem("token");
 let ws,currentChannel="#genel";
 
-const AVATARS={
-  male:"<span class='avatar' style='color:#4af'>👨</span>",
-  female:"<span class='avatar' style='color:#f6a'>👩</span>",
-  default:"<span class='avatar' style='color:#aaa'>👤</span>"
-};
-
-// takip listesi localStorage
+const AVATARS={male:"<span class='avatar' style='color:#4af'>👨</span>",female:"<span class='avatar' style='color:#f6a'>👩</span>",default:"<span class='avatar' style='color:#aaa'>👤</span>"};
 let follows=JSON.parse(localStorage.getItem("follows")||"[]");
-
 function saveFollows(){localStorage.setItem("follows",JSON.stringify(follows));renderFollows();}
-
-// küfür filtresi
 const bannedWords=["küfür1","küfür2","badword"];
-function cleanMessage(text){
-  let safe=text;
-  bannedWords.forEach(w=>{
-    const re=new RegExp(w,"gi");
-    safe=safe.replace(re,"***");
-  });
-  return safe;
-}
+function cleanMessage(text){let safe=text;bannedWords.forEach(w=>{const re=new RegExp(w,"gi");safe=safe.replace(re,"***");});return safe;}
 
-function toggleMobileMenu(force){
-  const el=document.getElementById("mobileMenu");
-  if(force===false){el.classList.remove("open");return;}
-  el.classList.toggle("open");
-}
+function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
 function handleViewport(){if(window.innerWidth>=769){toggleMobileMenu(false);}}
 window.addEventListener("resize",handleViewport);document.addEventListener("DOMContentLoaded",()=>{toggleMobileMenu(false);handleViewport();});
 
-function addMessage(from,text){
-  const time=new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
-  messages.innerHTML+=`<div><span class="time">[${time}]</span> <b>${from}:</b> ${text}</div>`;
-  messages.scrollTop=messages.scrollHeight;
-}
+function addMessage(from,text){const time=new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});messages.innerHTML+=`<div><span class="time">[${time}]</span> <b>${from}:</b> ${text}</div>`;messages.scrollTop=messages.scrollHeight;}
 function addInfo(t){messages.innerHTML+=`<div class="info">${t}</div>`;messages.scrollTop=messages.scrollHeight;}
 function showTyping(name){typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;setTimeout(()=>{typingArea.innerHTML="";},1500);}
 
@@ -184,7 +168,6 @@ function renderUsers(list){
   });
   renderFollows();
 }
-
 function renderFollows(){
   followList.innerHTML="";followListMobile.innerHTML="";
   follows.forEach(u=>{
@@ -196,7 +179,6 @@ function renderFollows(){
     followListMobile.appendChild(li.cloneNode(true));
   });
 }
-
 function toggleFollow(u,starEl){
   const exists=follows.find(f=>f.uid===u.uid);
   if(exists){follows=follows.filter(f=>f.uid!==u.uid);}
@@ -227,6 +209,18 @@ form.onsubmit=e=>{
   input.value="";
 };
 input.addEventListener("input",()=>{if(ws&&ws.readyState===WebSocket.OPEN){ws.send(JSON.stringify({type:"typing"}));}});
+
+// === Kanal ekleme ===
+function addChannel(name){
+  if(!token){alert("Kanal eklemek için giriş yapın.");return;}
+  if(!name.startsWith("#")) name="#"+name;
+  currentChannel=name;
+  topic.textContent=name;
+  messages.innerHTML="";
+  ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));
+}
+btnAddChannel.onclick=()=>{const name=newChannel.value.trim();if(name)addChannel(name);newChannel.value="";};
+btnAddChannelMobile.onclick=()=>{const name=newChannelMobile.value.trim();if(name)addChannel(name);newChannelMobile.value="";};
 
 // === DM ===
 const dmWindows={};
@@ -267,52 +261,101 @@ function sendDM(room,formEl){
   box.innerHTML+=`<div><span class="time">[${time}]</span> <b>Ben:</b> ${text}</div>`;
   box.scrollTop=box.scrollHeight;
   ws.send(JSON.stringify({type:"message",text,channel:room}));
+
+  // localStorage’a kaydet
   const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
   history.push(entry);
   localStorage.setItem("dmHistory_"+room,JSON.stringify(history));
+
   formEl.text.value="";
 }
 
+// === Login/Register ===
 btnLogin.onclick=()=>loginModal.classList.add("open");
 doLogin.onclick=async()=>{
-  const identifier=document.getElementById("identifier").value;
-  const password=document.getElementById("password").value;
-  const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
-  const data=await res.json();
-  if(data.success){token=data.token;localStorage.setItem("token",token);authStatus.textContent=identifier;btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";loginModal.classList.remove("open");connectWS();}
-  else alert(data.error);
+  try{
+    const identifier=document.getElementById("identifier").value;
+    const password=document.getElementById("password").value;
+    const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
+    const data=await res.json();
+    if(!res.ok||!data.success)throw new Error(data?.error||("HTTP "+res.status));
+    token=data.token;
+    localStorage.setItem("token",token);
+    authStatus.textContent=identifier;
+    btnLogin.style.display="none";
+    btnProfile.style.display="inline-block";
+    btnLogout.style.display="inline-block";
+    loginModal.classList.remove("open");
+
+    // Kanal Ekle alanlarını aç
+    document.getElementById("addChannelBox").style.display="block";
+    document.getElementById("addChannelBoxMobile").style.display="block";
+
+    // ws reset
+    try{ws&&ws.close();}catch{}
+    connectWS();
+  }catch(err){
+    alert("Giriş hatası: "+err.message);
+  }
 };
 doRegister.onclick=async()=>{
-  const identifier=document.getElementById("identifier").value;
-  const password=document.getElementById("password").value;
-  const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
-  const data=await res.json();
-  if(data.success)alert("Kayıt başarılı");else alert(data.error);
+  try{
+    const identifier=document.getElementById("identifier").value;
+    const password=document.getElementById("password").value;
+    const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
+    const data=await res.json();
+    if(!res.ok||!data.success)throw new Error(data?.error||("HTTP "+res.status));
+    alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
+  }catch(err){
+    alert("Kayıt hatası: "+err.message);
+  }
 };
-btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
 
-btnProfile.onclick=()=>profileModal.classList.add("open");
+btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
+btnProfile.onclick=()=>{if(!token){alert("Profil düzenlemek için giriş yapın.");loginModal.classList.add("open");}else profileModal.classList.add("open");};
 saveProfile.onclick=async()=>{
   const genderVal=gender.value.toLowerCase();
   let avatar="default";
-  if(genderVal==="erkek") avatar="male";
-  else if(genderVal==="kadın") avatar="female";
-  const profile={
-    firstName:firstName.value,
-    lastName:lastName.value,
-    gender:gender.value,
-    birth:birth.value,
-    country:country.value,
-    city:city.value,
-    avatar
-  };
+  if(genderVal==="erkek")avatar="male";
+  else if(genderVal==="kadın")avatar="female";
+  const profile={firstName:firstName.value,lastName:lastName.value,gender:gender.value,birth:birth.value,country:country.value,city:city.value,avatar};
   const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
   const data=await res.json();
   if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
 };
 
-if(token){authStatus.textContent="Giriş yapıldı";btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";connectWS();}
-else connectWS();
+// İlk açılış durumu
+function initChannelsUI(){
+  // varsayılan kanallar
+  const defaults=["#genel","#sohbet","#yardim"];
+  const render=(ul)=>{
+    ul.innerHTML="";
+    defaults.forEach(name=>{
+      const li=document.createElement("li");
+      li.textContent=name;
+      li.onclick=()=>{currentChannel=name;topic.textContent=name;messages.innerHTML="";ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));};
+      ul.appendChild(li);
+    });
+  };
+  render(channelList);
+  render(channelListMobile);
+
+  // login durumuna göre ekleme alanlarını göster/gizle
+  document.getElementById("addChannelBox").style.display = token ? "block" : "none";
+  document.getElementById("addChannelBoxMobile").style.display = token ? "block" : "none";
+}
+
+if(token){
+  authStatus.textContent="Giriş yapıldı";
+  btnLogin.style.display="none";
+  btnProfile.style.display="inline-block";
+  btnLogout.style.display="inline-block";
+  initChannelsUI();
+  connectWS();
+}else{
+  initChannelsUI();
+  connectWS();
+}
 </script>
 </body>
 </html>
