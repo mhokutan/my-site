@@ -24,20 +24,20 @@
     .inputbar{display:flex;border-top:1px solid #333;background:#111}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
-    .modal.open{display:flex}
-    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
-    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
 
-    /* Mobil uyum */
+    /* Mobil uyum (yalnızca küçük ekranlarda mobil menü görünür) */
     @media(max-width:768px){
       .layout{grid-template-columns:1fr}
       .pane,.pane-right{display:none}
       .menubar .mobile-toggle{display:inline-block}
+      #mobileMenu{display:block;} /* mobilde menü var */
     }
     @media(min-width:769px){
       .menubar .mobile-toggle{display:none}
+      #mobileMenu{display:none !important;} /* MASAÜSTÜNDE TAMAMEN GİZLE */
     }
+
+    /* Mobil menü off-canvas */
     #mobileMenu{
       position:fixed;top:0;left:-260px;width:260px;height:100%;
       background:#111;border-right:1px solid #333;
@@ -48,6 +48,12 @@
       background:#222;border:1px solid #444;color:#eee;
       width:100%;margin-bottom:8px;padding:6px;cursor:pointer
     }
+
+    /* Modallar */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
+    .modal.open{display:flex}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
+    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
   </style>
 </head>
 <body>
@@ -62,16 +68,29 @@
   </div>
 
   <div class="layout">
-    <aside class="pane"><div class="pane-title">Kanallar</div><ul id="channelList" class="list"></ul></aside>
+    <!-- Masaüstü sol panel -->
+    <aside class="pane">
+      <div class="pane-title">Kanallar</div>
+      <ul id="channelList" class="list"></ul>
+    </aside>
+
+    <!-- Orta sohbet alanı -->
     <main class="center">
       <div id="topic" class="topic">#genel</div>
       <div id="messages" class="messages"></div>
-      <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
+      <form id="form" class="inputbar">
+        <input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button>
+      </form>
     </main>
-    <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
+
+    <!-- Masaüstü sağ panel -->
+    <aside class="pane pane-right">
+      <div class="pane-title">Kullanıcılar</div>
+      <ul id="userList" class="list"></ul>
+    </aside>
   </div>
 
-  <!-- Mobil Menü -->
+  <!-- Mobil yan menü (yalnızca mobilde görünür) -->
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
     <div class="pane-title">Kanallar</div><ul id="channelListMobile" class="list"></ul>
@@ -104,62 +123,125 @@
   </div>
 
 <script>
+/* ====== Ayarlar ====== */
 const API="https://chat-backend-1-iq7t.onrender.com";
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let token=localStorage.getItem("token");
 let ws,currentChannel="#genel";
 
+/* ====== Yardımcılar ====== */
 function toggleMobileMenu(force){
   const el=document.getElementById("mobileMenu");
   if(force===false){el.classList.remove("open");return;}
   el.classList.toggle("open");
 }
 
-function addMessage(from,text){messages.innerHTML+=`<div><b>${from}:</b> ${text}</div>`;messages.scrollTop=messages.scrollHeight;}
-function addInfo(t){messages.innerHTML+=`<div style="color:gray">${t}</div>`;}
+/* Masaüstüne geçince mobil menüyü kapat (çift menü sorununu engeller) */
+function handleViewport(){
+  if(window.innerWidth>=769){ toggleMobileMenu(false); }
+}
+window.addEventListener("resize", handleViewport);
+document.addEventListener("DOMContentLoaded", ()=>{
+  toggleMobileMenu(false); // güvene al: sayfa ilk yüklenirken kapalı
+  handleViewport();        // ilk ölçüm
+});
 
+/* Basit renderler (demo) */
+function addMessage(from,text){
+  const box=document.getElementById("messages");
+  box.innerHTML+=`<div><span class="time">[${new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"})}]</span> <b>${from}:</b> ${text}</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+function addInfo(t){
+  const box=document.getElementById("messages");
+  box.innerHTML+=`<div class="info">${t}</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+
+/* ====== WebSocket ====== */
 function connectWS(){
   ws=new WebSocket(WS_URL);
   ws.onopen=()=>sendJoin();
   ws.onmessage=e=>{
     const msg=JSON.parse(e.data);
-    if(msg.type==="info")addInfo(msg.message);
-    if(msg.type==="message")addMessage(msg.from,msg.text);
+    if(msg.type==="info") addInfo(msg.message);
+    if(msg.type==="message") addMessage(msg.from,msg.text);
+    // burada istersen kullanıcı ve kanal listelerini de doldurabilirsin
   };
 }
-function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));}
-form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage("Ben",text);ws.send(JSON.stringify({type:"message",text}));input.value="";};
+function sendJoin(){
+  ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));
+}
 
-/* ---------- Auth ---------- */
-btnLogin.onclick=()=>loginModal.classList.add("open");
-doLogin.onclick=async()=>{
+/* Mesaj gönderimi */
+document.getElementById("form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const input=document.getElementById("input");
+  const text=input.value.trim(); if(!text) return;
+  addMessage("Ben",text);
+  ws.send(JSON.stringify({type:"message",text}));
+  input.value="";
+});
+
+/* ====== Auth ====== */
+const authStatus=document.getElementById("authStatus");
+const btnLogin=document.getElementById("btnLogin");
+const btnProfile=document.getElementById("btnProfile");
+const btnLogout=document.getElementById("btnLogout");
+
+btnLogin.onclick=()=>document.getElementById("loginModal").classList.add("open");
+document.getElementById("doLogin").onclick=async()=>{
   const identifier=document.getElementById("identifier").value;
   const password=document.getElementById("password").value;
   const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
   const data=await res.json();
-  if(data.success){token=data.token;localStorage.setItem("token",token);authStatus.textContent=identifier;btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";loginModal.classList.remove("open");connectWS();}
-  else alert(data.error);
+  if(data.success){
+    token=data.token; localStorage.setItem("token",token);
+    authStatus.textContent=identifier;
+    btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block";
+    document.getElementById("loginModal").classList.remove("open");
+    connectWS();
+  } else alert(data.error||"Giriş başarısız");
 };
-doRegister.onclick=async()=>{
+document.getElementById("doRegister").onclick=async()=>{
   const identifier=document.getElementById("identifier").value;
   const password=document.getElementById("password").value;
   const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
   const data=await res.json();
-  if(data.success)alert("Kayıt başarılı, şimdi giriş yapabilirsiniz");else alert(data.error);
+  if(data.success) alert("Kayıt başarılı, lütfen giriş yapın.");
+  else alert(data.error||"Kayıt başarısız");
 };
-btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
+btnLogout.onclick=()=>{localStorage.removeItem("token"); token=null; location.reload();};
 
-/* ---------- Profil ---------- */
-btnProfile.onclick=()=>profileModal.classList.add("open");
-saveProfile.onclick=async()=>{
-  const profile={firstName:firstName.value,lastName:lastName.value,gender:gender.value,birth:birth.value,country:country.value,city:city.value};
+/* Profil */
+btnProfile.onclick=()=>document.getElementById("profileModal").classList.add("open");
+document.getElementById("saveProfile").onclick=async()=>{
+  const profile={
+    firstName:document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    gender:   document.getElementById("gender").value,
+    birth:    document.getElementById("birth").value,
+    country:  document.getElementById("country").value,
+    city:     document.getElementById("city").value
+  };
   const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
   const data=await res.json();
-  if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
+  if(data.success){
+    alert("Profil güncellendi");
+    document.getElementById("profileModal").classList.remove("open");
+  } else alert(data.error||"Güncelleme başarısız");
 };
 
-if(token){authStatus.textContent="Giriş yapıldı";btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";connectWS();}
-else connectWS();
+/* Başlat */
+if(token){
+  authStatus.textContent="Giriş yapıldı";
+  btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block";
+  connectWS();
+}else{
+  authStatus.textContent="Anonim";
+  btnProfile.style.display="none"; btnLogout.style.display="none";
+  connectWS();
+}
 </script>
 </body>
 </html>
