@@ -32,12 +32,19 @@
     #mobileMenu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px}
     #mobileMenu.open{left:0}
     #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
+    .modal.open{display:flex}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
+    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-actions{display:flex;gap:8px;margin-top:6px}
   </style>
 </head>
 <body>
   <div class="menubar">
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
+    <button id="btnProfile">Profil</button>
   </div>
+
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
     <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedListMobile" class="list"></ul>
@@ -45,6 +52,7 @@
     <div class="pane-title">👤 Kanallarım</div><ul id="myListMobile" class="list"></ul>
     <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
   </div>
+
   <div class="layout">
     <aside class="pane">
       <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedList" class="list"></ul>
@@ -59,6 +67,22 @@
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
 
+  <!-- Profil Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <h3>Profil (opsiyonel)</h3>
+      <label>İsim</label><input id="firstName"/>
+      <label>Soyisim</label><input id="lastName"/>
+      <label>Email</label><input id="email"/>
+      <label>Ülke</label><input id="country"/>
+      <label>Şehir</label><input id="city"/>
+      <div class="modal-actions">
+        <button id="saveProfile">Kaydet</button>
+        <button id="skipProfile">Anonim</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let currentChannel="#genel",ws,usersInRoom=[];
@@ -66,6 +90,7 @@ let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*
 localStorage.setItem("anonName",anonName);
 let profile=JSON.parse(localStorage.getItem("profile")||"{}");
 let followed=JSON.parse(localStorage.getItem("followedUsers")||"[]");
+let onlineUsers=[];
 
 function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
@@ -74,6 +99,7 @@ function addInfo(text){const div=document.createElement("div");div.className="in
 function updateTopic(){topic.textContent=currentChannel;}
 
 function renderUsers(list){
+  onlineUsers=list;
   userList.innerHTML=""; userListMobile.innerHTML="";
   (list||[]).forEach(u=>{
     const li=document.createElement("li");
@@ -88,7 +114,16 @@ function renderUsers(list){
 }
 
 function toggleFollow(uid){if(followed.includes(uid))followed=followed.filter(x=>x!==uid);else followed.push(uid);localStorage.setItem("followedUsers",JSON.stringify(followed));}
-function renderFollowed(){followedList.innerHTML="";followedListMobile.innerHTML="";followed.forEach(uid=>{const li=document.createElement("li");li.textContent=uid;li.onclick=()=>startDM(uid,uid);followedList.appendChild(li);followedListMobile.appendChild(li.cloneNode(true));});}
+function renderFollowed(){
+  followedList.innerHTML=""; followedListMobile.innerHTML="";
+  followed.forEach(uid=>{
+    const isOnline=onlineUsers.some(u=>u.uid===uid);
+    const status=isOnline?"🟢":"🔴";
+    const li=document.createElement("li"); li.textContent=`${status} ${uid}`;
+    li.onclick=()=>startDM(uid,uid);
+    followedList.appendChild(li); followedListMobile.appendChild(li.cloneNode(true));
+  });
+}
 
 function startDM(toUid,label){ws.send(JSON.stringify({type:"dm",toUid}));topic.textContent=`DM: ${label}`;}
 function handleDMHistory(msg){messages.innerHTML="";(msg.history||[]).forEach(m=>addMessage(m.from,m.text,"other"));}
@@ -99,9 +134,8 @@ function connectWS(){
   ws.onmessage=ev=>{
     const msg=JSON.parse(ev.data);
     if(msg.type==="info")addInfo(msg.message);
-    if(msg.type==="users")renderUsers(msg.users);
+    if(msg.type==="users"){renderUsers(msg.users);renderFollowed();}
     if(msg.type==="message")addMessage(msg.from,msg.text,"other");
-    if(msg.type==="channels"){} // popüler listesi eklenebilir
     if(msg.type==="dm-start"){currentChannel=msg.room;topic.textContent=`DM: ${msg.peer.display}`;sendJoin();}
     if(msg.type==="dm-history")handleDMHistory(msg);
   };
@@ -109,6 +143,16 @@ function connectWS(){
 function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,profile:{country:profile.country,city:profile.city}}));}
 
 form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage(anonName,text,"me");input.value="";ws.send(JSON.stringify({type:"message",text}));};
+
+// Profil modal
+btnProfile.onclick=()=>profileModal.classList.add("open");
+saveProfile.onclick=()=>{
+  profile={first:firstName.value,last:lastName.value,email:email.value,country:country.value,city:city.value};
+  localStorage.setItem("profile",JSON.stringify(profile));
+  profileModal.classList.remove("open");
+  if(ws&&ws.readyState===1)sendJoin();
+};
+skipProfile.onclick=()=>profileModal.classList.remove("open");
 
 renderFollowed();updateTopic();connectWS();
 </script>
