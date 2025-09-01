@@ -13,7 +13,7 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px}
+    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -23,6 +23,7 @@
     .inputbar{display:flex;border-top:1px solid #333;background:#111}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
+    .avatar{font-size:16px}
 
     @media(max-width:768px){
       .layout{grid-template-columns:1fr}
@@ -47,7 +48,7 @@
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
     .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px;position:relative}
-    .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-content input,.modal-content select{background:#000;color:#eee;border:1px solid #333;padding:6px}
     .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
   </style>
 </head>
@@ -100,7 +101,11 @@
     <h3>Profil Düzenle</h3>
     <input id="firstName" placeholder="İsim"/>
     <input id="lastName" placeholder="Soyisim"/>
-    <input id="gender" placeholder="Cinsiyet"/>
+    <select id="gender">
+      <option value="">Cinsiyet</option>
+      <option value="erkek">Erkek</option>
+      <option value="kadın">Kadın</option>
+    </select>
     <input id="birth" placeholder="Doğum Tarihi"/>
     <input id="country" placeholder="Ülke"/>
     <input id="city" placeholder="Şehir"/>
@@ -112,6 +117,12 @@ const API="https://chat-backend-1-iq7t.onrender.com";
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let token=localStorage.getItem("token");
 let ws,currentChannel="#genel";
+
+const AVATARS={
+  male:"<span class='avatar' style='color:#4af'>👨</span>",
+  female:"<span class='avatar' style='color:#f6a'>👩</span>",
+  default:"<span class='avatar' style='color:#aaa'>👤</span>"
+};
 
 // frontend küfür filtresi
 const bannedWords=["küfür1","küfür2","badword"];
@@ -140,6 +151,17 @@ function addMessage(from,text){
 function addInfo(t){messages.innerHTML+=`<div class="info">${t}</div>`;messages.scrollTop=messages.scrollHeight;}
 function showTyping(name){typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;setTimeout(()=>{typingArea.innerHTML="";},1500);}
 
+function renderUsers(list){
+  userList.innerHTML="";userListMobile.innerHTML="";
+  list.forEach(u=>{
+    const avatar=AVATARS[u.avatar]||AVATARS.default;
+    const li=document.createElement("li");
+    li.innerHTML=avatar+" "+u.display;
+    userList.appendChild(li);
+    userListMobile.appendChild(li.cloneNode(true));
+  });
+}
+
 function connectWS(){
   ws=new WebSocket(WS_URL);
   ws.onopen=()=>sendJoin();
@@ -147,13 +169,7 @@ function connectWS(){
     const msg=JSON.parse(e.data);
     if(msg.type==="info")addInfo(msg.message);
     if(msg.type==="message")addMessage(msg.from,msg.text);
-    if(msg.type==="users"){
-      userList.innerHTML="";userListMobile.innerHTML="";
-      msg.users.forEach(u=>{
-        const li=document.createElement("li");li.textContent=u.display;
-        userList.appendChild(li);userListMobile.appendChild(li.cloneNode(true));
-      });
-    }
+    if(msg.type==="users"){renderUsers(msg.users);}
     if(msg.type==="typing"){showTyping(msg.from);}
   };
 }
@@ -161,7 +177,7 @@ function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,n
 form.onsubmit=e=>{
   e.preventDefault();
   let text=input.value.trim();if(!text)return;
-  text=cleanMessage(text); // frontend filtresi
+  text=cleanMessage(text);
   addMessage("Ben",text);
   ws.send(JSON.stringify({type:"message",text}));
   input.value="";
@@ -188,7 +204,20 @@ btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.relo
 
 btnProfile.onclick=()=>profileModal.classList.add("open");
 saveProfile.onclick=async()=>{
-  const profile={firstName:firstName.value,lastName:lastName.value,gender:gender.value,birth:birth.value,country:country.value,city:city.value};
+  const genderVal=gender.value.toLowerCase();
+  let avatar="default";
+  if(genderVal==="erkek") avatar="male";
+  else if(genderVal==="kadın") avatar="female";
+
+  const profile={
+    firstName:firstName.value,
+    lastName:lastName.value,
+    gender:gender.value,
+    birth:birth.value,
+    country:country.value,
+    city:city.value,
+    avatar
+  };
   const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
   const data=await res.json();
   if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
