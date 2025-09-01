@@ -46,8 +46,9 @@
     }
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
-    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px;position:relative}
     .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
   </style>
 </head>
 <body>
@@ -85,6 +86,7 @@
 
   <!-- Login Modal -->
   <div id="loginModal" class="modal"><div class="modal-content">
+    <button class="modal-close" onclick="loginModal.classList.remove('open')">✖</button>
     <h3>Giriş / Kayıt</h3>
     <input id="identifier" placeholder="Email veya Telefon"/>
     <input id="password" type="password" placeholder="Şifre"/>
@@ -94,6 +96,7 @@
 
   <!-- Profile Modal -->
   <div id="profileModal" class="modal"><div class="modal-content">
+    <button class="modal-close" onclick="profileModal.classList.remove('open')">✖</button>
     <h3>Profil Düzenle</h3>
     <input id="firstName" placeholder="İsim"/>
     <input id="lastName" placeholder="Soyisim"/>
@@ -110,6 +113,17 @@ const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let token=localStorage.getItem("token");
 let ws,currentChannel="#genel";
 
+// frontend küfür filtresi
+const bannedWords=["küfür1","küfür2","badword"];
+function cleanMessage(text){
+  let safe=text;
+  bannedWords.forEach(w=>{
+    const re=new RegExp(w,"gi");
+    safe=safe.replace(re,"***");
+  });
+  return safe;
+}
+
 function toggleMobileMenu(force){
   const el=document.getElementById("mobileMenu");
   if(force===false){el.classList.remove("open");return;}
@@ -124,11 +138,7 @@ function addMessage(from,text){
   messages.scrollTop=messages.scrollHeight;
 }
 function addInfo(t){messages.innerHTML+=`<div class="info">${t}</div>`;messages.scrollTop=messages.scrollHeight;}
-
-function showTyping(name){
-  typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;
-  setTimeout(()=>{typingArea.innerHTML="";},1500);
-}
+function showTyping(name){typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;setTimeout(()=>{typingArea.innerHTML="";},1500);}
 
 function connectWS(){
   ws=new WebSocket(WS_URL);
@@ -144,11 +154,18 @@ function connectWS(){
         userList.appendChild(li);userListMobile.appendChild(li.cloneNode(true));
       });
     }
-    if(msg.type==="typing"){ showTyping(msg.from); }
+    if(msg.type==="typing"){showTyping(msg.from);}
   };
 }
 function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));}
-form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage("Ben",text);ws.send(JSON.stringify({type:"message",text}));input.value="";};
+form.onsubmit=e=>{
+  e.preventDefault();
+  let text=input.value.trim();if(!text)return;
+  text=cleanMessage(text); // frontend filtresi
+  addMessage("Ben",text);
+  ws.send(JSON.stringify({type:"message",text}));
+  input.value="";
+};
 input.addEventListener("input",()=>{if(ws&&ws.readyState===WebSocket.OPEN){ws.send(JSON.stringify({type:"typing"}));}});
 
 btnLogin.onclick=()=>loginModal.classList.add("open");
