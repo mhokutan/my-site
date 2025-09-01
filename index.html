@@ -13,7 +13,7 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px}
+    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -124,7 +124,7 @@ const AVATARS={
   default:"<span class='avatar' style='color:#aaa'>👤</span>"
 };
 
-// frontend küfür filtresi
+// küfür filtresi
 const bannedWords=["küfür1","küfür2","badword"];
 function cleanMessage(text){
   let safe=text;
@@ -157,6 +157,7 @@ function renderUsers(list){
     const avatar=AVATARS[u.avatar]||AVATARS.default;
     const li=document.createElement("li");
     li.innerHTML=avatar+" "+u.display;
+    li.onclick=()=>startDM(u);
     userList.appendChild(li);
     userListMobile.appendChild(li.cloneNode(true));
   });
@@ -171,6 +172,7 @@ function connectWS(){
     if(msg.type==="message")addMessage(msg.from,msg.text);
     if(msg.type==="users"){renderUsers(msg.users);}
     if(msg.type==="typing"){showTyping(msg.from);}
+    if(msg.type==="dm-start"){openDM(msg.room,msg.peer);}
   };
 }
 function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));}
@@ -183,6 +185,39 @@ form.onsubmit=e=>{
   input.value="";
 };
 input.addEventListener("input",()=>{if(ws&&ws.readyState===WebSocket.OPEN){ws.send(JSON.stringify({type:"typing"}));}});
+
+// === DM ===
+const dmWindows={};
+function startDM(user){
+  if(!ws||ws.readyState!==WebSocket.OPEN)return;
+  ws.send(JSON.stringify({type:"dm",toUid:user.uid}));
+}
+function openDM(room,peer){
+  if(dmWindows[room])return;
+  const win=document.createElement("div");
+  win.className="modal open";
+  win.innerHTML=`
+    <div class="modal-content" style="width:400px;max-height:90vh;overflow:auto">
+      <button class="modal-close" onclick="this.parentElement.parentElement.remove()">✖</button>
+      <h3>DM: ${peer.display}</h3>
+      <div class="messages" id="msg-${room}" style="height:300px"></div>
+      <form onsubmit="sendDM('${room}',this);return false;" class="inputbar">
+        <input name="text" placeholder="Mesaj yaz..."/><button>Gönder</button>
+      </form>
+    </div>`;
+  document.body.appendChild(win);
+  dmWindows[room]=win;
+}
+function sendDM(room,formEl){
+  const text=cleanMessage(formEl.text.value.trim());
+  if(!text)return;
+  const box=document.getElementById("msg-"+room);
+  const time=new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  box.innerHTML+=`<div><span class="time">[${time}]</span> <b>Ben:</b> ${text}</div>`;
+  box.scrollTop=box.scrollHeight;
+  ws.send(JSON.stringify({type:"message",text,channel:room}));
+  formEl.text.value="";
+}
 
 btnLogin.onclick=()=>loginModal.classList.add("open");
 doLogin.onclick=async()=>{
