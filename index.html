@@ -7,6 +7,7 @@
   <style>
     body{margin:0;font-family:"Courier New",monospace;background:#000;color:#eee}
     .menubar{display:flex;justify-content:space-between;align-items:center;background:#111;padding:6px;border-bottom:1px solid #333}
+    .menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer}
     .layout{display:grid;grid-template-columns:240px 1fr 220px;height:calc(100vh - 38px)}
     .pane{background:#111;border-right:1px solid #333;display:flex;flex-direction:column}
     .pane-right{border-left:1px solid #333}
@@ -27,14 +28,37 @@
     .modal.open{display:flex}
     .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
     .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
+
+    /* Mobil uyum */
+    @media(max-width:768px){
+      .layout{grid-template-columns:1fr}
+      .pane,.pane-right{display:none}
+      .menubar .mobile-toggle{display:inline-block}
+    }
+    @media(min-width:769px){
+      .menubar .mobile-toggle{display:none}
+    }
+    #mobileMenu{
+      position:fixed;top:0;left:-260px;width:260px;height:100%;
+      background:#111;border-right:1px solid #333;
+      transition:left .3s;z-index:1000;padding:6px
+    }
+    #mobileMenu.open{left:0}
+    #mobileMenu .closeBtn{
+      background:#222;border:1px solid #444;color:#eee;
+      width:100%;margin-bottom:8px;padding:6px;cursor:pointer
+    }
   </style>
 </head>
 <body>
   <div class="menubar">
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
     <span id="authStatus">Anonim</span>
-    <button id="btnLogin">Giriş</button>
-    <button id="btnProfile" style="display:none">Profil Düzenle</button>
-    <button id="btnLogout" style="display:none">Çıkış</button>
+    <div>
+      <button id="btnLogin">Giriş</button>
+      <button id="btnProfile" style="display:none">Profil Düzenle</button>
+      <button id="btnLogout" style="display:none">Çıkış</button>
+    </div>
   </div>
 
   <div class="layout">
@@ -45,6 +69,13 @@
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
+  </div>
+
+  <!-- Mobil Menü -->
+  <div id="mobileMenu">
+    <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
+    <div class="pane-title">Kanallar</div><ul id="channelListMobile" class="list"></ul>
+    <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
   </div>
 
   <!-- Login Modal -->
@@ -77,6 +108,12 @@ const API="https://chat-backend-1-iq7t.onrender.com";
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
 let token=localStorage.getItem("token");
 let ws,currentChannel="#genel";
+
+function toggleMobileMenu(force){
+  const el=document.getElementById("mobileMenu");
+  if(force===false){el.classList.remove("open");return;}
+  el.classList.toggle("open");
+}
 
 function addMessage(from,text){messages.innerHTML+=`<div><b>${from}:</b> ${text}</div>`;messages.scrollTop=messages.scrollHeight;}
 function addInfo(t){messages.innerHTML+=`<div style="color:gray">${t}</div>`;}
@@ -120,6 +157,7 @@ saveProfile.onclick=async()=>{
   const data=await res.json();
   if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
 };
+
 if(token){authStatus.textContent="Giriş yapıldı";btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";connectWS();}
 else connectWS();
 </script>
