@@ -27,7 +27,7 @@
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
 
-    /* ---- Mobil uyum ---- */
+    /* Mobil uyum */
     @media(max-width:768px){
       .layout{grid-template-columns:1fr}
       .pane, .pane-right{display:none}
@@ -36,17 +36,10 @@
     @media(min-width:769px){
       .menubar .mobile-toggle{display:none}
     }
-
-    /* mobil menü slide panel */
-    #mobileMenu{
-      position:fixed;top:0;left:-260px;width:240px;height:100%;
-      background:#111;border-right:1px solid #333;
-      transition:left 0.3s;z-index:1000;padding:6px
-    }
+    #mobileMenu{position:fixed;top:0;left:-260px;width:240px;height:100%;background:#111;border-right:1px solid #333;transition:left 0.3s;z-index:1000;padding:6px}
     #mobileMenu.open{left:0}
     #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
 
-    /* modal */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
     .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
@@ -63,15 +56,12 @@
     </div>
   </div>
 
-  <!-- Mobil yan menü -->
+  <!-- Mobil Menü -->
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
-    <div class="pane-title">🔝 Popüler Kanallar</div>
-    <ul id="popularListMobile" class="list"></ul>
-    <div class="pane-title">👤 Benim Kanallarım</div>
-    <ul id="myListMobile" class="list"></ul>
-    <div class="pane-title">Kullanıcılar</div>
-    <ul id="userListMobile" class="list"></ul>
+    <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularListMobile" class="list"></ul>
+    <div class="pane-title">👤 Benim Kanallarım</div><ul id="myListMobile" class="list"></ul>
+    <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
   </div>
 
   <div class="layout">
@@ -84,12 +74,10 @@
       <div id="messages" class="messages"></div>
       <form id="form" class="inputbar"><input id="input" placeholder="Mesaj yaz..."/><button>Gönder</button></form>
     </main>
-    <aside class="pane pane-right">
-      <div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul>
-    </aside>
+    <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
 
-  <!-- Kanal Ekle Modal -->
+  <!-- Kanal Modal -->
   <div id="addChannelModal" class="modal">
     <div class="modal-content">
       <h3>Yeni Kanal</h3>
@@ -119,178 +107,42 @@
 
 <script>
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
-let currentChannel="#genel";
-let messagesByChannel={};
-let usersInRoom=[];
+let currentChannel="#genel",messagesByChannel={},usersInRoom=[];
 let anonName=localStorage.getItem("anonName")||("User"+Math.floor(Math.random()*1000));
 localStorage.setItem("anonName",anonName);
-
-// benim kanallarım
 let myChannels=JSON.parse(localStorage.getItem("myChannels")||"[]");
+let profile=JSON.parse(localStorage.getItem("profile")||"{}");
 
-// renkler
-const nickColors=["#4fc3f7","#a5d6a7","#ffcc80","#f48fb1","#ce93d8","#80cbc4","#e6ee9c"];
-let colorMap={};function getNickColor(nick){if(!colorMap[nick]){colorMap[nick]=nickColors[Object.keys(colorMap).length%nickColors.length];}return colorMap[nick];}
+function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
 
-// html
-const popularListEl=document.getElementById("popularList"),
-      myListEl=document.getElementById("myList"),
-      userListEl=document.getElementById("userList"),
-      messagesEl=document.getElementById("messages"),
-      topicEl=document.getElementById("topic"),
-      form=document.getElementById("form"),
-      input=document.getElementById("input");
+function formatFrom(nick,profile){if(profile.country&&profile.city){return `${nick} (${profile.country}/${profile.city})`;}return nick;}
 
-const popularListMobile=document.getElementById("popularListMobile"),
-      myListMobile=document.getElementById("myListMobile"),
-      userListMobile=document.getElementById("userListMobile");
-
-// render
-function renderPopular(stats){
-  popularListEl.innerHTML="";popularListMobile.innerHTML="";
-  stats.sort((a,b)=>b.count-a.count).slice(0,5).forEach(obj=>{
-    let li=createChannelLi(obj.channel,obj.count);
-    let liM=createChannelLi(obj.channel,obj.count);
-    popularListEl.appendChild(li);popularListMobile.appendChild(liM);
-  });
-}
-function renderMyChannels(){
-  myListEl.innerHTML="";myListMobile.innerHTML="";
-  myChannels.forEach(ch=>{
-    let li=createMyChannelLi(ch);let liM=createMyChannelLi(ch);
-    myListEl.appendChild(li);myListMobile.appendChild(liM);
-  });
-}
-function renderUsers(list){
-  usersInRoom=list||[];
-  userListEl.innerHTML="";userListMobile.innerHTML="";
-  (list||[]).forEach(n=>{
-    let li=document.createElement("li");
-    li.textContent=n;li.style.color=getNickColor(n);
-    userListEl.appendChild(li);userListMobile.appendChild(li.cloneNode(true));
-  });
-  let ai=document.createElement("li");ai.textContent="AI";ai.style.color="#ffcc00";
-  userListEl.appendChild(ai);userListMobile.appendChild(ai.cloneNode(true));
-  updateTopic();
-}
-function updateTopic(){topicEl.textContent=`${currentChannel} — ${usersInRoom.length} kişi`;}
-
-// yardımcı render
-function createChannelLi(ch,count){
-  let li=document.createElement("li");
-  li.textContent=`${ch} (${count})`;
-  if(ch===currentChannel)li.classList.add("active");
-  li.onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
-  return li;
-}
-function createMyChannelLi(ch){
-  let li=document.createElement("li");
-  let span=document.createElement("span");span.textContent=ch;span.onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};
-  if(ch===currentChannel)li.classList.add("active");
-  let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";
-  del.onclick=(e)=>{e.stopPropagation();removeMyChannel(ch);};
-  li.appendChild(span);li.appendChild(del);
-  return li;
-}
-
-// mesaj
 function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
-function addMessage(from,text,cls){
-  if(!messagesByChannel[currentChannel])messagesByChannel[currentChannel]=[];
-  messagesByChannel[currentChannel].push({from,text,cls});
-  let row=document.createElement("div");
-  row.className="message "+cls;
-  let time=document.createElement("span");
-  time.className="time";time.textContent=`[${formatTime()}]`;
-  let nick=document.createElement("span");
-  nick.className="nick";nick.style.color=getNickColor(from);nick.textContent=from+":";
-  row.appendChild(time);row.appendChild(nick);row.appendChild(document.createTextNode(" "+text));
-  messagesEl.appendChild(row);
-  messagesEl.scrollTop=messagesEl.scrollHeight;
-}
-function addInfo(text){
-  let div=document.createElement("div");
-  div.className="info";div.textContent=text;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop=messagesEl.scrollHeight;
-}
 
-// ws
-let ws;
-function connectWS(){
-  ws=new WebSocket(WS_URL);
-  ws.onopen=()=>{ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName}));};
-  ws.onmessage=ev=>{
-    let msg=JSON.parse(ev.data);
-    if(msg.type==="info")addInfo(msg.message);
-    else if(msg.type==="users")renderUsers(msg.users);
-    else if(msg.type==="message")addMessage(msg.from,msg.text,"other");
-    else if(msg.type==="channels")renderPopular(msg.stats);
-  };
-}
-function switchChannel(ch){
-  currentChannel=ch;
-  messagesEl.innerHTML="";
-  addInfo(ch+" kanalına girdin.");
-  if(ws&&ws.readyState===1){
-    ws.send(JSON.stringify({type:"join",channel:ch,nick:anonName}));
-  }
-}
+function addMessage(from,text,cls){let row=document.createElement("div");row.className="message "+cls;row.innerHTML=`<span class="time">[${formatTime()}]</span><span class="nick">${from}:</span> ${text}`;messagesEl.appendChild(row);messagesEl.scrollTop=messagesEl.scrollHeight;}
+function addInfo(text){let div=document.createElement("div");div.className="info";div.textContent=text;messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;}
 
-// kanal ekle/sil
-function addMyChannel(ch){
-  if(!ch.startsWith("#"))ch="#"+ch;
-  if(!myChannels.includes(ch)){
-    myChannels.push(ch);
-    localStorage.setItem("myChannels",JSON.stringify(myChannels));
-    renderMyChannels();
-  }
-}
-function removeMyChannel(ch){
-  myChannels=myChannels.filter(c=>c!==ch);
-  localStorage.setItem("myChannels",JSON.stringify(myChannels));
-  renderMyChannels();
-}
+function renderPopular(stats){popularList.innerHTML=popularListMobile.innerHTML="";stats.sort((a,b)=>b.count-a.count).slice(0,5).forEach(obj=>{let li=document.createElement("li");li.textContent=`${obj.channel} (${obj.count})`;li.onclick=()=>{switchChannel(obj.channel);toggleMobileMenu(false)};popularList.appendChild(li);popularListMobile.appendChild(li.cloneNode(true));});}
+function renderMyChannels(){myList.innerHTML=myListMobile.innerHTML="";myChannels.forEach(ch=>{let li=document.createElement("li");let span=document.createElement("span");span.textContent=ch;span.onclick=()=>{switchChannel(ch);toggleMobileMenu(false)};let del=document.createElement("button");del.textContent="❌";del.className="deleteBtn";del.onclick=e=>{e.stopPropagation();removeMyChannel(ch)};li.appendChild(span);li.appendChild(del);myList.appendChild(li);myListMobile.appendChild(li.cloneNode(true));});}
+function renderUsers(list){userList.innerHTML=userListMobile.innerHTML="";list.forEach(n=>{let li=document.createElement("li");li.textContent=n;userList.appendChild(li);userListMobile.appendChild(li.cloneNode(true));});}
 
-// profil
-document.getElementById("btnProfile").onclick=()=>profileModal.classList.add("open");
-document.getElementById("saveProfile").onclick=()=>{
-  const profile={
-    first:document.getElementById("firstName").value,
-    last:document.getElementById("lastName").value,
-    email:document.getElementById("email").value,
-    country:document.getElementById("country").value,
-    city:document.getElementById("city").value
-  };
-  localStorage.setItem("profile",JSON.stringify(profile));
-  profileModal.classList.remove("open");
-};
-document.getElementById("skipProfile").onclick=()=>profileModal.classList.remove("open");
+let ws;function connectWS(){ws=new WebSocket(WS_URL);ws.onopen=()=>sendJoin();ws.onmessage=ev=>{let msg=JSON.parse(ev.data);if(msg.type==="info")addInfo(msg.message);if(msg.type==="users")renderUsers(msg.users);if(msg.type==="message")addMessage(msg.from,msg.text,"other");if(msg.type==="channels")renderPopular(msg.stats);};}
+function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,profile:{country:profile.country,city:profile.city}}));}
+function switchChannel(ch){currentChannel=ch;messages.innerHTML="";addInfo(ch+" kanalına girdin.");if(ws.readyState===1)sendJoin();}
 
-// events
-form.onsubmit=e=>{
-  e.preventDefault();
-  let text=input.value.trim();
-  if(!text)return;
-  addMessage(anonName,text,"me");
-  input.value="";
-  if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"message",text}));
-};
-document.getElementById("btnAddChannel").onclick=()=>document.getElementById("addChannelModal").classList.add("open");
-document.getElementById("confirmAddChannel").onclick=()=>{let ch=document.getElementById("newChannelInput").value.trim();if(ch)addMyChannel(ch);document.getElementById("newChannelInput").value="";document.getElementById("addChannelModal").classList.remove("open");}
-document.getElementById("cancelAddChannel").onclick=()=>document.getElementById("addChannelModal").classList.remove("open");
+form.onsubmit=e=>{e.preventDefault();let text=input.value.trim();if(!text)return;addMessage(formatFrom(anonName,profile),text,"me");input.value="";ws.send(JSON.stringify({type:"message",text}));};
 
-// mobil menü toggle
-function toggleMobileMenu(force){
-  const el=document.getElementById("mobileMenu");
-  if(force===false){el.classList.remove("open");return;}
-  el.classList.toggle("open");
-}
+btnAddChannel.onclick=()=>addChannelModal.classList.add("open");
+confirmAddChannel.onclick=()=>{let ch=newChannelInput.value.trim();if(ch&&!myChannels.includes(ch)){if(!ch.startsWith("#"))ch="#"+ch;myChannels.push(ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderMyChannels();}newChannelInput.value="";addChannelModal.classList.remove("open");}
+cancelAddChannel.onclick=()=>addChannelModal.classList.remove("open");
 
-// başlat
-renderMyChannels();
-switchChannel(currentChannel);
-connectWS();
+btnProfile.onclick=()=>profileModal.classList.add("open");
+saveProfile.onclick=()=>{profile={first:firstName.value,last:lastName.value,email:email.value,country:country.value,city:city.value};localStorage.setItem("profile",JSON.stringify(profile));profileModal.classList.remove("open");if(ws.readyState===1)sendJoin();}
+skipProfile.onclick=()=>profileModal.classList.remove("open");
+
+function removeMyChannel(ch){myChannels=myChannels.filter(c=>c!==ch);localStorage.setItem("myChannels",JSON.stringify(myChannels));renderMyChannels();}
+
+renderMyChannels();switchChannel(currentChannel);connectWS();
 </script>
 </body>
 </html>
