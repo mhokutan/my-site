@@ -207,15 +207,30 @@ function openDM(room,peer){
     </div>`;
   document.body.appendChild(win);
   dmWindows[room]=win;
+
+  // geçmiş yükle
+  const box=document.getElementById("msg-"+room);
+  const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
+  history.forEach(m=>{
+    box.innerHTML+=`<div><span class="time">[${m.time}]</span> <b>${m.from}:</b> ${m.text}</div>`;
+  });
+  box.scrollTop=box.scrollHeight;
 }
 function sendDM(room,formEl){
   const text=cleanMessage(formEl.text.value.trim());
   if(!text)return;
-  const box=document.getElementById("msg-"+room);
   const time=new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  const box=document.getElementById("msg-"+room);
+  const entry={time,from:"Ben",text};
   box.innerHTML+=`<div><span class="time">[${time}]</span> <b>Ben:</b> ${text}</div>`;
   box.scrollTop=box.scrollHeight;
   ws.send(JSON.stringify({type:"message",text,channel:room}));
+
+  // localStorage’a kaydet
+  const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
+  history.push(entry);
+  localStorage.setItem("dmHistory_"+room,JSON.stringify(history));
+
   formEl.text.value="";
 }
 
