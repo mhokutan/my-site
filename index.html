@@ -7,16 +7,12 @@
   <style>
     body{margin:0;font-family:"Courier New",monospace;background:#000;color:#eee}
     .menubar{display:flex;justify-content:space-between;align-items:center;background:#111;padding:6px;border-bottom:1px solid #333}
-    .menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer;margin-right:4px}
     .layout{display:grid;grid-template-columns:240px 1fr 220px;height:calc(100vh - 38px)}
     .pane{background:#111;border-right:1px solid #333;display:flex;flex-direction:column}
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
     .list li{padding:4px 6px;display:flex;gap:6px;align-items:center;justify-content:space-between}
-    .list li span.item{flex:1;cursor:pointer}
-    .list li.active{background:#1b1b1b}
-    .dmBtn{background:none;border:1px solid #444;color:#eee;cursor:pointer;font-size:12px;padding:2px 6px}
     .center{display:flex;flex-direction:column}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
@@ -27,39 +23,22 @@
     .inputbar{display:flex;border-top:1px solid #333;background:#111}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
-    @media(max-width:768px){.layout{grid-template-columns:1fr}.pane,.pane-right{display:none}.menubar .mobile-toggle{display:inline-block}}
-    @media(min-width:769px){.menubar .mobile-toggle{display:none}}
-    #mobileMenu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px}
-    #mobileMenu.open{left:0}
-    #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
     .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:280px}
     .modal-content input{background:#000;color:#eee;border:1px solid #333;padding:6px}
-    .modal-actions{display:flex;gap:8px;margin-top:6px}
   </style>
 </head>
 <body>
   <div class="menubar">
-    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
     <span id="authStatus">Anonim</span>
+    <button id="btnLogin">Giriş</button>
+    <button id="btnProfile" style="display:none">Profil Düzenle</button>
     <button id="btnLogout" style="display:none">Çıkış</button>
   </div>
 
-  <div id="mobileMenu">
-    <button class="closeBtn" onclick="toggleMobileMenu()">✖ Kapat</button>
-    <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedListMobile" class="list"></ul>
-    <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularListMobile" class="list"></ul>
-    <div class="pane-title">👤 Kanallarım</div><ul id="myListMobile" class="list"></ul>
-    <div class="pane-title">Kullanıcılar</div><ul id="userListMobile" class="list"></ul>
-  </div>
-
   <div class="layout">
-    <aside class="pane">
-      <div class="pane-title">⭐ Takip Ettiklerim</div><ul id="followedList" class="list"></ul>
-      <div class="pane-title">🔝 Popüler Kanallar</div><ul id="popularList" class="list"></ul>
-      <div class="pane-title">👤 Kanallarım</div><ul id="myList" class="list"></ul>
-    </aside>
+    <aside class="pane"><div class="pane-title">Kanallar</div><ul id="channelList" class="list"></ul></aside>
     <main class="center">
       <div id="topic" class="topic">#genel</div>
       <div id="messages" class="messages"></div>
@@ -68,111 +47,81 @@
     <aside class="pane pane-right"><div class="pane-title">Kullanıcılar</div><ul id="userList" class="list"></ul></aside>
   </div>
 
-  <!-- Auth Modal -->
-  <div id="authModal" class="modal open">
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
     <div class="modal-content">
-      <h3 id="authTitle">Giriş Yap</h3>
-      <label>Email</label><input id="authEmail"/>
-      <label>Şifre</label><input type="password" id="authPassword"/>
-      <label>Ülke</label><input id="authCountry"/>
-      <label>Şehir</label><input id="authCity"/>
-      <div class="modal-actions">
-        <button id="btnDoLogin">Giriş</button>
-        <button id="btnDoRegister">Kayıt</button>
-      </div>
+      <h3>Giriş / Kayıt</h3>
+      <input id="identifier" placeholder="Email veya Telefon"/>
+      <input id="password" type="password" placeholder="Şifre"/>
+      <button id="doLogin">Giriş</button>
+      <button id="doRegister">Kayıt</button>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <h3>Profil Düzenle</h3>
+      <input id="firstName" placeholder="İsim"/>
+      <input id="lastName" placeholder="Soyisim"/>
+      <input id="gender" placeholder="Cinsiyet"/>
+      <input id="birth" placeholder="Doğum Tarihi"/>
+      <input id="country" placeholder="Ülke"/>
+      <input id="city" placeholder="Şehir"/>
+      <button id="saveProfile">Kaydet</button>
     </div>
   </div>
 
 <script>
+const API="https://chat-backend-1-iq7t.onrender.com";
 const WS_URL="wss://chat-backend-1-iq7t.onrender.com";
-const API_URL="https://chat-backend-1-iq7t.onrender.com";
-let currentChannel="#genel",ws,onlineUsers=[];
-let anonName="User"+Math.floor(Math.random()*1000);
 let token=localStorage.getItem("token");
-let profile={};
-let followed=JSON.parse(localStorage.getItem("followedUsers")||"[]");
+let ws,currentChannel="#genel";
 
-function toggleMobileMenu(force){const el=document.getElementById("mobileMenu");if(force===false){el.classList.remove("open");return;}el.classList.toggle("open");}
-function formatTime(){return new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});}
-function addMessage(from,text,cls){const row=document.createElement("div");row.className="message "+cls;row.innerHTML=`<span class="time">[${formatTime()}]</span><span class="nick">${from}:</span> ${text}`;messages.appendChild(row);messages.scrollTop=messages.scrollHeight;}
-function addInfo(text){const div=document.createElement("div");div.className="info";div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
-function updateTopic(){topic.textContent=currentChannel;}
-
-function renderUsers(list){
-  onlineUsers=list;
-  userList.innerHTML=""; userListMobile.innerHTML="";
-  (list||[]).forEach(u=>{
-    const li=document.createElement("li");
-    const span=document.createElement("span"); span.className="item"; span.textContent=u.display||u.nick;
-    if(token){ // sadece giriş yapanlar için
-      const star=document.createElement("button");star.textContent=followed.includes(u.uid)?"★":"☆";star.className="dmBtn";
-      star.onclick=(e)=>{e.stopPropagation();toggleFollow(u.uid);renderFollowed();renderUsers(list);};
-      const dm=document.createElement("button");dm.textContent="DM";dm.className="dmBtn";dm.onclick=(e)=>{e.stopPropagation();startDM(u.uid,u.display);};
-      li.appendChild(star);li.appendChild(dm);
-    }
-    li.appendChild(span);
-    userList.appendChild(li); userListMobile.appendChild(li.cloneNode(true));
-  });
-  updateTopic();
-}
-
-function toggleFollow(uid){if(followed.includes(uid))followed=followed.filter(x=>x!==uid);else followed.push(uid);localStorage.setItem("followedUsers",JSON.stringify(followed));}
-function renderFollowed(){
-  followedList.innerHTML=""; followedListMobile.innerHTML="";
-  followed.forEach(uid=>{
-    const isOnline=onlineUsers.some(u=>u.uid===uid);
-    const status=isOnline?"🟢":"🔴";
-    const li=document.createElement("li"); li.textContent=`${status} ${uid}`;
-    if(token) li.onclick=()=>startDM(uid,uid);
-    followedList.appendChild(li); followedListMobile.appendChild(li.cloneNode(true));
-  });
-}
-
-function startDM(toUid,label){if(!token){alert("DM için giriş yapmalısın");return;}ws.send(JSON.stringify({type:"dm",toUid}));topic.textContent=`DM: ${label}`;}
-function handleDMHistory(msg){messages.innerHTML="";(msg.history||[]).forEach(m=>addMessage(m.from,m.text,"other"));}
+function addMessage(from,text){messages.innerHTML+=`<div><b>${from}:</b> ${text}</div>`;messages.scrollTop=messages.scrollHeight;}
+function addInfo(t){messages.innerHTML+=`<div style="color:gray">${t}</div>`;}
 
 function connectWS(){
   ws=new WebSocket(WS_URL);
   ws.onopen=()=>sendJoin();
-  ws.onmessage=ev=>{
-    const msg=JSON.parse(ev.data);
+  ws.onmessage=e=>{
+    const msg=JSON.parse(e.data);
     if(msg.type==="info")addInfo(msg.message);
-    if(msg.type==="users"){renderUsers(msg.users);renderFollowed();}
-    if(msg.type==="message")addMessage(msg.from,msg.text,"other");
-    if(msg.type==="dm-start"){currentChannel=msg.room;topic.textContent=`DM: ${msg.peer.display}`;sendJoin();}
-    if(msg.type==="dm-history")handleDMHistory(msg);
+    if(msg.type==="message")addMessage(msg.from,msg.text);
   };
 }
-function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:anonName,token}));}
+function sendJoin(){ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));}
+form.onsubmit=e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMessage("Ben",text);ws.send(JSON.stringify({type:"message",text}));input.value="";};
 
-form.onsubmit=e=>{
-  e.preventDefault();
-  const text=input.value.trim();
-  if(!text)return;
-  addMessage(anonName,text,"me");
-  input.value="";
-  ws.send(JSON.stringify({type:"message",text}));
-};
-
-/* ------------------ Auth ------------------ */
-btnDoLogin.onclick=async()=>{
-  const email=authEmail.value, password=authPassword.value;
-  const res=await fetch(API_URL+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+/* ---------- Auth ---------- */
+btnLogin.onclick=()=>loginModal.classList.add("open");
+doLogin.onclick=async()=>{
+  const identifier=document.getElementById("identifier").value;
+  const password=document.getElementById("password").value;
+  const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
   const data=await res.json();
-  if(data.success){token=data.token;localStorage.setItem("token",token);profile=data.profile;authModal.classList.remove("open");authStatus.textContent=email;btnLogout.style.display="inline-block";connectWS();}
+  if(data.success){token=data.token;localStorage.setItem("token",token);authStatus.textContent=identifier;btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";loginModal.classList.remove("open");connectWS();}
   else alert(data.error);
 };
-btnDoRegister.onclick=async()=>{
-  const email=authEmail.value,password=authPassword.value,country=authCountry.value,city=authCity.value;
-  const res=await fetch(API_URL+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password,profile:{country,city}})});
+doRegister.onclick=async()=>{
+  const identifier=document.getElementById("identifier").value;
+  const password=document.getElementById("password").value;
+  const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
   const data=await res.json();
-  if(data.success){alert("Kayıt başarılı, şimdi giriş yapabilirsiniz");}
-  else alert(data.error);
+  if(data.success)alert("Kayıt başarılı, şimdi giriş yapabilirsiniz");else alert(data.error);
 };
 btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
 
-if(token){authModal.classList.remove("open");authStatus.textContent="Giriş yapıldı";btnLogout.style.display="inline-block";connectWS();}
-else {authStatus.textContent="Anonim";btnLogout.style.display="none";connectWS();}
+/* ---------- Profil ---------- */
+btnProfile.onclick=()=>profileModal.classList.add("open");
+saveProfile.onclick=async()=>{
+  const profile={firstName:firstName.value,lastName:lastName.value,gender:gender.value,birth:birth.value,country:country.value,city:city.value};
+  const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
+  const data=await res.json();
+  if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
+};
+if(token){authStatus.textContent="Giriş yapıldı";btnLogin.style.display="none";btnProfile.style.display="inline-block";btnLogout.style.display="inline-block";connectWS();}
+else connectWS();
 </script>
 </body>
 </html>
