@@ -214,9 +214,27 @@ input.addEventListener("input",()=>{if(ws&&ws.readyState===WebSocket.OPEN){ws.se
 function addChannel(name){
   if(!token){alert("Kanal eklemek için giriş yapın.");return;}
   if(!name.startsWith("#")) name="#"+name;
+
   currentChannel=name;
   topic.textContent=name;
   messages.innerHTML="";
+
+  // UI'ya ekle
+  function appendToList(ul){
+    if([...ul.querySelectorAll("li")].some(li=>li.textContent===name)) return;
+    const li=document.createElement("li");
+    li.textContent=name;
+    li.onclick=()=>{
+      currentChannel=name;
+      topic.textContent=name;
+      messages.innerHTML="";
+      ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));
+    };
+    ul.appendChild(li);
+  }
+  appendToList(channelList);
+  appendToList(channelListMobile);
+
   ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));
 }
 btnAddChannel.onclick=()=>{const name=newChannel.value.trim();if(name)addChannel(name);newChannel.value="";};
@@ -244,7 +262,6 @@ function openDM(room,peer){
   document.body.appendChild(win);
   dmWindows[room]=win;
 
-  // geçmiş yükle
   const box=document.getElementById("msg-"+room);
   const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
   history.forEach(m=>{
@@ -261,12 +278,9 @@ function sendDM(room,formEl){
   box.innerHTML+=`<div><span class="time">[${time}]</span> <b>Ben:</b> ${text}</div>`;
   box.scrollTop=box.scrollHeight;
   ws.send(JSON.stringify({type:"message",text,channel:room}));
-
-  // localStorage’a kaydet
   const history=JSON.parse(localStorage.getItem("dmHistory_"+room)||"[]");
   history.push(entry);
   localStorage.setItem("dmHistory_"+room,JSON.stringify(history));
-
   formEl.text.value="";
 }
 
@@ -287,16 +301,12 @@ doLogin.onclick=async()=>{
     btnLogout.style.display="inline-block";
     loginModal.classList.remove("open");
 
-    // Kanal Ekle alanlarını aç
     document.getElementById("addChannelBox").style.display="block";
     document.getElementById("addChannelBoxMobile").style.display="block";
 
-    // ws reset
     try{ws&&ws.close();}catch{}
     connectWS();
-  }catch(err){
-    alert("Giriş hatası: "+err.message);
-  }
+  }catch(err){alert("Giriş hatası: "+err.message);}
 };
 doRegister.onclick=async()=>{
   try{
@@ -306,9 +316,7 @@ doRegister.onclick=async()=>{
     const data=await res.json();
     if(!res.ok||!data.success)throw new Error(data?.error||("HTTP "+res.status));
     alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
-  }catch(err){
-    alert("Kayıt hatası: "+err.message);
-  }
+  }catch(err){alert("Kayıt hatası: "+err.message);}
 };
 
 btnLogout.onclick=()=>{localStorage.removeItem("token");token=null;location.reload();};
@@ -324,9 +332,7 @@ saveProfile.onclick=async()=>{
   if(data.success){alert("Profil güncellendi");profileModal.classList.remove("open");}
 };
 
-// İlk açılış durumu
 function initChannelsUI(){
-  // varsayılan kanallar
   const defaults=["#genel","#sohbet","#yardim"];
   const render=(ul)=>{
     ul.innerHTML="";
@@ -340,7 +346,6 @@ function initChannelsUI(){
   render(channelList);
   render(channelListMobile);
 
-  // login durumuna göre ekleme alanlarını göster/gizle
   document.getElementById("addChannelBox").style.display = token ? "block" : "none";
   document.getElementById("addChannelBoxMobile").style.display = token ? "block" : "none";
 }
