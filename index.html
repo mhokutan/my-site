@@ -52,17 +52,23 @@
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
     .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:300px;max-width:92vw;position:relative}
-    .modal-content input,.modal-content select{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-content input,.modal-content select,.modal-content textarea{background:#000;color:#eee;border:1px solid #333;padding:6px}
     .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
     .section{border-top:1px solid #222;margin-top:6px;padding-top:6px}
     .muted{color:#aaa;font-size:12px}
+    /* === YENİ: Emoji picker konumlandırma === */
+    #emojiBox{position:absolute;display:none;z-index:3000}
   </style>
+  <!-- === YENİ: Emoji Picker Kütüphanesi === -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 </head>
 <body>
   <div class="menubar">
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
     <span id="authStatus">Anonim</span>
     <div>
+      <!-- === YENİ: Öneri butonu === -->
+      <button id="btnFeedback">Öneri</button>
       <button id="btnLogin">Giriş</button>
       <button id="btnProfile" style="display:none">Profil Düzenle</button>
       <button id="btnLogout" style="display:none">Çıkış</button>
@@ -93,7 +99,11 @@
       <form id="form" class="inputbar" autocomplete="off">
         <input id="input" placeholder="Mesaj yaz..." maxlength="1000"/>
         <button>Gönder</button>
+        <!-- === YENİ: Emoji düğmesi === -->
+        <button type="button" id="btnEmoji" title="Emoji">😀</button>
       </form>
+      <!-- === YENİ: Emoji picker kutusu === -->
+      <emoji-picker id="emojiBox"></emoji-picker>
     </main>
 
     <aside class="pane pane-right">
@@ -165,6 +175,35 @@
       <input id="city" placeholder="Şehir"/>
       <button id="saveProfile">Kaydet</button>
       <div class="muted">Cinsiyete göre avatar otomatik ayarlanır (👨 / 👩).</div>
+      <!-- === YENİ: Hobiler butonu -->
+      <div class="section">
+        <button type="button" id="btnHobbies">İlgi Alanları</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === YENİ: Hobiler Modal === -->
+  <div id="hobbyModal" class="modal">
+    <div class="modal-content" style="max-height:70vh;overflow:auto">
+      <button onclick="hobbyModal.classList.remove('open')" class="modal-close">✖</button>
+      <h3>İlgi Alanları</h3>
+      <div id="hobbyList"></div>
+      <div style="margin-top:8px"><b>Seçilenler:</b> <span id="hobbyPicked"></span></div>
+      <button id="saveHobbies">Kaydet</button>
+      <div class="muted">Seçtiklerine göre önerilen kanallar otomatik eklenecek.</div>
+    </div>
+  </div>
+
+  <!-- === YENİ: Öneri / Feedback Modal === -->
+  <div id="feedbackModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="feedbackModal.classList.remove('open')">✖</button>
+      <h3>Öneri Gönder</h3>
+      <textarea id="feedbackText" placeholder="Önerini / isteğini yaz..." style="width:60vw;max-width:600px;height:120px"></textarea>
+      <div class="section">
+        <button id="sendFeedback">Gönder</button>
+      </div>
+      <div class="muted">Teşekkürler! Düşünceleriniz geliştirmemize yardımcı olur.</div>
     </div>
   </div>
 
@@ -239,7 +278,8 @@ function renderUsers(list){
     li.appendChild(star);
     li.onclick=()=>startDM(u);
     userList.appendChild(li);
-    // mobil için yeni node üret (clone'da listener kaybolur)
+
+    // mobil için yeni node (listener kaybı olmasın)
     const mli=document.createElement("li");
     mli.innerHTML=avatar+" "+u.display;
     const mstar=document.createElement("span");
@@ -259,6 +299,7 @@ function renderFollows(){
     li.innerHTML=avatar+" "+u.display;
     li.onclick=()=>startDM(u);
     followList.appendChild(li);
+
     const mli=document.createElement("li");
     mli.innerHTML=avatar+" "+u.display;
     mli.onclick=()=>startDM(u);
@@ -530,13 +571,117 @@ function initChannelsUI(){
   document.getElementById("addChannelBoxMobile").style.display = token ? "block" : "none";
 }
 
+/* =============== YENİ: Emoji Picker davranışı =============== */
+const btnEmoji = document.getElementById("btnEmoji");
+const emojiBox = document.getElementById("emojiBox");
+if(btnEmoji && emojiBox){
+  btnEmoji.onclick = ()=>{
+    emojiBox.style.display = (emojiBox.style.display==="none" ? "block" : "none");
+    const rect = btnEmoji.getBoundingClientRect();
+    emojiBox.style.left = (rect.left)+"px";
+    emojiBox.style.top  = (rect.bottom+6)+"px";
+  };
+  emojiBox.addEventListener("emoji-click", e=>{
+    input.value += e.detail.unicode;
+    input.focus();
+    emojiBox.style.display="none";
+  });
+}
+
+/* =============== YENİ: Hobiler / İlgi Alanları =============== */
+const ALL_HOBBIES = [
+  "Futbol","Basketbol","Voleybol","Koşu","Fitness","Yüzme","Tenis","MMA","Dalış","Kamp",
+  "Bilgisayar Oyunları","Mobil Oyunlar","CS:GO","LoL","Valorant","Satranç",
+  "Film","Dizi","Netflix","Anime","Belgesel",
+  "Müzik","Rock","Rap","Klasik","Piyano","Gitar","DJ",
+  "Kitap","Roman","Şiir","Kişisel Gelişim","Felsefe",
+  "Yemek","Tatlı","Kahve","Çay","Barbekü","Vegan",
+  "Teknoloji","Yazılım","Yapay Zekâ","Siber Güvenlik","Kripto",
+  "Seyahat","Fotoğraf","Doğa","Resim","Heykel","Tasarım","Moda",
+  "Araba","Motosiklet","Drone","RC","Model",
+  "Dil Öğrenme","İngilizce","Almanca","İspanyolca","Türkçe",
+  "Girişimcilik","Pazarlama","E-ticaret","Yatırım","Borsa",
+  "Sağlık","Psikoloji","Meditasyon","Yoga","Mindfulness"
+];
+const HOBBY_TO_CHANNELS = {
+  "Futbol":["#futbol","#spor"], "Basketbol":["#basketbol","#spor"],
+  "Yazılım":["#yazılım","#teknoloji"], "Yapay Zekâ":["#yapayzeka","#teknoloji"],
+  "Yemek":["#yemek","#tarifler"], "Film":["#film","#sohbet"], "Müzik":["#müzik","#sohbet"]
+};
+const hobbyPicked = new Set(JSON.parse(localStorage.getItem("hobbies")||"[]"));
+
+const btnHobbies = document.getElementById("btnHobbies");
+if(btnHobbies){
+  btnHobbies.onclick = openHobbyModal;
+}
+
+function openHobbyModal(){
+  hobbyModal.classList.add("open");
+  const list = document.getElementById("hobbyList");
+  list.innerHTML="";
+  ALL_HOBBIES.forEach(h=>{
+    const row=document.createElement("div");
+    row.style.display="flex"; row.style.justifyContent="space-between"; row.style.padding="4px 0";
+    const span=document.createElement("span"); span.textContent=h;
+    const add=document.createElement("button"); add.textContent="+";
+    add.onclick=()=>{ hobbyPicked.add(h); renderPicked(); };
+    row.append(span,add); list.appendChild(row);
+  });
+  renderPicked();
+}
+function renderPicked(){
+  document.getElementById("hobbyPicked").textContent = [...hobbyPicked].join(", ");
+}
+document.getElementById("saveHobbies").onclick = async ()=>{
+  const arr = [...hobbyPicked];
+  localStorage.setItem("hobbies", JSON.stringify(arr));
+  // profiline de yaz (giriş varsa)
+  if(token){
+    try{
+      const r=await fetch(API+"/me",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})});
+      const d=await r.json(); const prof = d.profile||{};
+      prof.hobbies = arr;
+      await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile:prof})});
+    }catch(e){}
+  }
+  // önerilen kanalları ekle
+  arr.forEach(h=> (HOBBY_TO_CHANNELS[h]||[]).forEach(ch=> addChannel(ch)));
+  hobbyModal.classList.remove("open");
+};
+
+/* =============== YENİ: Öneri / Feedback =============== */
+const btnFeedback = document.getElementById("btnFeedback");
+if(btnFeedback){
+  btnFeedback.onclick = ()=> feedbackModal.classList.add("open");
+}
+const sendFeedbackBtn = document.getElementById("sendFeedback");
+if(sendFeedbackBtn){
+  sendFeedbackBtn.onclick = async ()=>{
+    const text = (document.getElementById("feedbackText").value||"").trim();
+    if(!text) return;
+    try{
+      const r = await fetch(API+"/feedback",{ method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ token, text })});
+      const d = await r.json();
+      if(d.success){ alert("Teşekkürler! Öneriniz alındı."); feedbackModal.classList.remove("open"); }
+      else { alert(d.error || "Gönderilemedi"); }
+    }catch(e){
+      alert("Gönderilemedi");
+    }
+  };
+}
+
 /* ===================== Boot ===================== */
+function initAfterAuthUI(){
+  document.getElementById("addChannelBox").style.display="block";
+  document.getElementById("addChannelBoxMobile").style.display="block";
+}
 if(token){
   authStatus.textContent="Giriş yapıldı";
   btnLogin.style.display="none";
   btnProfile.style.display="inline-block";
   btnLogout.style.display="inline-block";
   initChannelsUI();
+  initAfterAuthUI();
   connectWS();
 }else{
   initChannelsUI();
