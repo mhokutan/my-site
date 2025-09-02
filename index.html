@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -30,6 +29,7 @@
     .star{cursor:pointer;color:#666;margin-left:auto}
     .star.following{color:gold}
     .hint{color:#888;font-size:12px;padding:6px;border-top:1px solid #222}
+
     @media(max-width:768px){
       .layout{grid-template-columns:1fr}
       .pane,.pane-right{display:none}
@@ -40,25 +40,49 @@
       .menubar .mobile-toggle{display:none}
       #mobileMenu{display:none !important;}
     }
+
     #mobileMenu{
       position:fixed;top:0;left:-260px;width:260px;height:100%;
-      background:#111;border-right:1px solid #333;
-      transition:left .3s;z-index:1000;padding:6px
+      background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px
     }
     #mobileMenu.open{left:0}
-    #mobileMenu .closeBtn{
-      background:#222;border:1px solid #444;color:#eee;
-      width:100%;margin-bottom:8px;padding:6px;cursor:pointer
-    }
+    #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
+
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
     .modal.open{display:flex}
-    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:300px;max-width:92vw;position:relative}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:8px;min-width:300px;max-width:92vw;position:relative}
     .modal-content input,.modal-content select,.modal-content textarea{background:#000;color:#eee;border:1px solid #333;padding:6px}
     .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
     .section{border-top:1px solid #222;margin-top:6px;padding-top:6px}
     .muted{color:#aaa;font-size:12px}
+
+    /* Emoji picker (mevcut) */
     #emojiBox{position:absolute;display:none;z-index:3000}
+
+    /* ==== HOBİ CHIPS (YATAY) ==== */
+    #hobbyList{
+      display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start;
+      max-width:min(900px,90vw);
+    }
+    .hobby-chip{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 8px;border:1px solid #333;border-radius:8px;
+      background:#0a0a0a;white-space:nowrap;font-size:13px;
+    }
+    .hobby-chip button{
+      background:#222;border:1px solid #444;color:#eee;
+      padding:2px 6px;border-radius:6px;cursor:pointer;
+    }
+    #hobbyPicked{
+      display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;
+    }
+    .picked-chip{
+      background:#1a1a1a;border:1px solid #333;border-radius:8px;
+      padding:4px 8px;font-size:12px;
+    }
   </style>
+
+  <!-- Emoji Picker lib -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 </head>
 <body>
@@ -110,8 +134,8 @@
       <ul id="followList" class="list"></ul>
     </aside>
   </div>
-  <!-- Login Modal -->
-  <div id="loginModal" class="modal"> <!-- 🔐 Login Modal -->
+
+  <!-- 🔐 Login Modal -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="loginModal.classList.remove('open')">✖</button>
@@ -122,14 +146,11 @@
         <button id="doLogin">Giriş</button>
         <button id="doRegister">Kayıt</button>
       </div>
-      <div class="muted">
-        Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.
-      </div>
+      <div class="muted">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
     </div>
-  </div> </div>
+  </div>
 
-  <!-- Profil Modal -->
-  <div id="profileModal" class="modal"> <!-- 👤 Profil Modal -->
+  <!-- 👤 Profil Modal -->
   <div id="profileModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="profileModal.classList.remove('open')">✖</button>
@@ -150,28 +171,24 @@
         <button type="button" id="btnHobbies">İlgi Alanları</button>
       </div>
     </div>
-  </div> </div>
+  </div>
 
-  <!-- Hobiler Modal -->
-  <div id="hobbyModal" class="modal">   <!-- 🎯 Hobiler Modal -->
+  <!-- 🎯 Hobiler Modal -->
   <div id="hobbyModal" class="modal">
     <div class="modal-content" style="max-height:70vh;overflow:auto">
       <button onclick="hobbyModal.classList.remove('open')" class="modal-close">✖</button>
       <h3>İlgi Alanları</h3>
       <div id="hobbyList"></div>
       <div style="margin-top:8px">
-        <b>Seçilenler:</b> <span id="hobbyPicked"></span>
+        <b>Seçilenler:</b>
+        <div id="hobbyPicked"></div>
       </div>
       <button id="saveHobbies">Kaydet</button>
-      <div class="muted">
-        Seçtiklerine göre önerilen kanallar otomatik eklenecek.
-      </div>
+      <div class="muted">Seçtiklerine göre önerilen kanallar otomatik eklenecek.</div>
     </div>
   </div>
-</div>
 
-  <!-- Feedback Modal -->
-  <div id="feedbackModal" class="modal"> <!-- 💡 Öneri / Feedback Modal -->
+  <!-- 💡 Öneri / Feedback Modal -->
   <div id="feedbackModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="feedbackModal.classList.remove('open')">✖</button>
@@ -184,8 +201,135 @@
       <div class="muted">Teşekkürler! Düşünceleriniz geliştirmemize yardımcı olur.</div>
     </div>
   </div>
- </div>
 
+  <!-- app.js (mevcut mantığın) -->
   <script src="app.js"></script>
+
+  <!-- === İnce ayar: giriş & profil & hobiler davranışı + yatay hobby chips === -->
+  <script>
+    // Mobil menü
+    function toggleMobileMenu(force){
+      const el=document.getElementById("mobileMenu");
+      if(!el) return;
+      if(force===false){el.classList.remove("open");return;}
+      el.classList.toggle("open");
+    }
+
+    // app.js bazen "hobbiesModal" ismini arıyor; aynı modala işaret etsin:
+    window.hobbiesModal = document.getElementById('hobbyModal');
+
+    // Giriş butonuna basınca: Hem login modalı hem hobiler modalı aç (isteğin gibi "direkt").
+    // (İstersen sadece başarılı girişten sonra açılması için bu satırı değiştirebiliriz.)
+    const btnLogin = document.getElementById('btnLogin');
+    const loginModal = document.getElementById('loginModal');
+    const hobbyModal = document.getElementById('hobbyModal');
+    if(btnLogin && loginModal && hobbyModal){
+      btnLogin.onclick = ()=>{
+        loginModal.classList.add('open');
+        hobbyModal.classList.add('open');
+        renderHobbyChips(); // ilk açılışta çiz
+      };
+    }
+
+    // Profil butonu (giriş yaptıysa app.js zaten görünür yapıyor, burada sadece modal açıyoruz)
+    const btnProfile = document.getElementById('btnProfile');
+    const profileModal = document.getElementById('profileModal');
+    if(btnProfile && profileModal){
+      btnProfile.onclick = ()=> profileModal.classList.add('open');
+    }
+
+    // HOBİLER: Yatay chips + “+” ile kaybolsun -> seçilenlere eklensin
+    const ALL_HOBBIES_FALLBACK = [
+      "Futbol","Basketbol","Voleybol","Koşu","Fitness","Yüzme","Tenis","MMA","Dalış","Kamp",
+      "Bilgisayar Oyunları","Mobil Oyunlar","CS:GO","LoL","Valorant","Satranç",
+      "Film","Dizi","Netflix","Anime","Belgesel",
+      "Müzik","Rock","Rap","Klasik","Piyano","Gitar","DJ",
+      "Kitap","Roman","Şiir","Kişisel Gelişim","Felsefe",
+      "Yemek","Tatlı","Kahve","Çay","Barbekü","Vegan",
+      "Teknoloji","Yazılım","Yapay Zekâ","Siber Güvenlik","Kripto",
+      "Seyahat","Fotoğraf","Doğa","Resim","Heykel","Tasarım","Moda",
+      "Araba","Motosiklet","Drone","RC","Model",
+      "Dil Öğrenme","İngilizce","Almanca","İspanyolca","Türkçe",
+      "Girişimcilik","Pazarlama","E-ticaret","Yatırım","Borsa",
+      "Sağlık","Psikoloji","Meditasyon","Yoga","Mindfulness"
+    ];
+
+    function getAllHobbies(){
+      // app.js içinden ALL_HOBBIES varsa onu kullan, yoksa fallback
+      return (window.ALL_HOBBIES && Array.isArray(window.ALL_HOBBIES) ? window.ALL_HOBBIES : ALL_HOBBIES_FALLBACK).slice();
+    }
+    function getPickedSet(){
+      try{
+        const arr = JSON.parse(localStorage.getItem('hobbies')||'[]');
+        return new Set(arr);
+      }catch{ return new Set(); }
+    }
+    function savePickedSet(set){
+      localStorage.setItem('hobbies', JSON.stringify([...set]));
+    }
+
+    function renderHobbyChips(){
+      const list = document.getElementById('hobbyList');
+      const pickedWrap = document.getElementById('hobbyPicked');
+      if(!list || !pickedWrap) return;
+
+      const picked = getPickedSet();
+      list.innerHTML = "";
+      pickedWrap.innerHTML = "";
+
+      // Seçilenleri üstte rozet gibi göster
+      [...picked].forEach(h=>{
+        const chip=document.createElement('div');
+        chip.className='picked-chip';
+        chip.textContent=h;
+        pickedWrap.appendChild(chip);
+      });
+
+      // Seçilmemiş (gösterilecek) hobiler
+      const all = getAllHobbies();
+      const remaining = all.filter(h=>!picked.has(h));
+
+      remaining.forEach(h=>{
+        const chip=document.createElement('div');
+        chip.className='hobby-chip';
+        chip.innerHTML = `<span>${h}</span>`;
+        const plus=document.createElement('button');
+        plus.textContent = "+";
+        plus.title = "Ekle";
+        plus.onclick = ()=>{
+          picked.add(h);
+          savePickedSet(picked);
+          // anında listeden kaybolsun:
+          chip.remove();
+          // seçilenlere rozeti ekle
+          const sel=document.createElement('div');
+          sel.className='picked-chip';
+          sel.textContent=h;
+          pickedWrap.appendChild(sel);
+        };
+        chip.appendChild(plus);
+        list.appendChild(chip);
+      });
+    }
+
+    // “İlgi Alanları” butonu da bu yeni yatay görünüme açsın
+    const btnHobbies = document.getElementById('btnHobbies');
+    if(btnHobbies){
+      btnHobbies.onclick = ()=>{
+        hobbyModal.classList.add('open');
+        renderHobbyChips();
+      };
+    }
+
+    // Kaydet -> sadece localStorage’a yazıldı (app.js varsa kendi /profile/update akışın yine çalışır)
+    const saveHobbiesBtn = document.getElementById('saveHobbies');
+    if(saveHobbiesBtn){
+      saveHobbiesBtn.onclick = ()=>{
+        // Burada zaten her + tıklamada kaydediyoruz; istersen ek işlem ekleyebilirsin
+        alert("İlgi alanları kaydedildi.");
+        hobbyModal.classList.remove('open');
+      };
+    }
+  </script>
 </body>
 </html>
