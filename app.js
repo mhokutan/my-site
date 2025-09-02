@@ -288,3 +288,10 @@ function updateFollowCountsUI(following, followers){
   // örn: menüde küçük bir text
   // document.getElementById("counts").textContent = `Takip: ${following} • Takipçi: ${followers}`;
 }
+// li oluştururken:
+li.onclick = () => startDM(u);  // vardı
+// yanında küçük bir buton/ikon:
+const btn = document.createElement("button");
+btn.textContent = "Takip";
+btn.onclick = (ev)=>{ ev.stopPropagation(); followByUid(u.uid); };
+li.appendChild(btn);
