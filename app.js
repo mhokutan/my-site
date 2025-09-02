@@ -1,235 +1,288 @@
 "use strict";
 
-/* ---- Backend bağlantıları ---- */
-const WS_URL = "wss://chat-backend-xi60.onrender.com";
-const API    = "https://chat-backend-xi60.onrender.com";
+/* ===================== Config ===================== */
+const API = "https://chat-backend-1-iq7t.onrender.com";
+const WS_URL = "wss://chat-backend-1-iq7t.onrender.com";
 
-/* ---- State ---- */
-let channels = JSON.parse(localStorage.getItem("channels")) || [
-  "#genel","#teknoloji","#oyun","#spor","#film-dizi","#muzik","#egitim"
-];
-let currentChannel = localStorage.getItem("currentChannel") || "#genel";
-let messagesByChannel = JSON.parse(localStorage.getItem("messagesByChannel")) || {};
-let profile = JSON.parse(localStorage.getItem("profile")) || null;
-let anonName = localStorage.getItem("anonName") || null;
-let follows = JSON.parse(localStorage.getItem("follows")) || [];
-let token = localStorage.getItem("token") || null;
+let token = localStorage.getItem("token");
+let ws, currentChannel = "#genel";
 
-/* ---- Elements ---- */
-const channelListEl = document.getElementById("channelList");
-const userListEl    = document.getElementById("userList");
-const messagesEl    = document.getElementById("messages");
-const topicEl       = document.getElementById("topic");
-const typingArea    = document.getElementById("typingArea");
-const form          = document.getElementById("form");
-const input         = document.getElementById("input");
+/* ===================== State ===================== */
+let follows = JSON.parse(localStorage.getItem("follows") || "[]");
+const bannedWords = ["küfür1","küfür2","badword"];
 
-/* Modals */
-const profileModal   = document.getElementById("profileModal");
-const addChannelModal= document.getElementById("addChannelModal");
-const hobbiesModal   = document.getElementById("hobbyModal");
-const feedbackModal  = document.getElementById("feedbackModal");
-
-/* Buttons */
-const btnProfile     = document.getElementById("btnProfile");
-const btnAddChannel  = document.getElementById("btnAddChannel");
-const btnFeedback    = document.getElementById("btnFeedback");
-const newChannelInput= document.getElementById("newChannelInput");
-
-/* Profil alanları */
-const countrySelect = document.getElementById("countrySelect");
-const citySelect    = document.getElementById("citySelect");
-const saveProfileBtn= document.getElementById("saveProfile");
-const skipProfileBtn= document.getElementById("skipProfile");
-
-/* ---- Helpers ---- */
-function openModal(el){ el.classList.add("open"); }
-function closeModal(el){ el.classList.remove("open"); }
-function randomAnonName(){
-  const animals=["Tiger","Fox","Panda","Eagle","Shark","Lion","Wolf"];
-  const colors =["Blue","Red","Green","Black","White","Golden","Purple"];
-  return colors[Math.floor(Math.random()*colors.length)]
-       + animals[Math.floor(Math.random()*animals.length)]
-       + Math.floor(Math.random()*1000);
-}
-function ensureChannelStore(ch){ if(!messagesByChannel[ch]) messagesByChannel[ch] = []; }
-function saveLocal(){
-  localStorage.setItem("channels", JSON.stringify(channels));
-  localStorage.setItem("currentChannel", currentChannel);
-  localStorage.setItem("messagesByChannel", JSON.stringify(messagesByChannel));
-  if(profile) localStorage.setItem("profile", JSON.stringify(profile));
-  if(anonName) localStorage.setItem("anonName", anonName);
-  localStorage.setItem("follows", JSON.stringify(follows));
-  if(token) localStorage.setItem("token", token);
-}
-
-/* ---- Profil ---- */
-saveProfileBtn?.addEventListener("click", async ()=>{
-  profile = {
-    firstName: document.getElementById("firstName").value.trim(),
-    lastName : document.getElementById("lastName").value.trim(),
-    country  : countrySelect.value,
-    city     : citySelect.value
-  };
-  if(!anonName) anonName = randomAnonName();
-  saveLocal();
-  closeModal(profileModal);
-
-  if(token){
-    await fetch(API+"/profile/update",{
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ token, profile })
-    });
-  }
-});
-skipProfileBtn?.addEventListener("click", ()=>{
-  profile = null;
-  if(!anonName) anonName = randomAnonName();
-  saveLocal(); closeModal(profileModal);
-});
-
-/* ---- Kanallar ---- */
-function renderChannels(){
-  channelListEl.innerHTML = "";
-  channels.forEach(ch=>{
-    const li = document.createElement("li");
-    li.textContent = ch;
-    if (ch === currentChannel) li.classList.add("active");
-    li.addEventListener("click", ()=> switchChannel(ch));
-    channelListEl.appendChild(li);
+/* ===================== Helpers ===================== */
+function cleanMessage(text){
+  let safe=text;
+  bannedWords.forEach(w=>{
+    const re=new RegExp(w,"gi");
+    safe=safe.replace(re,"***");
   });
+  return safe;
+}
+function saveFollows(){
+  localStorage.setItem("follows",JSON.stringify(follows));
+  renderFollows();
 }
 
-/* ---- Users ---- */
-function renderUsers(list = []){
-  userListEl.innerHTML = "";
-  const me = document.createElement("li");
-  me.textContent = anonName || "Anonim";
-  me.style.color = "#4fc3f7";
-  userListEl.appendChild(me);
+/* ===================== Chat UI ===================== */
+function addMessage(from,text){
+  const time=new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  messages.innerHTML+=`<div><span class="time">[${time}]</span> <b>${from}:</b> ${text}</div>`;
+  messages.scrollTop=messages.scrollHeight;
+}
+function addInfo(t){
+  messages.innerHTML+=`<div class="info">${t}</div>`;
+  messages.scrollTop=messages.scrollHeight;
+}
+function showTyping(name){
+  typingArea.innerHTML=`<div class="typing">${name} yazıyor...</div>`;
+  setTimeout(()=>{typingArea.innerHTML="";},1500);
+}
 
+/* ===================== Users & Follow ===================== */
+function renderUsers(list){
+  userList.innerHTML=""; userListMobile.innerHTML="";
   list.forEach(u=>{
-    if (u.display === anonName) return;
-    const li = document.createElement("li");
-    li.textContent = u.display;
-    const btn = document.createElement("button");
-    btn.textContent = follows.find(f=>f.uid===u.uid) ? "Takipten Çık" : "Takip";
-    btn.onclick = (ev)=>{
-      ev.stopPropagation();
-      if(follows.find(f=>f.uid===u.uid)){
-        unfollowByUid(u.uid);
-      }else{
-        followByUid(u.uid);
-      }
-    };
-    li.appendChild(btn);
-    userListEl.appendChild(li);
+    const li=document.createElement("li");
+    li.innerHTML=`<span class="avatar">👤</span> ${u.display}`;
+    const star=document.createElement("span");
+    star.className="star"+(follows.find(f=>f.uid===u.uid)?" following":"");
+    star.textContent="★";
+    star.title="Takip et / bırak";
+    star.onclick=(e)=>{e.stopPropagation();toggleFollow(u,star);};
+    li.appendChild(star);
+    li.onclick=()=>startDM(u);
+    userList.appendChild(li);
+
+    const mli=document.createElement("li");
+    mli.innerHTML=`<span class="avatar">👤</span> ${u.display}`;
+    const mstar=document.createElement("span");
+    mstar.className=star.className; mstar.textContent="★"; mstar.title=star.title;
+    mstar.onclick=(e)=>{e.stopPropagation();toggleFollow(u,mstar);};
+    mli.appendChild(mstar);
+    mli.onclick=()=>startDM(u);
+    userListMobile.appendChild(mli);
+  });
+  renderFollows();
+}
+function renderFollows(){
+  followList.innerHTML=""; followListMobile.innerHTML="";
+  follows.forEach(u=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span class="avatar">👤</span> ${u.display}`;
+    li.onclick=()=>startDM(u);
+    followList.appendChild(li);
+
+    const mli=document.createElement("li");
+    mli.innerHTML=`<span class="avatar">👤</span> ${u.display}`;
+    mli.onclick=()=>startDM(u);
+    followListMobile.appendChild(mli);
   });
 }
-
-/* ---- Messages ---- */
-function renderMessages(ch){
-  ensureChannelStore(ch);
-  messagesEl.innerHTML = "";
-  messagesByChannel[ch].forEach(m=>{
-    const row = document.createElement("div");
-    row.className = `message ${m.cls||""}`;
-    row.innerHTML = `<span class="nick">${m.from}:</span> ${m.text}`;
-    messagesEl.appendChild(row);
-  });
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-function addMessage(ch, from, text, cls){
-  ensureChannelStore(ch);
-  messagesByChannel[ch].push({from,text,cls});
-  if(ch === currentChannel){
-    const row = document.createElement("div");
-    row.className = `message ${cls||""}`;
-    row.innerHTML = `<span class="nick">${from}:</span> ${text}`;
-    messagesEl.appendChild(row);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-  saveLocal();
-}
-function addInfo(text){
-  const div = document.createElement("div");
-  div.className = "info";
-  div.textContent = text;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+function toggleFollow(u,starEl){
+  const exists=follows.find(f=>f.uid===u.uid);
+  if(exists){follows=follows.filter(f=>f.uid!==u.uid);}
+  else{follows.push(u);}
+  saveFollows();
+  if(starEl)starEl.classList.toggle("following");
 }
 
-/* ---- WebSocket ---- */
-let ws;
+/* ===================== WebSocket ===================== */
 function connectWS(){
-  if (!anonName) anonName = randomAnonName();
-  ws = new WebSocket(WS_URL);
-  ws.addEventListener("open", ()=> ws.send(JSON.stringify({ type:"join", channel: currentChannel, nick: anonName, token })));
-  ws.addEventListener("message", (ev)=>{
-    let msg; try { msg = JSON.parse(ev.data); } catch { return; }
-    if (msg.type==="info") addInfo(msg.message);
-    if (msg.type==="users") renderUsers(msg.users||[]);
-    if (msg.type==="message") addMessage(currentChannel, msg.from, msg.text, msg.from==="AI"?"other":"other");
-    if (msg.type==="typing") typingArea.innerHTML = `${msg.from} yazıyor...`;
-  });
-  ws.addEventListener("close", ()=> setTimeout(connectWS,1000));
-  ws.addEventListener("error", ()=> ws.close());
+  ws=new WebSocket(WS_URL);
+  ws.onopen=()=>sendJoin();
+  ws.onmessage=e=>{
+    const msg=JSON.parse(e.data);
+    if(msg.type==="info") addInfo(msg.message);
+    if(msg.type==="message") addMessage(msg.from,msg.text);
+    if(msg.type==="users") renderUsers(msg.users);
+    if(msg.type==="typing") showTyping(msg.from);
+    if(msg.type==="dm-start") openDM(msg.room,msg.peer);
+  };
+  ws.onclose=()=>{};
+}
+function sendJoin(){
+  ws.send(JSON.stringify({type:"join",channel:currentChannel,nick:"Kullanıcı",token}));
 }
 
-/* ---- Kanal değiştir ---- */
-function switchChannel(ch){
-  currentChannel = ch;
-  saveLocal();
-  renderChannels(); renderMessages(ch);
-  if (ws && ws.readyState===1) ws.send(JSON.stringify({ type:"join", channel: ch, nick: anonName, token }));
-  else { try{ws.close();}catch{} connectWS(); }
-  if ((messagesByChannel[ch]||[]).length===0) addInfo(`${ch} kanalına katıldın.`);
-}
-
-/* ---- Mesaj gönder ---- */
-form.addEventListener("submit",(e)=>{
+/* ===================== Message send ===================== */
+form.onsubmit=e=>{
   e.preventDefault();
-  const text = input.value.trim();
+  let text=input.value.trim();
   if(!text) return;
-  addMessage(currentChannel, anonName||"Ben", text, "me");
-  input.value="";
-  typingArea.innerHTML="";
+  text=cleanMessage(text);
+  addMessage("Ben",text);
+
   if(currentChannel==="#heponsigorta"){
     fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
-    .then(r=>r.json()).then(d=>{ if(d.answer) addMessage(currentChannel,"HeponBot 🤖",d.answer); });
-  }else{
-    if(ws&&ws.readyState===1) ws.send(JSON.stringify({ type:"message", text }));
-    else { addInfo("Bağlantı yok…"); connectWS(); }
+    .then(r=>r.json()).then(data=>{
+      if(data.answer) addMessage("HeponBot 🤖",data.answer);
+    }).catch(()=>addMessage("HeponBot 🤖","Üzgünüm, şu an yanıt veremiyorum."));
+  } else {
+    ws.send(JSON.stringify({type:"message",text}));
+  }
+  input.value="";
+};
+input.addEventListener("input",()=>{
+  if(ws&&ws.readyState===WebSocket.OPEN){
+    ws.send(JSON.stringify({type:"typing"}));
   }
 });
 
-/* ---- Follow / Unfollow ---- */
-async function followByUid(uid){
-  if(!token){ alert("Takip için giriş gerekli"); return; }
-  const r = await fetch(API+"/follow",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({ token, targetUid: uid })});
-  const d = await r.json();
-  if(d.success){ alert("Takip edildi"); }
+/* ===================== Channels ===================== */
+function appendChannelItem(ul,name){
+  const exists=[...ul.querySelectorAll("li")].some(li=>li.textContent===name);
+  if(exists) return;
+  const li=document.createElement("li");
+  li.textContent=name;
+  li.onclick=()=>{
+    currentChannel=name;
+    topic.textContent=name;
+    messages.innerHTML="";
+    ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));
+  };
+  ul.appendChild(li);
 }
-async function unfollowByUid(uid){
-  if(!token){ alert("Giriş gerekli"); return; }
-  const r = await fetch(API+"/unfollow",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({ token, targetUid: uid })});
-  const d = await r.json();
-  if(d.success){ alert("Takipten çıkıldı"); }
+function addChannel(name){
+  if(!token){alert("Kanal eklemek için giriş yapın.");return;}
+  if(!name.startsWith("#")) name="#"+name;
+  currentChannel=name;
+  topic.textContent=name;
+  messages.innerHTML="";
+  appendChannelItem(channelList,name);
+  appendChannelItem(channelListMobile,name);
+  ws.send(JSON.stringify({type:"join",channel:name,nick:"Kullanıcı",token}));
 }
 
-/* ---- Feedback ---- */
-document.getElementById("sendFeedback")?.addEventListener("click", async()=>{
-  const txt=document.getElementById("feedbackText").value.trim();
-  if(!txt) return;
-  await fetch(API+"/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,text:txt})});
+/* ===================== DM ===================== */
+const dmWindows={};
+function startDM(user){
+  if(!ws||ws.readyState!==WebSocket.OPEN) return;
+  ws.send(JSON.stringify({type:"dm",toUid:user.uid}));
+}
+function openDM(room,peer){
+  if(dmWindows[room]) return;
+  const win=document.createElement("div");
+  win.className="modal open";
+  win.innerHTML=`
+    <div class="modal-content" style="width:420px;max-height:90vh;overflow:auto">
+      <button class="modal-close" onclick="this.parentElement.parentElement.remove()">✖</button>
+      <h3>DM: ${peer.display}</h3>
+      <div class="messages" id="msg-${room}" style="height:300px"></div>
+      <form onsubmit="sendDM('${room}',this);return false;" class="inputbar">
+        <input name="text" placeholder="Mesaj yaz..." maxlength="1000"/><button>Gönder</button>
+      </form>
+      <div class="muted">DM kayıtları tarayıcında saklanır ve silinmez.</div>
+    </div>`;
+  document.body.appendChild(win);
+  dmWindows[room]=win;
+}
+function sendDM(room,formEl){
+  const raw=(formEl.text.value||"").trim();
+  const text=cleanMessage(raw);
+  if(!text) return;
+  const box=document.getElementById("msg-"+room);
+  box.innerHTML+=`<div><b>Ben:</b> ${text}</div>`;
+  ws.send(JSON.stringify({type:"message",text,channel:room}));
+  formEl.text.value="";
+}
+
+/* ===================== Auth ===================== */
+btnLogin.onclick=()=>loginModal.classList.add("open");
+
+doLogin.onclick=async()=>{
+  try{
+    const identifier=document.getElementById("identifier").value.trim();
+    const password=document.getElementById("password").value;
+    const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
+    const data=await res.json();
+    if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
+
+    token=data.token;
+    localStorage.setItem("token",token);
+    authStatus.textContent=identifier;
+    btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block";
+    loginModal.classList.remove("open");
+    document.getElementById("addChannelBox").style.display="block";
+    document.getElementById("addChannelBoxMobile").style.display="block";
+    ws&&ws.close(); connectWS();
+  }catch(err){ alert("Giriş hatası: "+err.message); }
+};
+
+doRegister.onclick=async()=>{
+  try{
+    const identifier=document.getElementById("identifier").value.trim();
+    const password=document.getElementById("password").value;
+    const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
+    const data=await res.json();
+    if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
+    alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
+  }catch(err){ alert("Kayıt hatası: "+err.message); }
+};
+
+btnLogout.onclick=()=>{
+  localStorage.removeItem("token");
+  token=null;
+  location.reload();
+};
+
+/* ===================== Profil ===================== */
+btnProfile.onclick=()=> profileModal.classList.add("open");
+saveProfile.onclick=async()=>{
+  const profile={
+    firstName:firstName.value,lastName:lastName.value,
+    gender:gender.value,birth:birth.value,country:country.value,city:city.value
+  };
+  const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
+  const data=await res.json();
+  if(data.success){ alert("Profil güncellendi"); profileModal.classList.remove("open"); }
+};
+
+/* ===================== Sponsor Kanal ===================== */
+function joinSponsor(){
+  currentChannel="#heponsigorta";
+  topic.textContent="#heponsigorta";
+  messages.innerHTML="";
+  addInfo("Hepon Sigorta’ya hoş geldiniz. Daha fazla bilgi: www.heponsigorta.com");
+}
+
+/* ===================== Hobi / İlgi Alanları ===================== */
+const ALL_HOBBIES=["Futbol","Basketbol","Satranç","Müzik","Film","Dizi","Anime","Yemek","Yazılım","Yapay Zekâ"];
+const HOBBY_TO_CHANNELS={ "Futbol":["#futbol","#spor"], "Basketbol":["#basketbol"], "Müzik":["#müzik","#sohbet"], "Film":["#film","#sohbet"], "Yapay Zekâ":["#yapayzeka","#teknoloji"] };
+const hobbyPicked=new Set(JSON.parse(localStorage.getItem("hobbies")||"[]"));
+
+btnHobbies.onclick=()=>openHobbyModal();
+function openHobbyModal(){
+  hobbyModal.classList.add("open");
+  const list=document.getElementById("hobbyList"); list.innerHTML="";
+  ALL_HOBBIES.forEach(h=>{
+    const row=document.createElement("div");
+    row.textContent=h+" ";
+    const btn=document.createElement("button");
+    btn.textContent=hobbyPicked.has(h)?"✓":"+"; 
+    btn.onclick=()=>{ if(hobbyPicked.has(h)) hobbyPicked.delete(h); else hobbyPicked.add(h); renderPicked(); openHobbyModal(); };
+    row.appendChild(btn); list.appendChild(row);
+  });
+  renderPicked();
+}
+function renderPicked(){ document.getElementById("hobbyPicked").textContent=[...hobbyPicked].join(", "); }
+saveHobbies.onclick=()=>{
+  const arr=[...hobbyPicked]; localStorage.setItem("hobbies",JSON.stringify(arr));
+  arr.forEach(h=>(HOBBY_TO_CHANNELS[h]||[]).forEach(ch=>addChannel(ch)));
+  hobbyModal.classList.remove("open");
+};
+
+/* ===================== Feedback ===================== */
+btnFeedback.onclick=()=>feedbackModal.classList.add("open");
+sendFeedback.onclick=async()=>{
+  const text=document.getElementById("feedbackText").value.trim();
+  if(!text) return;
+  await fetch(API+"/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,text})});
   alert("Teşekkürler! Öneriniz kaydedildi.");
-  closeModal(feedbackModal);
-});
+  feedbackModal.classList.remove("open");
+};
 
-/* ---- Boot ---- */
-(function init(){
-  if(!anonName) anonName=randomAnonName();
-  channels.forEach(ensureChannelStore);
-  renderChannels(); switchChannel(currentChannel);
-  connectWS();
-})();
+/* ===================== Init ===================== */
+if(token){ authStatus.textContent="Giriş yapıldı"; btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block"; }
+connectWS();
