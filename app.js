@@ -262,3 +262,29 @@ form.addEventListener("submit", (e)=>{
   // nazikçe profil modali göster (opsiyonel)
   openModal(profileModal);
 })();
+async function followByUid(uid){
+  if(!token){ alert("Takip etmek için giriş gerekir."); return; }
+  const r = await fetch(API+"/follow",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ token, targetUid: uid })
+  });
+  const d = await r.json();
+  if(d.success){ updateFollowCountsUI(d.following, d.followers); }
+  else alert(d.error||"Takip edilemedi");
+}
+
+async function unfollowByUid(uid){
+  if(!token){ alert("Giriş gerekli"); return; }
+  const r = await fetch(API+"/unfollow",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ token, targetUid: uid })
+  });
+  const d = await r.json();
+  if(d.success){ updateFollowCountsUI(d.following, d.followers); }
+  else alert(d.error||"İşlem olmadı");
+}
+
+function updateFollowCountsUI(following, followers){
+  // örn: menüde küçük bir text
+  // document.getElementById("counts").textContent = `Takip: ${following} • Takipçi: ${followers}`;
+}
