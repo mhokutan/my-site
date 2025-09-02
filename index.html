@@ -687,6 +687,106 @@ if(token){
   initChannelsUI();
   connectWS();
 }
+/* =============== YENİ: Hobiler / İlgi Alanları =============== */
+const ALL_HOBBIES = [
+  "Futbol","Basketbol","Voleybol","Koşu","Fitness","Yüzme","Tenis","MMA","Dalış","Kamp",
+  "Bilgisayar Oyunları","Mobil Oyunlar","CS:GO","LoL","Valorant","Satranç",
+  "Film","Dizi","Netflix","Anime","Belgesel",
+  "Müzik","Rock","Rap","Klasik","Piyano","Gitar","DJ",
+  "Kitap","Roman","Şiir","Kişisel Gelişim","Felsefe",
+  "Yemek","Tatlı","Kahve","Çay","Barbekü","Vegan",
+  "Teknoloji","Yazılım","Yapay Zekâ","Siber Güvenlik","Kripto",
+  "Seyahat","Fotoğraf","Doğa","Resim","Heykel","Tasarım","Moda",
+  "Araba","Motosiklet","Drone","RC","Model",
+  "Dil Öğrenme","İngilizce","Almanca","İspanyolca","Türkçe",
+  "Girişimcilik","Pazarlama","E-ticaret","Yatırım","Borsa",
+  "Sağlık","Psikoloji","Meditasyon","Yoga","Mindfulness"
+];
+
+// Hobiye karşılık gelen kanal önerileri
+const HOBBY_TO_CHANNELS = {
+  "Futbol":["#futbol","#spor"],
+  "Basketbol":["#basketbol","#spor"],
+  "Voleybol":["#voleybol","#spor"],
+  "Satranç":["#satranç","#oyun"],
+  "Film":["#film","#sohbet"],
+  "Dizi":["#dizi","#sohbet"],
+  "Anime":["#anime","#sohbet"],
+  "Müzik":["#müzik","#sohbet"],
+  "Rock":["#rock","#müzik"],
+  "Rap":["#rap","#müzik"],
+  "Klasik":["#klasik","#müzik"],
+  "Piyano":["#piyano","#müzik"],
+  "Gitar":["#gitar","#müzik"],
+  "Yazılım":["#yazılım","#teknoloji"],
+  "Yapay Zekâ":["#yapayzeka","#teknoloji"],
+  "Siber Güvenlik":["#siber","#teknoloji"],
+  "Kripto":["#kripto","#yatırım"],
+  "Yemek":["#yemek","#tarifler"],
+  "Kahve":["#kahve","#yemek"],
+  "Kitap":["#kitap","#sohbet"],
+  "Felsefe":["#felsefe","#sohbet"],
+  "Psikoloji":["#psikoloji","#sağlık"],
+  "Sağlık":["#sağlık","#sohbet"],
+  "Meditasyon":["#meditasyon","#sağlık"],
+  "Yoga":["#yoga","#sağlık"],
+  "Borsa":["#borsa","#yatırım"],
+  "Yatırım":["#yatırım","#ekonomi"]
+};
+
+const hobbyPicked = new Set(JSON.parse(localStorage.getItem("hobbies")||"[]"));
+
+const btnHobbies = document.getElementById("btnHobbies");
+if(btnHobbies){
+  btnHobbies.onclick = openHobbyModal;
+}
+
+function openHobbyModal(){
+  hobbyModal.classList.add("open");
+  const list = document.getElementById("hobbyList");
+  list.innerHTML="";
+  ALL_HOBBIES.forEach(h=>{
+    const row=document.createElement("div");
+    row.style.display="flex"; 
+    row.style.justifyContent="space-between"; 
+    row.style.padding="4px 0";
+    const span=document.createElement("span"); 
+    span.textContent=h;
+    const add=document.createElement("button"); 
+    add.textContent=hobbyPicked.has(h)?"✓":"+"; 
+    add.onclick=()=>{
+      if(hobbyPicked.has(h)){ hobbyPicked.delete(h); }
+      else{ hobbyPicked.add(h); }
+      renderPicked();
+      openHobbyModal(); // yeniden render
+    };
+    row.append(span,add); 
+    list.appendChild(row);
+  });
+  renderPicked();
+}
+function renderPicked(){
+  document.getElementById("hobbyPicked").textContent = [...hobbyPicked].join(", ");
+}
+
+// Kaydet butonu
+document.getElementById("saveHobbies").onclick = async ()=>{
+  const arr = [...hobbyPicked];
+  localStorage.setItem("hobbies", JSON.stringify(arr));
+  // Sunucuya da gönder (varsa token)
+  if(token){
+    try{
+      const r=await fetch(API+"/me",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})});
+      const d=await r.json(); 
+      const prof = d.profile||{};
+      prof.hobbies = arr;
+      await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile:prof})});
+    }catch(e){}
+  }
+  // Kanalları önerilenlerle güncelle
+  arr.forEach(h=> (HOBBY_TO_CHANNELS[h]||[]).forEach(ch=> addChannel(ch)));
+  hobbyModal.classList.remove("open");
+};
 </script>
 </body>
 </html>
