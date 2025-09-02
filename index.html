@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -13,16 +14,48 @@
     .pane-right{border-left:1px solid #333}
     .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
     .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;cursor:pointer;user-select:none}
+    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
     .list li:hover{background:#0a0a0a}
     .list li.sponsor{color:#4af;font-weight:bold}
     .center{display:flex;flex-direction:column;min-height:0}
     .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
     .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
+    .time{color:#888;font-size:11px;margin-right:6px}
     .info{color:#888;text-align:center;font-style:italic;margin:4px 0}
+    .typing{color:#4af;font-size:12px;margin:2px 0;font-style:italic}
     .inputbar{display:flex;border-top:1px solid #333;background:#111;gap:6px;padding:6px}
     .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
     .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
+    .avatar{font-size:16px}
+    .star{cursor:pointer;color:#666;margin-left:auto}
+    .star.following{color:gold}
+    .hint{color:#888;font-size:12px;padding:6px;border-top:1px solid #222}
+    @media(max-width:768px){
+      .layout{grid-template-columns:1fr}
+      .pane,.pane-right{display:none}
+      .menubar .mobile-toggle{display:inline-block}
+      #mobileMenu{display:block;}
+    }
+    @media(min-width:769px){
+      .menubar .mobile-toggle{display:none}
+      #mobileMenu{display:none !important;}
+    }
+    #mobileMenu{
+      position:fixed;top:0;left:-260px;width:260px;height:100%;
+      background:#111;border-right:1px solid #333;
+      transition:left .3s;z-index:1000;padding:6px
+    }
+    #mobileMenu.open{left:0}
+    #mobileMenu .closeBtn{
+      background:#222;border:1px solid #444;color:#eee;
+      width:100%;margin-bottom:8px;padding:6px;cursor:pointer
+    }
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
+    .modal.open{display:flex}
+    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:6px;min-width:300px;max-width:92vw;position:relative}
+    .modal-content input,.modal-content select,.modal-content textarea{background:#000;color:#eee;border:1px solid #333;padding:6px}
+    .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
+    .section{border-top:1px solid #222;margin-top:6px;padding-top:6px}
     .muted{color:#aaa;font-size:12px}
     #emojiBox{position:absolute;display:none;z-index:3000}
   </style>
@@ -30,10 +63,12 @@
 </head>
 <body>
   <div class="menubar">
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
     <span id="authStatus">Anonim</span>
     <div>
-      <button id="btnHobbies">İlgi Alanları</button>
+      <button id="btnFeedback">Öneri</button>
       <button id="btnLogin">Giriş</button>
+      <button id="btnProfile" style="display:none">Profil Düzenle</button>
       <button id="btnLogout" style="display:none">Çıkış</button>
     </div>
   </div>
@@ -43,85 +78,114 @@
       <div class="pane-title">Sponsorlu Kanallar</div>
       <ul id="sponsorList" class="list"></ul>
 
-      <div class="pane-title">Önerilen Kanallar</div>
-      <ul id="recommendedList" class="list"></ul>
-
-      <div class="pane-title">Kanallarım</div>
+      <div class="pane-title">Genel Kanallar</div>
       <ul id="channelList" class="list"></ul>
+
+      <div class="pane-title">Favori Kanallarım</div>
+      <ul id="favList" class="list"></ul>
+
+      <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
+        <input id="newChannel" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
+        <button id="btnAddChannel" style="width:100%">Ekle</button>
+        <div class="hint muted">Kendi kanalını ekle (#konya gibi).</div>
+      </div>
     </aside>
 
     <main class="center">
       <div id="topic" class="topic">#genel</div>
       <div id="messages" class="messages"></div>
-      <form id="form" class="inputbar">
-        <input id="input" placeholder="Mesaj yaz..."/>
+      <div id="typingArea"></div>
+      <form id="form" class="inputbar" autocomplete="off">
+        <input id="input" placeholder="Mesaj yaz..." maxlength="1000"/>
         <button>Gönder</button>
-        <button type="button" id="btnEmoji">😀</button>
+        <button type="button" id="btnEmoji" title="Emoji">😀</button>
       </form>
       <emoji-picker id="emojiBox"></emoji-picker>
     </main>
+
+    <aside class="pane pane-right">
+      <div class="pane-title">Kullanıcılar</div>
+      <ul id="userList" class="list"></ul>
+      <div class="pane-title">Takip Ettiklerim</div>
+      <ul id="followList" class="list"></ul>
+    </aside>
   </div>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal"> <!-- 🔐 Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="loginModal.classList.remove('open')">✖</button>
+      <h3>Giriş / Kayıt</h3>
+      <input id="identifier" placeholder="Email veya Telefon"/>
+      <input id="password" type="password" placeholder="Şifre"/>
+      <div class="section">
+        <button id="doLogin">Giriş</button>
+        <button id="doRegister">Kayıt</button>
+      </div>
+      <div class="muted">
+        Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.
+      </div>
+    </div>
+  </div> </div>
+
+  <!-- Profil Modal -->
+  <div id="profileModal" class="modal"> <!-- 👤 Profil Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="profileModal.classList.remove('open')">✖</button>
+      <h3>Profil Düzenle</h3>
+      <input id="firstName" placeholder="İsim"/>
+      <input id="lastName" placeholder="Soyisim"/>
+      <select id="gender">
+        <option value="">Cinsiyet</option>
+        <option value="erkek">Erkek</option>
+        <option value="kadın">Kadın</option>
+      </select>
+      <input id="birth" placeholder="Doğum Tarihi"/>
+      <input id="country" placeholder="Ülke"/>
+      <input id="city" placeholder="Şehir"/>
+      <button id="saveProfile">Kaydet</button>
+      <div class="muted">Cinsiyete göre avatar otomatik ayarlanır (👨 / 👩).</div>
+      <div class="section">
+        <button type="button" id="btnHobbies">İlgi Alanları</button>
+      </div>
+    </div>
+  </div> </div>
 
   <!-- Hobiler Modal -->
+  <div id="hobbyModal" class="modal">   <!-- 🎯 Hobiler Modal -->
   <div id="hobbyModal" class="modal">
     <div class="modal-content" style="max-height:70vh;overflow:auto">
       <button onclick="hobbyModal.classList.remove('open')" class="modal-close">✖</button>
       <h3>İlgi Alanları</h3>
       <div id="hobbyList"></div>
-      <div style="margin-top:8px"><b>Seçilenler:</b> <span id="hobbyPicked"></span></div>
+      <div style="margin-top:8px">
+        <b>Seçilenler:</b> <span id="hobbyPicked"></span>
+      </div>
       <button id="saveHobbies">Kaydet</button>
+      <div class="muted">
+        Seçtiklerine göre önerilen kanallar otomatik eklenecek.
+      </div>
     </div>
   </div>
+</div>
 
-<script>
-const ALL_HOBBIES = ["Futbol","Basketbol","Satranç","Müzik","Film","Dizi","Anime","Yazılım","Yapay Zekâ","Yemek","Kitap"];
-const HOBBY_TO_CHANNELS = {
-  "Futbol":["#futbol","#spor"], "Basketbol":["#basketbol","#spor"],
-  "Satranç":["#satranç","#oyun"], "Müzik":["#müzik","#sohbet"],
-  "Film":["#film","#sohbet"], "Dizi":["#dizi","#sohbet"], "Anime":["#anime"],
-  "Yazılım":["#yazılım","#teknoloji"], "Yapay Zekâ":["#yapayzeka","#teknoloji"],
-  "Yemek":["#yemek","#tarifler"], "Kitap":["#kitap","#sohbet"]
-};
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="modal"> <!-- 💡 Öneri / Feedback Modal -->
+  <div id="feedbackModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="feedbackModal.classList.remove('open')">✖</button>
+      <h3>Öneri Gönder</h3>
+      <textarea id="feedbackText" placeholder="Önerini / isteğini yaz..."
+        style="width:60vw;max-width:600px;height:120px"></textarea>
+      <div class="section">
+        <button id="sendFeedback">Gönder</button>
+      </div>
+      <div class="muted">Teşekkürler! Düşünceleriniz geliştirmemize yardımcı olur.</div>
+    </div>
+  </div>
+ </div>
 
-let hobbyPicked = new Set(JSON.parse(localStorage.getItem("hobbies")||"[]"));
-
-function openHobbyModal(){
-  hobbyModal.classList.add("open");
-  const list=document.getElementById("hobbyList");
-  list.innerHTML="";
-  ALL_HOBBIES.forEach(h=>{
-    const row=document.createElement("div");
-    const btn=document.createElement("button");
-    btn.textContent=hobbyPicked.has(h)?"✓":"+";
-    btn.onclick=()=>{ 
-      if(hobbyPicked.has(h)) hobbyPicked.delete(h); else hobbyPicked.add(h); 
-      openHobbyModal(); 
-    };
-    row.textContent=h+" "; row.appendChild(btn); list.appendChild(row);
-  });
-  renderPicked();
-}
-function renderPicked(){
-  document.getElementById("hobbyPicked").textContent=[...hobbyPicked].join(", ");
-}
-function renderRecommended(){
-  const ul=document.getElementById("recommendedList");
-  ul.innerHTML="";
-  [...hobbyPicked].forEach(h=> (HOBBY_TO_CHANNELS[h]||[]).forEach(ch=>{
-    const li=document.createElement("li");
-    li.textContent=ch;
-    ul.appendChild(li);
-  }));
-}
-document.getElementById("btnHobbies").onclick=openHobbyModal;
-document.getElementById("saveHobbies").onclick=()=>{
-  localStorage.setItem("hobbies",JSON.stringify([...hobbyPicked]));
-  hobbyModal.classList.remove("open");
-  renderRecommended();
-};
-
-// ilk açılış
-renderRecommended();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
