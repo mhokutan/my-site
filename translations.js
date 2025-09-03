@@ -47,6 +47,18 @@ const translations = {
     'createBtn': 'Oluştur',
     'addBtn': 'Ekle',
     'closeBtn': 'Kapat',
+    'saveHobbiesBtn': 'İlgi Alanlarını Kaydet',
+    
+    // Login/Register specific
+    'loginSubtitle': 'Hesabınıza giriş yapın',
+    'registerSubtitle': 'Yeni hesap oluşturun',
+    'forgotPassword': 'Şifremi unuttum',
+    'alreadyHaveAccount': 'Zaten hesabınız var mı?',
+    'dontHaveAccount': 'Hesabınız yok mu?',
+    'loginError': 'Giriş başarısız',
+    'registerError': 'Kayıt başarısız',
+    'loginSuccess': 'Giriş başarılı',
+    'registerSuccess': 'Kayıt başarılı',
     
     // Messages
     'loginSuccess': 'Giriş başarılı',
@@ -119,6 +131,18 @@ const translations = {
     'createBtn': 'Create',
     'addBtn': 'Add',
     'closeBtn': 'Close',
+    'saveHobbiesBtn': 'Save Interests',
+    
+    // Login/Register specific
+    'loginSubtitle': 'Sign in to your account',
+    'registerSubtitle': 'Create new account',
+    'forgotPassword': 'Forgot password',
+    'alreadyHaveAccount': 'Already have an account?',
+    'dontHaveAccount': "Don't have an account?",
+    'loginError': 'Login failed',
+    'registerError': 'Registration failed',
+    'loginSuccess': 'Login successful',
+    'registerSuccess': 'Registration successful',
     
     'loginSuccess': 'Login successful',
     'registerSuccess': 'Registration successful',
