@@ -279,12 +279,37 @@
       };
     }
 
-    // Kaydet -> sadece localStorage’a yazıldı (app.js varsa kendi /profile/update akışın yine çalışır)
+    // Kaydet -> localStorage'a yazıldı ve backend'e gönderildi
     const saveHobbiesBtn = document.getElementById('saveHobbies');
     if(saveHobbiesBtn){
-      saveHobbiesBtn.onclick = ()=>{
-        // Burada zaten her + tıklamada kaydediyoruz; istersen ek işlem ekleyebilirsin
-        alert("İlgi alanları kaydedildi.");
+      saveHobbiesBtn.onclick = async ()=>{
+        const hobbies = Array.from(picked);
+        localStorage.setItem('hobbies', JSON.stringify(hobbies));
+        
+        // Backend'e gönder
+        try {
+          const response = await fetch('https://chat-backend-xi60.onrender.com/profile/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: localStorage.getItem('token'),
+              profile: { hobbies: hobbies }
+            })
+          });
+          
+          if (response.ok) {
+            alert("İlgi alanları kaydedildi.");
+            // Önerilen kanalları yükle
+            if (window.smartChannelSystem) {
+              window.smartChannelSystem.userHobbies = hobbies;
+              window.smartChannelSystem.loadSuggestedChannels();
+            }
+          }
+        } catch (error) {
+          console.error('İlgi alanları kaydedilemedi:', error);
+          alert("İlgi alanları kaydedildi (yerel olarak).");
+        }
+        
         hobbyModal.classList.remove('open');
       };
     }

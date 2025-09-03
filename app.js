@@ -121,6 +121,16 @@ form.onsubmit=e=>{
     }).catch(()=>addMessage("HeponBot 🤖","Üzgünüm, şu an yanıt veremiyorum."));
   } else {
     ws.send(JSON.stringify({type:"message",text}));
+    
+    // AI yanıtı için ayrı istek gönder
+    setTimeout(() => {
+      fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
+      .then(r=>r.json()).then(data=>{
+        if(data.answer && data.answer !== "Şu an yanıt veremiyorum") {
+          addMessage("AI 🤖",data.answer);
+        }
+      }).catch(()=>{});
+    }, 1000);
   }
   input.value="";
 };

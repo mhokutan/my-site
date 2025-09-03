@@ -49,6 +49,12 @@ const translations = {
     'addBtn': 'Ekle',
     'closeBtn': 'Kapat',
     'saveHobbiesBtn': 'İlgi Alanlarını Kaydet',
+    'hobbiesTitle': 'İlgi Alanları',
+    'selectHobbies': 'İlgi alanlarınızı seçin',
+    'selectedHobbies': 'Seçilenler:',
+    'hobbiesHint': 'Seçtiklerine göre önerilen kanallar otomatik eklenecek.',
+    'createChannel': 'Kanal Oluştur',
+    'addChannel': 'Kanal Ekle',
     
     // Login/Register specific
     'loginSubtitle': 'Hesabınıza giriş yapın',
