@@ -189,7 +189,11 @@ function sendDM(room,formEl){
 }
 
 /* ===================== Auth ===================== */
-btnLogin.onclick=()=>loginModal.classList.add("open");
+btnLogin.onclick=(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  loginModal.classList.add("open");
+};
 
 doLogin.onclick=async()=>{
   try{
@@ -368,6 +372,58 @@ document.addEventListener('DOMContentLoaded', () => {
       addChannel(name);
       document.getElementById("newChannelMobile").value = "";
     };
+  }
+});
+
+/* ===================== Donate Modal ===================== */
+function openDonateModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+      <h2>☕ Kahve İkram Et</h2>
+      <p>Destekleriniz için teşekkürler! 🙏</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="https://www.buymeacoffee.com/mhokutan" target="_blank">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
+        </a>
+      </div>
+      <p style="text-align: center; color: #666; font-size: 14px;">
+        Bu bağışlar site geliştirmesi için kullanılacak.
+      </p>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Modal dışına tıklayınca kapat
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+  
+  // ESC tuşu ile kapat
+  document.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape') {
+      modal.remove();
+      document.removeEventListener('keydown', escHandler);
+    }
+  });
+}
+
+// Donate butonları için event listener
+document.addEventListener('DOMContentLoaded', () => {
+  const btnDonate = document.getElementById('btnDonate');
+  const btnDonateMobile = document.getElementById('btnDonateMobile');
+  
+  if (btnDonate) {
+    btnDonate.onclick = openDonateModal;
+  }
+  
+  if (btnDonateMobile) {
+    btnDonateMobile.onclick = openDonateModal;
   }
 });
 
