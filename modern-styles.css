@@ -216,6 +216,79 @@ html, body {
   background: var(--muted);
 }
 
+/* Lokasyon Bazlı Kanal Stilleri */
+.channel-item.location-based {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.1) 100%);
+  border-left: 3px solid var(--brand);
+  position: relative;
+}
+
+.channel-item.location-based::before {
+  content: "📍";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+.channel-item.location-based .channel-name {
+  margin-left: 20px;
+  color: var(--brand);
+  font-weight: 500;
+}
+
+.channel-item.location-based:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 255, 136, 0.2) 100%);
+  transform: translateX(2px);
+}
+
+/* Sponsor Kanal Stilleri */
+.channel-item.sponsor {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+  border-left: 3px solid #ffd700;
+  position: relative;
+}
+
+.channel-item.sponsor::before {
+  content: "💰";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+.channel-item.sponsor .channel-name {
+  margin-left: 20px;
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.channel-item.sponsor:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+  transform: translateX(2px);
+}
+
+/* Lokasyon Bilgi Göstergesi */
+.location-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--brand);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--brand);
+  margin-left: 8px;
+}
+
+.location-indicator::before {
+  content: "📍";
+  font-size: 10px;
+}
+
 .time {
   color: var(--muted);
   font-size: 11px;
@@ -538,4 +611,77 @@ html, body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
+}
+
+/* Lokasyon Bazlı Kanal Stilleri */
+.channel-item.location-based {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.1) 100%);
+  border-left: 3px solid var(--brand);
+  position: relative;
+}
+
+.channel-item.location-based::before {
+  content: "📍";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+.channel-item.location-based .channel-name {
+  margin-left: 20px;
+  color: var(--brand);
+  font-weight: 500;
+}
+
+.channel-item.location-based:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 255, 136, 0.2) 100%);
+  transform: translateX(2px);
+}
+
+/* Sponsor Kanal Stilleri */
+.channel-item.sponsor {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 165, 0, 0.1) 100%);
+  border-left: 3px solid #ffd700;
+  position: relative;
+}
+
+.channel-item.sponsor::before {
+  content: "💰";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+
+.channel-item.sponsor .channel-name {
+  margin-left: 20px;
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.channel-item.sponsor:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%);
+  transform: translateX(2px);
+}
+
+/* Lokasyon Bilgi Göstergesi */
+.location-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--brand);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--brand);
+  margin-left: 8px;
+}
+
+.location-indicator::before {
+  content: "📍";
+  font-size: 10px;
 }

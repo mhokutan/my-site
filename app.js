@@ -753,6 +753,70 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+/* ===================== Lokasyon Bazlı Kanal Sistemi ===================== */
+
+// Kanal listesini lokasyona göre güncelle
+function updateChannelList(locationChannels) {
+  console.log('🔄 Kanal listesi güncelleniyor:', locationChannels);
+  
+  // Mevcut kanal listelerini temizle
+  const channelList = document.getElementById('channelList');
+  const channelListMobile = document.getElementById('channelListMobile');
+  
+  if (channelList) {
+    channelList.innerHTML = '';
+  }
+  if (channelListMobile) {
+    channelListMobile.innerHTML = '';
+  }
+  
+  // Lokasyon bazlı kanalları ekle
+  locationChannels.forEach(channelName => {
+    addChannelToList(channelName, channelList);
+    addChannelToList(channelName, channelListMobile);
+  });
+  
+  // Varsayılan kanalları da ekle
+  const defaultChannels = ['#genel', '#sohbet'];
+  defaultChannels.forEach(channelName => {
+    if (!locationChannels.includes(channelName)) {
+      addChannelToList(channelName, channelList);
+      addChannelToList(channelName, channelListMobile);
+    }
+  });
+}
+
+// Kanalı listeye ekle
+function addChannelToList(channelName, container) {
+  if (!container) return;
+  
+  const li = document.createElement('li');
+  li.className = 'channel-item';
+  li.innerHTML = `<span class="channel-name">${channelName}</span>`;
+  li.onclick = () => joinChannel(channelName);
+  
+  // Lokasyon bazlı kanalları özel renkle işaretle
+  const locationChannels = JSON.parse(localStorage.getItem('locationBasedChannels') || '[]');
+  if (locationChannels.includes(channelName)) {
+    li.classList.add('location-based');
+    li.innerHTML = `<span class="channel-name">📍 ${channelName}</span>`;
+  }
+  
+  container.appendChild(li);
+}
+
+// Kanal listesini yeniden yükle
+function reloadChannelList() {
+  const locationChannels = JSON.parse(localStorage.getItem('locationBasedChannels') || '[]');
+  if (locationChannels.length > 0) {
+    updateChannelList(locationChannels);
+  }
+}
+
+// Global fonksiyon olarak ekle
+window.updateChannelList = updateChannelList;
+window.reloadChannelList = reloadChannelList;
+
 /* ===================== Donate Modal ===================== */
 function openDonateModal() {
   const modal = document.createElement('div');

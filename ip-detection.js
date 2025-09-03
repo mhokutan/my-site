@@ -1,5 +1,42 @@
-// IP Lokasyon Algılama - Basit ve Çalışan Versiyon
-console.log('🌍 IP Lokasyon Algılama başlatılıyor...');
+// Gelişmiş IP Lokasyon Algılama - Otomatik Dil ve Kanal Filtreleme
+console.log('🌍 Gelişmiş IP Lokasyon Algılama başlatılıyor...');
+
+// Lokasyon bazlı kanal önerileri
+const locationBasedChannels = {
+  'TR': {
+    'Istanbul': ['#istanbul', '#beyoglu', '#kadikoy', '#besiktas', '#sisli'],
+    'Ankara': ['#ankara', '#cankaya', '#kecioren', '#mamak'],
+    'Izmir': ['#izmir', '#konak', '#bornova', '#karsiyaka'],
+    'Bursa': ['#bursa', '#nilufer', '#osmangazi'],
+    'Antalya': ['#antalya', '#muratpasa', '#konyaalti'],
+    'default': ['#genel', '#sohbet', '#turkce']
+  },
+  'US': {
+    'New York': ['#newyork', '#manhattan', '#brooklyn', '#queens'],
+    'Los Angeles': ['#losangeles', '#hollywood', '#beverlyhills'],
+    'Chicago': ['#chicago', '#downtown'],
+    'Houston': ['#houston', '#texas'],
+    'default': ['#general', '#chat', '#english']
+  },
+  'FR': {
+    'Paris': ['#paris', '#champselysees', '#montmartre'],
+    'Lyon': ['#lyon', '#rhone'],
+    'Marseille': ['#marseille', '#provence'],
+    'default': ['#general', '#chat', '#francais']
+  },
+  'DE': {
+    'Berlin': ['#berlin', '#mitte', '#kreuzberg'],
+    'Munich': ['#munich', '#bavaria'],
+    'Hamburg': ['#hamburg', '#north'],
+    'default': ['#general', '#chat', '#deutsch']
+  },
+  'ES': {
+    'Madrid': ['#madrid', '#centro', '#salamanca'],
+    'Barcelona': ['#barcelona', '#catalonia'],
+    'Valencia': ['#valencia', '#east'],
+    'default': ['#general', '#chat', '#espanol']
+  }
+};
 
 async function detectUserLocation() {
   try {
@@ -18,7 +55,9 @@ async function detectUserLocation() {
         countryCode: data.country_code,
         city: data.city,
         region: data.region || null,
-        ip: data.ip
+        ip: data.ip,
+        timezone: data.timezone || null,
+        currency: data.currency || null
       };
       
       localStorage.setItem('userLocation', JSON.stringify(locationData));
@@ -41,20 +80,86 @@ async function detectUserLocation() {
         window.onLocationChange(detectedLanguage);
       }
       
-      // Kullanıcıya bildir
-      alert(`📍 Lokasyonunuz algılandı: ${data.city}, ${data.country_name}\n🌍 Dil: ${detectedLanguage}`);
+      // Lokasyona göre kanalları yükle
+      if (window.loadLocationBasedChannels) {
+        window.loadLocationBasedChannels(locationData);
+      }
       
-      // Sayfayı yenileme - sadece dil değiştir
-      console.log('✅ Lokasyon algılandı, sayfa yenilenmeyecek');
+      // Backend'e lokasyon bilgisini gönder
+      if (window.API) {
+        try {
+          await fetch(window.API + '/user/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: window.token || 'anonymous',
+              country: data.country_name,
+              city: data.city,
+              state: data.region,
+              countryCode: data.country_code
+            })
+          });
+        } catch (error) {
+          console.log('Backend lokasyon güncelleme hatası:', error);
+        }
+      }
+      
+      // Kullanıcıya bildir (sessizce)
+      console.log(`📍 Lokasyonunuz algılandı: ${data.city}, ${data.country_name}\n🌍 Dil: ${detectedLanguage}`);
       
     } else {
       console.error('❌ Lokasyon bilgisi alınamadı');
-      alert('❌ Lokasyon algılanamadı. Varsayılan olarak Türkçe kullanılacak.');
+      // Varsayılan lokasyon ayarla
+      const defaultLocation = {
+        country: 'Turkey',
+        countryCode: 'TR',
+        city: 'Istanbul',
+        region: 'Istanbul',
+        ip: 'unknown'
+      };
+      localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+      
+      if (window.onLocationChange) {
+        window.onLocationChange('TR');
+      }
     }
     
   } catch (error) {
     console.error('❌ IP algılama hatası:', error);
-    alert('❌ Lokasyon algılanamadı. Varsayılan olarak Türkçe kullanılacak.');
+    // Varsayılan lokasyon ayarla
+    const defaultLocation = {
+      country: 'Turkey',
+      countryCode: 'TR',
+      city: 'Istanbul',
+      region: 'Istanbul',
+      ip: 'unknown'
+    };
+    localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+    
+    if (window.onLocationChange) {
+      window.onLocationChange('TR');
+    }
+  }
+}
+
+// Lokasyona göre kanalları yükle
+function loadLocationBasedChannels(locationData) {
+  const countryCode = locationData.countryCode;
+  const city = locationData.city;
+  
+  if (locationBasedChannels[countryCode]) {
+    const cityChannels = locationBasedChannels[countryCode][city] || 
+                        locationBasedChannels[countryCode]['default'];
+    
+    // Lokasyon bazlı kanalları localStorage'a kaydet
+    localStorage.setItem('locationBasedChannels', JSON.stringify(cityChannels));
+    
+    // Kanal listesini güncelle
+    if (window.updateChannelList) {
+      window.updateChannelList(cityChannels);
+    }
+    
+    console.log(`📍 ${city} için kanallar yüklendi:`, cityChannels);
   }
 }
 
@@ -67,8 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (existingLocation) {
     console.log('✅ Lokasyon zaten mevcut:', JSON.parse(existingLocation));
     
-    // Mevcut lokasyona göre dil değiştir
     const locationData = JSON.parse(existingLocation);
+    
+    // Mevcut lokasyona göre dil değiştir
     const languageMap = {
       'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
       'TR': 'TR',
@@ -82,6 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
       window.onLocationChange(detectedLanguage);
     }
     
+    // Lokasyona göre kanalları yükle
+    loadLocationBasedChannels(locationData);
+    
     return;
   }
   
@@ -91,5 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2000);
 });
 
-// Global fonksiyon olarak ekle
+// Global fonksiyonlar olarak ekle
 window.detectUserLocation = detectUserLocation;
+window.loadLocationBasedChannels = loadLocationBasedChannels;
+window.locationBasedChannels = locationBasedChannels;
