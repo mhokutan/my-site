@@ -260,6 +260,7 @@ btnHobbies.onclick=()=>{
 
 // İlgi alanları kaydetme fonksiyonu
 window.saveHobbies = function() {
+  // HTML'deki yeni sistemden seçilen hobileri al
   const selectedHobbies = [];
   const hobbyCheckboxes = document.querySelectorAll('#hobbyModal input[type="checkbox"]:checked');
   
@@ -279,6 +280,11 @@ window.saveHobbies = function() {
   // Hobby picked set'ini güncelle
   hobbyPicked.clear();
   selectedHobbies.forEach(hobby => hobbyPicked.add(hobby));
+  
+  // Sayfayı yenile ki yeni öneriler yüklensin
+  setTimeout(() => {
+    location.reload();
+  }, 1000);
 };
 
 /* ===================== Feedback ===================== */
@@ -289,6 +295,21 @@ sendFeedback.onclick=async()=>{
   await fetch(API+"/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,text})});
   alert("Teşekkürler! Öneriniz kaydedildi.");
   feedbackModal.classList.remove("open");
+};
+
+/* ===================== Kanal Ekleme ===================== */
+document.getElementById("btnAddChannel").onclick=()=>{
+  const name=document.getElementById("newChannel").value.trim();
+  if(!name) return;
+  addChannel(name);
+  document.getElementById("newChannel").value="";
+};
+
+document.getElementById("btnAddChannelMobile").onclick=()=>{
+  const name=document.getElementById("newChannelMobile").value.trim();
+  if(!name) return;
+  addChannel(name);
+  document.getElementById("newChannelMobile").value="";
 };
 
 /* ===================== Init ===================== */
