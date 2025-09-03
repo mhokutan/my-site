@@ -279,6 +279,14 @@ doLogin.onclick=async()=>{
     document.getElementById("addChannelBox").style.display="block";
     document.getElementById("addChannelBoxMobile").style.display="block";
     ws&&ws.close(); connectWS();
+    
+    // İlgi alanları modalını aç
+    setTimeout(() => {
+      const hobbyModal = document.getElementById('hobbyModal');
+      if (hobbyModal) {
+        hobbyModal.classList.add('open');
+      }
+    }, 500);
   }catch(err){ alert("Giriş hatası: "+err.message); }
 };
 
