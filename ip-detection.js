@@ -66,6 +66,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const existingLocation = localStorage.getItem('userLocation');
   if (existingLocation) {
     console.log('✅ Lokasyon zaten mevcut:', JSON.parse(existingLocation));
+    
+    // Mevcut lokasyona göre dil değiştir
+    const locationData = JSON.parse(existingLocation);
+    const languageMap = {
+      'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
+      'TR': 'TR',
+      'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
+      'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
+      'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
+    };
+    
+    const detectedLanguage = languageMap[locationData.countryCode] || 'TR';
+    if (window.onLocationChange) {
+      window.onLocationChange(detectedLanguage);
+    }
+    
     return;
   }
   
