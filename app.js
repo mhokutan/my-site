@@ -305,6 +305,48 @@ sendFeedback.onclick=async()=>{
   feedbackModal.classList.remove("open");
 };
 
+/* ===================== Donate Butonu ===================== */
+function openDonateModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal open';
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>☕ Kahve İkram Et</h3>
+        <button onclick="this.closest('.modal').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;">×</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 20px;">
+        <p>Bu projeyi beğendiyseniz, bir kahve ikram ederek destekleyebilirsiniz! ☕</p>
+        <!-- BuyMeACoffee Widget -->
+        <div id="buymeacoffee-widget" style="margin: 20px 0;">
+          <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="mhokutan" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+          <h4>💝 Teşekkürler!</h4>
+          <p style="color: #666; margin: 10px 0;">Destekleriniz projenin gelişmesine yardımcı oluyor.</p>
+          <p style="color: #888; font-size: 12px;">PayPal, kredi kartı ve diğer ödeme yöntemleri kabul edilir.</p>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+// Donate butonlarına event listener ekle
+document.addEventListener('DOMContentLoaded', () => {
+  const btnDonate = document.getElementById('btnDonate');
+  const btnDonateMobile = document.getElementById('btnDonateMobile');
+  
+  if (btnDonate) {
+    btnDonate.onclick = openDonateModal;
+  }
+  
+  if (btnDonateMobile) {
+    btnDonateMobile.onclick = openDonateModal;
+  }
+});
+
 /* ===================== Kanal Ekleme ===================== */
 document.addEventListener('DOMContentLoaded', () => {
   const btnAddChannel = document.getElementById("btnAddChannel");

@@ -11,6 +11,7 @@ const translations = {
     'feedback': 'Öneri',
     'location': 'Lokasyon',
     'sponsor': 'Sponsor',
+    'donate': '☕ Kahve İkram Et',
     
     // Kanallar
     'sponsorChannels': 'Sponsorlu Kanallar',
@@ -99,6 +100,7 @@ const translations = {
     'feedback': 'Feedback',
     'location': 'Location',
     'sponsor': 'Sponsor',
+    'donate': '☕ Buy me a coffee',
     
     'sponsorChannels': 'Sponsored Channels',
     'generalChannels': 'General Channels',
