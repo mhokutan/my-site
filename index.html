@@ -180,16 +180,12 @@
     window.hobbiesModal = document.getElementById('hobbyModal');
     window.hobbyModal = document.getElementById('hobbyModal');
 
-    // Giriş butonuna basınca: Hem login modalı hem hobiler modalı aç (isteğin gibi "direkt").
-    // (İstersen sadece başarılı girişten sonra açılması için bu satırı değiştirebiliriz.)
+    // Giriş butonuna basınca: Sadece login modalı aç
     const btnLogin = document.getElementById('btnLogin');
     const loginModal = document.getElementById('loginModal');
-    const hobbyModal = document.getElementById('hobbyModal');
-    if(btnLogin && loginModal && hobbyModal){
+    if(btnLogin && loginModal){
       btnLogin.onclick = ()=>{
         loginModal.classList.add('open');
-        hobbyModal.classList.add('open');
-        renderHobbyChips(); // ilk açılışta çiz
       };
     }
 
