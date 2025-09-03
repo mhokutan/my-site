@@ -1,8 +1,8 @@
 "use strict";
 
 /* ===================== Config ===================== */
-const API = "http://localhost:10000";
-const WS_URL = "ws://localhost:10000";
+const API = "https://chat-backend-xi60.onrender.com";
+const WS_URL = "wss://chat-backend-xi60.onrender.com";
 
 let token = localStorage.getItem("token");
 
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Login fonksiyonu
-function doLogin() {
+async function doLogin() {
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
@@ -411,7 +411,7 @@ function doLogin() {
 }
 
 // Register fonksiyonu
-function doRegister() {
+async function doRegister() {
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
