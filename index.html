@@ -64,10 +64,12 @@
       <div class="pane-title" data-translate="favoriteCitiesTitle">🏙️ Favori Şehirler</div>
       <ul id="favList" class="list"></ul>
 
+      <div class="pane-title" data-translate="myChannelsTitle">🎯 Kendi Kanallarım</div>
+      <ul id="myChannelsList" class="list"></ul>
+
       <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
-        <input id="newChannel" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px" data-placeholder="channelName"/>
-        <button id="btnAddChannel" style="width:100%" data-translate="addBtn">Ekle</button>
-        <div class="hint muted" data-translate="channelHint">Kendi kanalını ekle (#konya gibi).</div>
+        <button id="btnCreateChannel" style="width:100%" data-translate="createChannelBtn">🎯 Kanal Oluştur</button>
+        <div class="hint muted" data-translate="channelHint">Kendi kanalını oluştur ve yönet.</div>
       </div>
     </aside>
 
@@ -121,27 +123,14 @@
       
       <div style="margin: 10px 0;">
         <label data-translate="country">Ülke:</label>
-        <select id="countrySelect" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <option value="TR">🇹🇷 Türkiye</option>
-          <option value="US">🇺🇸 Amerika</option>
-          <option value="FR">🇫🇷 Fransa</option>
-          <option value="DE">🇩🇪 Almanya</option>
-          <option value="ES">🇪🇸 İspanya</option>
-        </select>
-      </div>
-      
-      <div id="stateSection" style="margin: 10px 0; display: none;">
-        <label data-translate="state">Eyalet/Bölge:</label>
-        <select id="stateSelect" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <option value="">Seçiniz</option>
-        </select>
+        <input id="countryInput" placeholder="Ülke ara..." style="width: 100%; padding: 8px; margin: 5px 0;" autocomplete="off"/>
+        <div id="countryDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; position: absolute; background: white; z-index: 1000; width: 100%;"></div>
       </div>
       
       <div style="margin: 10px 0;">
         <label data-translate="city">Şehir:</label>
-        <select id="citySelect" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <option value="">Seçiniz</option>
-        </select>
+        <input id="cityInput" placeholder="Şehir ara..." style="width: 100%; padding: 8px; margin: 5px 0;" autocomplete="off"/>
+        <div id="cityDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; position: absolute; background: white; z-index: 1000; width: 100%;"></div>
       </div>
       
       <div class="section">
@@ -156,6 +145,7 @@
     <div class="modal-content">
       <button class="modal-close" onclick="profileModal.classList.remove('open')">✖</button>
       <h3>Profil Düzenle</h3>
+      <input id="nickname" placeholder="Nickname (benzersiz)" maxlength="20"/>
       <input id="firstName" placeholder="İsim"/>
       <input id="lastName" placeholder="Soyisim"/>
       <select id="gender">
@@ -170,6 +160,39 @@
       <div class="muted">Cinsiyete göre avatar otomatik ayarlanır (👨 / 👩).</div>
       <div class="section">
         <button type="button" id="btnHobbies">İlgi Alanları</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎯 Kanal Oluşturma Modal -->
+  <div id="createChannelModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="createChannelModal.classList.remove('open')">✖</button>
+      <h3 data-translate="createChannelTitle">Kanal Oluştur</h3>
+      
+      <input id="channelName" placeholder="#kanal-adı" maxlength="20" style="width: 100%; margin: 5px 0; padding: 8px;"/>
+      
+      <div style="margin: 10px 0;">
+        <label>
+          <input type="radio" name="channelType" value="public" checked>
+          <span data-translate="publicChannel">🌐 Public (Herkes girebilir)</span>
+        </label>
+      </div>
+      
+      <div style="margin: 10px 0;">
+        <label>
+          <input type="radio" name="channelType" value="private">
+          <span data-translate="privateChannel">🔒 Private (Şifre gerekli)</span>
+        </label>
+      </div>
+      
+      <div id="passwordSection" style="margin: 10px 0; display: none;">
+        <input id="channelPassword" type="password" placeholder="Şifre" style="width: 100%; margin: 5px 0; padding: 8px;"/>
+      </div>
+      
+      <div class="section">
+        <button id="createChannelBtn" data-translate="createBtn">Oluştur</button>
+        <button onclick="createChannelModal.classList.remove('open')" data-translate="cancelBtn">İptal</button>
       </div>
     </div>
   </div>

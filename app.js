@@ -396,6 +396,9 @@ doLogin.onclick=async()=>{
         hobbyModal.classList.add('open');
       }
     }, 500);
+    
+    // Kendi kanallarımı yükle
+    loadMyChannels();
   }catch(err){ alert("Giriş hatası: "+err.message); }
 };
 
@@ -422,21 +425,23 @@ btnLocation.onclick=()=> {
 };
 
 saveLocation.onclick=()=> {
-  const country = countrySelect.value;
-  const state = stateSelect.value;
-  const city = citySelect.value;
+  const countryInput = document.getElementById('countryInput').value;
+  const cityInput = document.getElementById('cityInput').value;
   
-  if (!country || !city) {
+  // Ülke kodunu çıkar (🇹🇷 Türkiye -> TR)
+  const countryCode = countryInput.split(' ')[1] || countryInput;
+  const countryName = countryInput.replace(/🇹🇷|🇺🇸|🇫🇷|🇩🇪|🇪🇸|🇬🇧|🇮🇹|🇷🇺|🇨🇳|🇯🇵|🇰🇷|🇮🇳|🇧🇷|🇨🇦|🇦🇺|🇳🇱|🇧🇪|🇨🇭|🇦🇹|🇸🇪|🇳🇴|🇩🇰|🇫🇮|🇵🇱|🇨🇿|🇭🇺|🇷🇴|🇧🇬|🇬🇷|🇵🇹|🇮🇪|🇳🇿|🇿🇦|🇲🇽|🇦🇷|🇨🇱|🇨🇴|🇵🇪|🇻🇪|🇺🇾/g, '').trim();
+  
+  if (!countryInput || !cityInput) {
     alert("Lütfen ülke ve şehir seçin.");
     return;
   }
   
   // Lokasyon bilgilerini kaydet
   const locationData = {
-    country: country,
-    state: state,
-    city: city,
-    countryCode: country
+    country: countryName,
+    countryCode: countryCode,
+    city: cityInput
   };
   
   localStorage.setItem('userLocation', JSON.stringify(locationData));
@@ -450,12 +455,12 @@ saveLocation.onclick=()=> {
     'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
   };
   
-  const detectedLanguage = languageMap[country] || 'TR';
+  const detectedLanguage = languageMap[countryCode] || 'TR';
   if (window.onLocationChange) {
     window.onLocationChange(detectedLanguage);
   }
   
-  alert(`📍 Lokasyon güncellendi: ${city}, ${country}`);
+  alert(`📍 Lokasyon güncellendi: ${cityInput}, ${countryName}`);
   locationModal.classList.remove("open");
 };
 
@@ -466,16 +471,16 @@ btnProfile.onclick=()=> {
   // Lokasyon bilgilerini otomatik doldur
   const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
   if (userLocation.country) {
-    country.value = userLocation.country;
+    document.getElementById('country').value = userLocation.country;
   }
   if (userLocation.city) {
-    city.value = userLocation.city;
+    document.getElementById('city').value = userLocation.city;
   }
-  if (userLocation.region) {
+  if (userLocation.state) {
     // State alanı varsa doldur
     const stateField = document.getElementById('state');
     if (stateField) {
-      stateField.value = userLocation.region;
+      stateField.value = userLocation.state;
     }
   }
   
@@ -484,13 +489,120 @@ btnProfile.onclick=()=> {
 
 saveProfile.onclick=async()=>{
   const profile={
+    nickname: nickname.value,
     firstName:firstName.value,lastName:lastName.value,
     gender:gender.value,birth:birth.value,country:country.value,city:city.value
   };
+  
+  // Nickname kontrolü
+  if (!profile.nickname || profile.nickname.length < 3) {
+    alert("Nickname en az 3 karakter olmalı.");
+    return;
+  }
+  
   const res=await fetch(API+"/profile/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,profile})});
   const data=await res.json();
-  if(data.success){ alert("Profil güncellendi"); profileModal.classList.remove("open"); }
+  if(data.success){ 
+    alert("Profil güncellendi"); 
+    profileModal.classList.remove("open");
+    // Auth status'u nickname ile güncelle
+    authStatus.textContent = profile.nickname;
+  } else {
+    alert("Hata: " + (data.error || "Profil güncellenemedi"));
+  }
 };
+
+/* ===================== Kanal Oluşturma ===================== */
+btnCreateChannel.onclick=()=> {
+  createChannelModal.classList.add("open");
+};
+
+// Kanal türü değiştiğinde şifre alanını göster/gizle
+document.addEventListener('change', (e) => {
+  if (e.target.name === 'channelType') {
+    const passwordSection = document.getElementById('passwordSection');
+    if (e.target.value === 'private') {
+      passwordSection.style.display = 'block';
+    } else {
+      passwordSection.style.display = 'none';
+    }
+  }
+});
+
+createChannelBtn.onclick=async()=> {
+  const channelName = document.getElementById('channelName').value.trim();
+  const channelType = document.querySelector('input[name="channelType"]:checked').value;
+  const password = document.getElementById('channelPassword').value;
+  
+  if (!channelName || !channelName.startsWith('#')) {
+    alert("Kanal adı # ile başlamalı (örn: #mychannel)");
+    return;
+  }
+  
+  if (channelType === 'private' && !password) {
+    alert("Private kanal için şifre gerekli.");
+    return;
+  }
+  
+  try {
+    const res = await fetch(API + "/channel/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        name: channelName,
+        isPrivate: channelType === 'private',
+        password: channelType === 'private' ? password : null
+      })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      alert("Kanal oluşturuldu!");
+      createChannelModal.classList.remove("open");
+      // Kendi kanallarım listesini güncelle
+      loadMyChannels();
+    } else {
+      alert("Hata: " + (data.error || "Kanal oluşturulamadı"));
+    }
+  } catch (error) {
+    alert("Hata: " + error.message);
+  }
+};
+
+// Kendi kanallarımı yükle
+async function loadMyChannels() {
+  try {
+    const res = await fetch(API + "/channels/my", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      renderMyChannels(data.channels);
+    }
+  } catch (error) {
+    console.error("Kendi kanallarım yüklenemedi:", error);
+  }
+}
+
+// Kendi kanallarımı render et
+function renderMyChannels(channels) {
+  const myChannelsList = document.getElementById('myChannelsList');
+  if (!myChannelsList) return;
+  
+  myChannelsList.innerHTML = '';
+  
+  channels.forEach(channel => {
+    const li = document.createElement('li');
+    const icon = channel.isPrivate ? '🔒' : '🌐';
+    li.innerHTML = `${icon} ${channel.name}`;
+    li.onclick = () => joinChannel(channel.name);
+    myChannelsList.appendChild(li);
+  });
+}
 
 /* ===================== Sponsor Kanal ===================== */
 function joinSponsor(){

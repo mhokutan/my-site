@@ -55,6 +55,11 @@ const translations = {
     'closeBtn': 'Kapat',
     'saveHobbiesBtn': 'İlgi Alanlarını Kaydet',
     'rememberMe': 'Beni Hatırla',
+    'myChannelsTitle': '🎯 Kendi Kanallarım',
+    'createChannelBtn': '🎯 Kanal Oluştur',
+    'createChannelTitle': 'Kanal Oluştur',
+    'publicChannel': '🌐 Public (Herkes girebilir)',
+    'privateChannel': '🔒 Private (Şifre gerekli)',
     'hobbiesTitle': 'İlgi Alanları',
     'selectHobbies': 'İlgi alanlarınızı seçin',
     'selectedHobbies': 'Seçilenler:',
@@ -153,6 +158,11 @@ const translations = {
     'closeBtn': 'Close',
     'saveHobbiesBtn': 'Save Interests',
     'rememberMe': 'Remember Me',
+    'myChannelsTitle': '🎯 My Channels',
+    'createChannelBtn': '🎯 Create Channel',
+    'createChannelTitle': 'Create Channel',
+    'publicChannel': '🌐 Public (Everyone can join)',
+    'privateChannel': '🔒 Private (Password required)',
     
     // Login/Register specific
     'loginSubtitle': 'Sign in to your account',
