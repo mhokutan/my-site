@@ -376,8 +376,13 @@ async function doLogin() {
     const password=document.getElementById("password").value;
     const rememberMe = document.getElementById("rememberMe")?.checked || false;
     
+    console.log('🔐 Giriş denemesi:', {identifier, password: '***'});
+    
     const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
     const data=await res.json();
+    
+    console.log('🔐 Giriş response:', {status: res.status, data});
+    
     if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
 
     token=data.token;
@@ -423,12 +428,21 @@ async function doRegister() {
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
+    
+    console.log('📝 Kayıt denemesi:', {identifier, password: '***'});
+    
     const res=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
     const data=await res.json();
+    
+    console.log('📝 Kayıt response:', {status: res.status, data});
+    
     if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
     alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
     closeLoginModal();
-  }catch(err){ alert("Kayıt hatası: "+err.message); }
+  }catch(err){ 
+    console.error('📝 Kayıt hatası:', err);
+    alert("Kayıt hatası: "+err.message); 
+  }
 }
 
 // Global olarak erişilebilir yap

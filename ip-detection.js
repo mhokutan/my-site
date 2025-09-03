@@ -178,11 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const existingLocation = localStorage.getItem('userLocation');
   console.log('🔍 Mevcut localStorage lokasyon:', existingLocation);
   
-  // Manuel lokasyon seçimi için modal aç
-  if (!existingLocation) {
-    openLocationModal();
-    return;
-  }
+  // Manuel lokasyon seçimi için modal aç (her zaman)
+  console.log('🔄 Manuel lokasyon seçimi için modal açılıyor...');
+  openLocationModal();
+  return;
   
   // Eğer lokasyon zaten algılanmışsa tekrar algılama
   if (existingLocation) {

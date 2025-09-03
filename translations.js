@@ -460,8 +460,16 @@ function loadLanguage() {
 
 // Lokasyon değiştiğinde dil değiştir
 function onLocationChange(countryCode) {
+  console.log('🌍 onLocationChange çağrıldı:', countryCode);
+  console.log('🌍 Mevcut translations anahtarları:', Object.keys(translations));
+  
   if (translations[countryCode]) {
+    console.log('✅ Dil değiştiriliyor:', countryCode);
     changeLanguage(countryCode);
+  } else {
+    console.log('❌ Dil bulunamadı:', countryCode);
+    console.log('🔄 Varsayılan dil (TR) kullanılıyor');
+    changeLanguage('TR');
   }
 }
 
