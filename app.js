@@ -258,6 +258,29 @@ btnHobbies.onclick=()=>{
   if(hobbyModal) hobbyModal.classList.add("open");
 };
 
+// İlgi alanları kaydetme fonksiyonu
+window.saveHobbies = function() {
+  const selectedHobbies = [];
+  const hobbyCheckboxes = document.querySelectorAll('#hobbyModal input[type="checkbox"]:checked');
+  
+  hobbyCheckboxes.forEach(checkbox => {
+    selectedHobbies.push(checkbox.value);
+  });
+  
+  console.log('Seçilen ilgi alanları:', selectedHobbies);
+  localStorage.setItem('hobbies', JSON.stringify(selectedHobbies));
+  
+  // Modal'ı kapat
+  const hobbyModal = document.getElementById('hobbyModal');
+  if(hobbyModal) hobbyModal.classList.remove("open");
+  
+  alert(`İlgi alanları kaydedildi: ${selectedHobbies.join(', ')}`);
+  
+  // Hobby picked set'ini güncelle
+  hobbyPicked.clear();
+  selectedHobbies.forEach(hobby => hobbyPicked.add(hobby));
+};
+
 /* ===================== Feedback ===================== */
 btnFeedback.onclick=()=>feedbackModal.classList.add("open");
 sendFeedback.onclick=async()=>{
