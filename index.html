@@ -134,6 +134,28 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="loginTitle">Giriş / Kayıt</h3>
+                <button class="modal-close" onclick="closeLoginModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="identifier" placeholder="Email veya Telefon" data-placeholder="email">
+                <input type="password" id="password" placeholder="Şifre" data-placeholder="password">
+                <label>
+                    <input type="checkbox" id="rememberMe"> 
+                    <span data-translate="rememberMe">Beni Hatırla</span>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button onclick="doLogin()" data-translate="loginBtn">Giriş</button>
+                <button onclick="doRegister()" data-translate="registerBtn">Kayıt</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="translations.js"></script>
     <script src="ip-detection.js"></script>
