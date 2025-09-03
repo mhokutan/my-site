@@ -2,24 +2,24 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🚀 Gelişmiş Sohbet Uygulaması - Lokasyon Bazlı</title>
     <link rel="stylesheet" href="modern-styles.css">
-    <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Modern Menubar -->
-    <div class="menubar">
+  <div class="menubar">
         <h1>🚀 Gelişmiş Sohbet</h1>
         <div class="menubar-buttons">
-            <button id="btnLogin" data-translate="login">Giriş</button>
+      <button id="btnLogin" data-translate="login">Giriş</button>
             <button id="btnProfile" data-translate="profile" style="display:none;">Profil</button>
             <button id="btnLocation" onclick="openLocationModal()" data-translate="location">📍 Lokasyon</button>
             <button id="btnSponsor" data-translate="sponsor">💰 Sponsor</button>
             <button id="btnCreateChannel" data-translate="createChannel">➕ Kanal Oluştur</button>
             <button id="btnDonate">☕ Kahve İkram Et</button>
             <button id="btnMenu">☰</button>
-        </div>
+  </div>
     </div>
 
     <div class="container">
@@ -35,8 +35,8 @@
                         <span id="currentLocation">Lokasyon algılanıyor...</span>
                     </div>
                     <button id="btnLogin" onclick="openLoginModal()" style="margin-top: 10px; padding: 8px 16px; background: var(--brand); color: white; border: none; border-radius: 4px; cursor: pointer;" data-translate="loginBtn">Giriş</button>
-                </div>
-            </div>
+    </div>
+  </div>
 
             <!-- Kanallar -->
             <div class="channels-section">
@@ -54,7 +54,7 @@
                 <ul class="list" id="followList">
                     <!-- Takip edilen kanallar -->
                 </ul>
-            </div>
+  </div>
 
             <!-- Kullanıcılar -->
             <div class="users-section">
@@ -62,14 +62,14 @@
                 <ul class="list" id="userList">
                     <!-- Aktif kullanıcılar -->
                 </ul>
-            </div>
-
+      </div>
+      
             <!-- Kanal Ekleme -->
             <div class="channel-add">
                 <input type="text" id="newChannel" placeholder="Yeni kanal adı (#kanal)" data-placeholder="channelName">
                 <button id="btnAddChannel" data-translate="addBtn">Ekle</button>
-            </div>
-        </div>
+    </div>
+  </div>
 
         <!-- Ana İçerik -->
         <div class="main-content">
@@ -81,15 +81,15 @@
                         <span id="userCount">0 kullanıcı</span>
                         <span id="channelDescription">Genel sohbet kanalı</span>
                     </div>
-                </div>
-
+      </div>
+      
                 <!-- Mesajlar -->
                 <div class="messages" id="messages">
                     <div class="info">🚀 Gelişmiş sohbet uygulamasına hoş geldiniz!</div>
                     <div class="info">📍 Lokasyonunuz otomatik algılanıyor...</div>
                     <div class="info">🌍 Dil otomatik olarak ayarlanıyor...</div>
-                </div>
-
+      </div>
+      
                 <!-- Yazıyor Göstergesi -->
                 <div class="typing-area" id="typingArea"></div>
 
@@ -97,9 +97,9 @@
                 <div class="input-area">
                     <input type="text" id="messageInput" placeholder="Mesajınızı yazın..." data-placeholder="messageInput">
                     <button id="btnSend">Gönder</button>
-                </div>
-            </div>
-        </div>
+      </div>
+    </div>
+      </div>
     </div>
 
     <!-- Mobil Menü -->
@@ -107,8 +107,8 @@
         <div class="mobile-menu-header">
             <h3>Menü</h3>
             <button class="mobile-menu-close" onclick="toggleMobileMenu()">✖</button>
-        </div>
-        
+  </div>
+
         <div class="mobile-menu-content">
             <!-- Mobil Kanallar -->
             <div class="mobile-channels">
@@ -120,20 +120,20 @@
 
                 <h4 data-translate="favoriteChannelsTitle">⭐ Favori Kanallarım</h4>
                 <ul class="mobile-list" id="followListMobile"></ul>
-            </div>
-
+      </div>
+      
             <!-- Mobil Kullanıcılar -->
             <div class="mobile-users">
                 <h4 data-translate="users">👥 Kullanıcılar</h4>
                 <ul class="mobile-list" id="userListMobile"></ul>
-            </div>
-
+      </div>
+      
             <!-- Mobil Kanal Ekleme -->
             <div class="mobile-channel-add">
                 <input type="text" id="newChannelMobile" placeholder="Yeni kanal adı" data-placeholder="channelName">
                 <button id="btnAddChannelMobile" data-translate="addBtn">Ekle</button>
-            </div>
-        </div>
+      </div>
+      </div>
     </div>
 
     <!-- Login Modal -->
@@ -142,7 +142,7 @@
             <div class="modal-header">
                 <h3 data-translate="loginTitle">Giriş / Kayıt</h3>
                 <button class="modal-close" onclick="closeLoginModal()">✖</button>
-            </div>
+  </div>
             <div class="modal-body">
                 <input type="text" id="identifier" placeholder="Email veya Telefon" data-placeholder="email">
                 <input type="password" id="password" placeholder="Şifre" data-placeholder="password">
@@ -150,21 +150,21 @@
                     <input type="checkbox" id="rememberMe"> 
                     <span data-translate="rememberMe">Beni Hatırla</span>
                 </label>
-            </div>
+      </div>
             <div class="modal-footer">
                 <button onclick="doLogin()" data-translate="loginBtn">Giriş</button>
                 <button onclick="doRegister()" data-translate="registerBtn">Kayıt</button>
-            </div>
-        </div>
     </div>
+    </div>
+  </div>
 
     <!-- Scripts -->
-    <script src="translations.js"></script>
+  <script src="translations.js"></script>
     <script src="location-manager.js"></script>
-    <script src="app.js"></script>
-    <script src="advanced-features.js"></script>
-
-    <script>
+  <script src="app.js"></script>
+  <script src="advanced-features.js"></script>
+  
+  <script>
         // Sayfa yüklendiğinde çalışacak fonksiyonlar
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🚀 Sayfa yüklendi, lokasyon sistemi başlatılıyor...');
@@ -217,6 +217,6 @@
                 updateLocationIndicator();
             }
         });
-    </script>
+  </script>
 </body>
 </html>
