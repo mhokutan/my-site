@@ -6,50 +6,93 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;font-family:"Courier New",monospace;background:var(--bg);color:var(--text)}
-.menubar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--border)}
-.menubar button{background:#222;border:1px solid var(--border);color:var(--text);padding:4px 10px;cursor:pointer}
+
+/* Menubar */
+.menubar{display:flex;justify-content:space-between;align-items:center;background:#111;padding:6px;border-bottom:1px solid #333}
+.menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer}
 .menubar button:hover{background:#2a2a2a}
-.brand{color:var(--brand);opacity:.9}
 
-.layout{display:grid;grid-template-columns:220px 1fr 220px;grid-template-rows:calc(100vh - 38px)}
-.pane{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
-.pane-right{border-left:1px solid var(--border);border-right:none}
-.pane-title{padding:8px;font-weight:700;border-bottom:1px solid var(--border);color:var(--muted)}
-.list{list-style:none;margin:0;padding:6px 8px;overflow:auto}
-.list li{padding:4px 6px;border-radius:4px;cursor:pointer}
-.list li.active{background:#1b1b1b}
-.list li:hover{background:#1a1a1a}
+/* Layout */
+.layout{display:grid;grid-template-columns:240px 1fr 220px;height:calc(100vh - 38px)}
+.pane{background:#111;border-right:1px solid #333;display:flex;flex-direction:column;min-height:0}
+.pane-right{border-left:1px solid #333}
+.pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
 
-.center{display:flex;flex-direction:column;background:#000}
-.topic{padding:8px;text-align:center;border-bottom:1px solid var(--border);color:var(--muted)}
-.messages{flex:1;overflow:auto;padding:8px;font-size:13px}
-.message{margin:3px 0}
-.message .nick{font-weight:700;margin-right:4px}
-.message.me{color:var(--me)}
-.message.other{color:var(--other)}
-.info{color:var(--info);font-style:italic;text-align:center;margin:6px 0}
-.typing{color:#bbb;padding:0 8px;margin:4px 0}
+/* Lists */
+.list{list-style:none;margin:0;padding:6px;overflow:auto}
+.list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.list li:hover{background:#0a0a0a}
+.list li.sponsor{color:#4af;font-weight:bold}
 
-.inputbar{display:flex;gap:8px;border-top:1px solid var(--border);background:var(--panel2);padding:8px}
-.inputbar input{flex:1;background:#000;border:1px solid var(--border);color:var(--text);padding:8px;font-family:inherit;font-size:13px}
-.inputbar button{background:#222;border:1px solid var(--border);color:var(--text);padding:8px 12px;cursor:pointer}
-.inputbar button:hover{background:#2a2a2a}
+/* Center area */
+.center{display:flex;flex-direction:column;min-height:0}
+.topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
+.messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
+.time{color:#888;font-size:11px;margin-right:6px}
+.info{color:#888;text-align:center;font-style:italic;margin:4px 0}
+.typing{color:#4af;font-size:12px;margin:2px 0;font-style:italic}
 
-/* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:10}
+/* Input */
+.inputbar{display:flex;border-top:1px solid #333;background:#111;gap:6px;padding:6px}
+.inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
+.inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
+
+/* User elements */
+.avatar{font-size:16px}
+.star{cursor:pointer;color:#666;margin-left:auto}
+.star.following{color:gold}
+.hint{color:#888;font-size:12px;padding:6px;border-top:1px solid #222}
+
+/* Mobile Menu */
+#mobileMenu{
+  position:fixed;top:0;left:-260px;width:260px;height:100%;
+  background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px
+}
+#mobileMenu.open{left:0}
+#mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
+
+/* Modals */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
 .modal.open{display:flex}
-.modal-content{background:#111;border:1px solid var(--border);min-width:300px;max-width:92%;display:grid;gap:8px;padding:14px}
-.modal-content input,.modal-content select{background:#000;border:1px solid var(--border);color:var(--text);padding:6px}
-.modal-actions{display:flex;gap:8px;margin-top:6px}
-.modal-actions .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+.modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:8px;min-width:300px;max-width:92vw;position:relative}
+.modal-content input,.modal-content select,.modal-content textarea{background:#000;color:#eee;border:1px solid #333;padding:6px}
+.modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
+.section{border-top:1px solid #222;margin-top:6px;padding-top:6px}
+.muted{color:#aaa;font-size:12px}
+
+/* Emoji picker */
+#emojiBox{position:absolute;display:none;z-index:3000}
+
+/* Hobby chips */
+#hobbyList{
+  display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start;
+  max-width:min(900px,90vw);
+}
+.hobby-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 8px;border:1px solid #333;border-radius:8px;
+  background:#0a0a0a;white-space:nowrap;font-size:13px;
+}
+.hobby-chip button{
+  background:#222;border:1px solid #444;color:#eee;
+  padding:2px 6px;border-radius:6px;cursor:pointer;
+}
+#hobbyPicked{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;
+}
+.picked-chip{
+  background:#1a1a1a;border:1px solid #333;border-radius:8px;
+  padding:4px 8px;font-size:12px;
+}
 
 /* Responsive */
-@media (max-width: 960px){
-  .layout{grid-template-columns: 180px 1fr; grid-template-rows: calc(100vh - 38px)}
-  .pane-right{display:none}
-}
-@media (max-width: 720px){
+@media(max-width:768px){
   .layout{grid-template-columns:1fr}
-  .pane-left{display:none}
-  .topic{font-size:12px}
+  .pane,.pane-right{display:none}
+  .menubar .mobile-toggle{display:inline-block}
+  #mobileMenu{display:block;}
+}
+@media(min-width:769px){
+  .menubar .mobile-toggle{display:none}
+  #mobileMenu{display:none !important;}
 }

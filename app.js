@@ -1,8 +1,8 @@
 "use strict";
 
 /* ===================== Config ===================== */
-const API = "https://chat-backend-1-iq7t.onrender.com";
-const WS_URL = "wss://chat-backend-1-iq7t.onrender.com";
+const API = "https://chat-backend-xi60.onrender.com";
+const WS_URL = "wss://chat-backend-xi60.onrender.com";
 
 let token = localStorage.getItem("token");
 let ws, currentChannel = "#genel";
@@ -252,25 +252,10 @@ const ALL_HOBBIES=["Futbol","Basketbol","Satranç","Müzik","Film","Dizi","Anime
 const HOBBY_TO_CHANNELS={ "Futbol":["#futbol","#spor"], "Basketbol":["#basketbol"], "Müzik":["#müzik","#sohbet"], "Film":["#film","#sohbet"], "Yapay Zekâ":["#yapayzeka","#teknoloji"] };
 const hobbyPicked=new Set(JSON.parse(localStorage.getItem("hobbies")||"[]"));
 
-btnHobbies.onclick=()=>openHobbyModal();
-function openHobbyModal(){
-  hobbyModal.classList.add("open");
-  const list=document.getElementById("hobbyList"); list.innerHTML="";
-  ALL_HOBBIES.forEach(h=>{
-    const row=document.createElement("div");
-    row.textContent=h+" ";
-    const btn=document.createElement("button");
-    btn.textContent=hobbyPicked.has(h)?"✓":"+"; 
-    btn.onclick=()=>{ if(hobbyPicked.has(h)) hobbyPicked.delete(h); else hobbyPicked.add(h); renderPicked(); openHobbyModal(); };
-    row.appendChild(btn); list.appendChild(row);
-  });
-  renderPicked();
-}
-function renderPicked(){ document.getElementById("hobbyPicked").textContent=[...hobbyPicked].join(", "); }
-saveHobbies.onclick=()=>{
-  const arr=[...hobbyPicked]; localStorage.setItem("hobbies",JSON.stringify(arr));
-  arr.forEach(h=>(HOBBY_TO_CHANNELS[h]||[]).forEach(ch=>addChannel(ch)));
-  hobbyModal.classList.remove("open");
+// Hobi sistemi HTML'deki yeni sistemle entegre edildi
+btnHobbies.onclick=()=>{
+  const hobbyModal = document.getElementById('hobbyModal');
+  if(hobbyModal) hobbyModal.classList.add("open");
 };
 
 /* ===================== Feedback ===================== */

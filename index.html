@@ -4,83 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Anonim Sohbet</title>
-  <style>
-    body{margin:0;font-family:"Courier New",monospace;background:#000;color:#eee}
-    .menubar{display:flex;justify-content:space-between;align-items:center;background:#111;padding:6px;border-bottom:1px solid #333}
-    .menubar button{background:#222;border:1px solid #444;color:#eee;padding:4px 10px;cursor:pointer}
-    .layout{display:grid;grid-template-columns:240px 1fr 220px;height:calc(100vh - 38px)}
-    .pane{background:#111;border-right:1px solid #333;display:flex;flex-direction:column;min-height:0}
-    .pane-right{border-left:1px solid #333}
-    .pane-title{padding:6px;font-weight:bold;border-bottom:1px solid #333}
-    .list{list-style:none;margin:0;padding:6px;overflow:auto}
-    .list li{padding:4px 6px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
-    .list li:hover{background:#0a0a0a}
-    .list li.sponsor{color:#4af;font-weight:bold}
-    .center{display:flex;flex-direction:column;min-height:0}
-    .topic{padding:6px;text-align:center;border-bottom:1px solid #333;color:#aaa}
-    .messages{flex:1;overflow:auto;padding:6px;font-size:13px;background:#000}
-    .time{color:#888;font-size:11px;margin-right:6px}
-    .info{color:#888;text-align:center;font-style:italic;margin:4px 0}
-    .typing{color:#4af;font-size:12px;margin:2px 0;font-style:italic}
-    .inputbar{display:flex;border-top:1px solid #333;background:#111;gap:6px;padding:6px}
-    .inputbar input{flex:1;background:#000;color:#eee;border:1px solid #333;padding:6px}
-    .inputbar button{background:#222;color:#eee;border:1px solid #333;padding:6px}
-    .avatar{font-size:16px}
-    .star{cursor:pointer;color:#666;margin-left:auto}
-    .star.following{color:gold}
-    .hint{color:#888;font-size:12px;padding:6px;border-top:1px solid #222}
-
-    @media(max-width:768px){
-      .layout{grid-template-columns:1fr}
-      .pane,.pane-right{display:none}
-      .menubar .mobile-toggle{display:inline-block}
-      #mobileMenu{display:block;}
-    }
-    @media(min-width:769px){
-      .menubar .mobile-toggle{display:none}
-      #mobileMenu{display:none !important;}
-    }
-
-    #mobileMenu{
-      position:fixed;top:0;left:-260px;width:260px;height:100%;
-      background:#111;border-right:1px solid #333;transition:left .3s;z-index:1000;padding:6px
-    }
-    #mobileMenu.open{left:0}
-    #mobileMenu .closeBtn{background:#222;border:1px solid #444;color:#eee;width:100%;margin-bottom:8px;padding:6px;cursor:pointer}
-
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000}
-    .modal.open{display:flex}
-    .modal-content{background:#111;padding:14px;border:1px solid #333;display:grid;gap:8px;min-width:300px;max-width:92vw;position:relative}
-    .modal-content input,.modal-content select,.modal-content textarea{background:#000;color:#eee;border:1px solid #333;padding:6px}
-    .modal-close{position:absolute;top:4px;right:4px;background:#222;color:#eee;border:1px solid #444;cursor:pointer;padding:2px 6px}
-    .section{border-top:1px solid #222;margin-top:6px;padding-top:6px}
-    .muted{color:#aaa;font-size:12px}
-
-    /* Emoji picker (mevcut) */
-    #emojiBox{position:absolute;display:none;z-index:3000}
-
-    /* ==== HOBİ CHIPS (YATAY) ==== */
-    #hobbyList{
-      display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start;
-      max-width:min(900px,90vw);
-    }
-    .hobby-chip{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:6px 8px;border:1px solid #333;border-radius:8px;
-      background:#0a0a0a;white-space:nowrap;font-size:13px;
-    }
-    .hobby-chip button{
-      background:#222;border:1px solid #444;color:#eee;
-      padding:2px 6px;border-radius:6px;cursor:pointer;
-    }
-    #hobbyPicked{
-      display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;
-    }
-    .picked-chip{
-      background:#1a1a1a;border:1px solid #333;border-radius:8px;
-      padding:4px 8px;font-size:12px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 
   <!-- Emoji Picker lib -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
@@ -94,6 +18,32 @@
       <button id="btnLogin">Giriş</button>
       <button id="btnProfile" style="display:none">Profil Düzenle</button>
       <button id="btnLogout" style="display:none">Çıkış</button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu">
+    <button class="closeBtn" onclick="toggleMobileMenu(false)">✖ Kapat</button>
+    
+    <div class="pane-title">Sponsorlu Kanallar</div>
+    <ul id="sponsorListMobile" class="list"></ul>
+
+    <div class="pane-title">Genel Kanallar</div>
+    <ul id="channelListMobile" class="list"></ul>
+
+    <div class="pane-title">Favori Kanallarım</div>
+    <ul id="favListMobile" class="list"></ul>
+
+    <div class="pane-title">Kullanıcılar</div>
+    <ul id="userListMobile" class="list"></ul>
+
+    <div class="pane-title">Takip Ettiklerim</div>
+    <ul id="followListMobile" class="list"></ul>
+
+    <div id="addChannelBoxMobile" style="display:none;padding:6px;border-top:1px solid #333">
+      <input id="newChannelMobile" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
+      <button id="btnAddChannelMobile" style="width:100%">Ekle</button>
+      <div class="hint muted">Kendi kanalını ekle (#konya gibi).</div>
     </div>
   </div>
 
@@ -217,6 +167,7 @@
 
     // app.js bazen "hobbiesModal" ismini arıyor; aynı modala işaret etsin:
     window.hobbiesModal = document.getElementById('hobbyModal');
+    window.hobbyModal = document.getElementById('hobbyModal');
 
     // Giriş butonuna basınca: Hem login modalı hem hobiler modalı aç (isteğin gibi "direkt").
     // (İstersen sadece başarılı girişten sonra açılması için bu satırı değiştirebiliriz.)
