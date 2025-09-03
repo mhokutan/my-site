@@ -1,401 +1,198 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Anonim Sohbet</title>
-  <link rel="stylesheet" href="styles.css">
-
-  <!-- Emoji Picker lib -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Gelişmiş Sohbet Uygulaması - Lokasyon Bazlı</title>
+    <link rel="stylesheet" href="modern-styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="menubar">
-    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ <span data-translate="menu">Menü</span></button>
-    <span id="authStatus" data-translate="anonymous">Anonim</span>
-    <div>
-      <button id="btnLocation" data-translate="location">🌍 Lokasyon</button>
-      <button id="btnFeedback" data-translate="feedback">Öneri</button>
-      <button id="btnDonate" data-translate="donate">☕ Kahve İkram Et</button>
-      <button id="btnLogin" data-translate="login">Giriş</button>
-      <button id="btnProfile" style="display:none" data-translate="profile">Profil Düzenle</button>
-      <button id="btnLogout" style="display:none" data-translate="logout">Çıkış</button>
-    </div>
-  </div>
-
-  <!-- Mobile Menu -->
-  <div id="mobileMenu">
-    <button class="closeBtn" onclick="toggleMobileMenu(false)">✖ Kapat</button>
-    
-    <div class="pane-title" data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</div>
-    <ul id="sponsorListMobile" class="list"></ul>
-
-    <div class="pane-title" data-translate="generalChannelsTitle">🌐 Genel Kanallar</div>
-    <ul id="channelListMobile" class="list"></ul>
-
-    <div class="pane-title" data-translate="favoriteCitiesTitle">🏙️ Favori Şehirler</div>
-    <ul id="favListMobile" class="list"></ul>
-
-    <div class="pane-title" data-translate="users">Kullanıcılar</div>
-    <ul id="userListMobile" class="list"></ul>
-
-    <div class="pane-title" data-translate="following">Takip Ettiklerim</div>
-    <ul id="followListMobile" class="list"></ul>
-
-    <div style="padding:10px;border-top:1px solid #333;text-align:center;">
-      <button id="btnDonateMobile" data-translate="donate" style="background:#FFDD00;color:#000;border:none;padding:8px 16px;border-radius:20px;font-weight:bold;cursor:pointer;">☕ Kahve İkram Et</button>
+    <!-- Modern Menubar -->
+    <div class="menubar">
+        <h1>🚀 Gelişmiş Sohbet</h1>
+        <div class="menubar-buttons">
+            <button id="btnLogin" data-translate="login">Giriş</button>
+            <button id="btnProfile" data-translate="profile" style="display:none;">Profil</button>
+            <button id="btnLocation" data-translate="location">📍 Lokasyon</button>
+            <button id="btnSponsor" data-translate="sponsor">💰 Sponsor</button>
+            <button id="btnDonate">☕ Kahve İkram Et</button>
+            <button id="btnMenu">☰</button>
+        </div>
     </div>
 
-    <div id="addChannelBoxMobile" style="display:none;padding:6px;border-top:1px solid #333">
-      <input id="newChannelMobile" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
-      <button id="btnAddChannelMobile" style="width:100%">Ekle</button>
-      <div class="hint muted">Kendi kanalını ekle (#konya gibi).</div>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Kullanıcı Bilgisi -->
+            <div class="user-info">
+                <div class="user-avatar">👤</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Anonim</div>
+                    <div class="user-status" id="userStatus">Çevrimiçi</div>
+                    <div class="location-indicator" id="locationIndicator" style="display:none;">
+                        <span id="currentLocation">Lokasyon algılanıyor...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kanallar -->
+            <div class="channels-section">
+                <h3 data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</h3>
+                <ul class="list" id="sponsorList">
+                    <!-- Sponsor kanallar buraya yüklenecek -->
+                </ul>
+
+                <h3 data-translate="generalChannelsTitle">🌐 Genel Kanallar</h3>
+                <ul class="list" id="channelList">
+                    <!-- Lokasyon bazlı kanallar buraya yüklenecek -->
+                </ul>
+
+                <h3 data-translate="favoriteChannelsTitle">⭐ Favori Kanallarım</h3>
+                <ul class="list" id="followList">
+                    <!-- Takip edilen kanallar -->
+                </ul>
+            </div>
+
+            <!-- Kullanıcılar -->
+            <div class="users-section">
+                <h3 data-translate="users">👥 Kullanıcılar</h3>
+                <ul class="list" id="userList">
+                    <!-- Aktif kullanıcılar -->
+                </ul>
+            </div>
+
+            <!-- Kanal Ekleme -->
+            <div class="channel-add">
+                <input type="text" id="newChannel" placeholder="Yeni kanal adı (#kanal)" data-placeholder="channelName">
+                <button id="btnAddChannel" data-translate="addBtn">Ekle</button>
+            </div>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="main-content">
+            <div class="chat-container">
+                <!-- Kanal Başlığı -->
+                <div class="channel-header">
+                    <h2 id="currentChannel">#genel</h2>
+                    <div class="channel-info">
+                        <span id="userCount">0 kullanıcı</span>
+                        <span id="channelDescription">Genel sohbet kanalı</span>
+                    </div>
+                </div>
+
+                <!-- Mesajlar -->
+                <div class="messages" id="messages">
+                    <div class="info">🚀 Gelişmiş sohbet uygulamasına hoş geldiniz!</div>
+                    <div class="info">📍 Lokasyonunuz otomatik algılanıyor...</div>
+                    <div class="info">🌍 Dil otomatik olarak ayarlanıyor...</div>
+                </div>
+
+                <!-- Yazıyor Göstergesi -->
+                <div class="typing-area" id="typingArea"></div>
+
+                <!-- Mesaj Gönderme -->
+                <div class="input-area">
+                    <input type="text" id="messageInput" placeholder="Mesajınızı yazın..." data-placeholder="messageInput">
+                    <button id="btnSend">Gönder</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="layout">
-    <aside class="pane">
-      <div class="pane-title" data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</div>
-      <ul id="sponsorList" class="list"></ul>
-
-      <div class="pane-title" data-translate="generalChannelsTitle">🌐 Genel Kanallar</div>
-      <ul id="channelList" class="list"></ul>
-
-      <div class="pane-title" data-translate="favoriteCitiesTitle">🏙️ Favori Şehirler</div>
-      <ul id="favList" class="list"></ul>
-
-      <div class="pane-title" data-translate="myChannelsTitle">🎯 Kendi Kanallarım</div>
-      <ul id="myChannelsList" class="list"></ul>
-
-      <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
-        <button id="btnCreateChannel" style="width:100%" data-translate="createChannelBtn">🎯 Kanal Oluştur</button>
-        <div class="hint muted" data-translate="channelHint">Kendi kanalını oluştur ve yönet.</div>
-      </div>
-    </aside>
-
-    <main class="center">
-      <div id="topic" class="topic">#genel</div>
-      <div id="messages" class="messages"></div>
-      <div id="typingArea"></div>
-      <form id="form" class="inputbar" autocomplete="off">
-        <input id="input" placeholder="Mesaj yaz..." maxlength="1000"/>
-        <button>Gönder</button>
-        <button type="button" id="btnEmoji" title="Emoji">😀</button>
-      </form>
-      <emoji-picker id="emojiBox"></emoji-picker>
-    </main>
-
-    <aside class="pane pane-right">
-      <div class="pane-title" data-translate="users">Kullanıcılar</div>
-      <ul id="userList" class="list"></ul>
-      <div class="pane-title" data-translate="following">Takip Ettiklerim</div>
-      <ul id="followList" class="list"></ul>
-    </aside>
-  </div>
-
-  <!-- 🔐 Login Modal -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="loginModal.classList.remove('open')">✖</button>
-      <h3 data-translate="loginTitle">Giriş / Kayıt</h3>
-      <input id="identifier" placeholder="Email veya Telefon" data-placeholder="email"/>
-      <input id="password" type="password" placeholder="Şifre" data-placeholder="password"/>
-      
-      <!-- Beni Hatırla checkbox -->
-      <div style="display: flex; align-items: center; margin: 10px 0;">
-        <input type="checkbox" id="rememberMe" style="margin-right: 8px;">
-        <label for="rememberMe" data-translate="rememberMe">Beni Hatırla</label>
-      </div>
-      
-      <div class="section">
-        <button id="doLogin" data-translate="loginBtn">Giriş</button>
-        <button id="doRegister" data-translate="registerBtn">Kayıt</button>
-      </div>
-      <div class="muted" data-translate="loginHint">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
-    </div>
-  </div>
-
-  <!-- 🌍 Lokasyon Modal -->
-  <div id="locationModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="locationModal.classList.remove('open')">✖</button>
-      <h3 data-translate="locationTitle">Lokasyon Ayarla</h3>
-      
-      <div style="margin: 10px 0;">
-        <label data-translate="country">Ülke:</label>
-        <input id="countryInput" placeholder="Ülke ara..." style="width: 100%; padding: 8px; margin: 5px 0;" autocomplete="off"/>
-        <div id="countryDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; position: absolute; background: white; z-index: 1000; width: 100%;"></div>
-      </div>
-      
-      <div style="margin: 10px 0;">
-        <label data-translate="city">Şehir:</label>
-        <input id="cityInput" placeholder="Şehir ara..." style="width: 100%; padding: 8px; margin: 5px 0;" autocomplete="off"/>
-        <div id="cityDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; position: absolute; background: white; z-index: 1000; width: 100%;"></div>
-      </div>
-      
-      <div class="section">
-        <button id="saveLocation" data-translate="saveBtn">Kaydet</button>
-        <button onclick="locationModal.classList.remove('open')" data-translate="cancelBtn">İptal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 👤 Profil Modal -->
-  <div id="profileModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="profileModal.classList.remove('open')">✖</button>
-      <h3>Profil Düzenle</h3>
-      <input id="nickname" placeholder="Nickname (benzersiz)" maxlength="20"/>
-      <input id="firstName" placeholder="İsim"/>
-      <input id="lastName" placeholder="Soyisim"/>
-      <select id="gender">
-        <option value="">Cinsiyet</option>
-        <option value="erkek">Erkek</option>
-        <option value="kadın">Kadın</option>
-      </select>
-      <input id="birth" placeholder="Doğum Tarihi"/>
-      <input id="country" placeholder="Ülke"/>
-      <input id="city" placeholder="Şehir"/>
-      <button id="saveProfile">Kaydet</button>
-      <div class="muted">Cinsiyete göre avatar otomatik ayarlanır (👨 / 👩).</div>
-      <div class="section">
-        <button type="button" id="btnHobbies">İlgi Alanları</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🎯 Kanal Oluşturma Modal -->
-  <div id="createChannelModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="createChannelModal.classList.remove('open')">✖</button>
-      <h3 data-translate="createChannelTitle">Kanal Oluştur</h3>
-      
-      <input id="channelName" placeholder="#kanal-adı" maxlength="20" style="width: 100%; margin: 5px 0; padding: 8px;"/>
-      
-      <div style="margin: 10px 0;">
-        <label>
-          <input type="radio" name="channelType" value="public" checked>
-          <span data-translate="publicChannel">🌐 Public (Herkes girebilir)</span>
-        </label>
-      </div>
-      
-      <div style="margin: 10px 0;">
-        <label>
-          <input type="radio" name="channelType" value="private">
-          <span data-translate="privateChannel">🔒 Private (Şifre gerekli)</span>
-        </label>
-      </div>
-      
-      <div id="passwordSection" style="margin: 10px 0; display: none;">
-        <input id="channelPassword" type="password" placeholder="Şifre" style="width: 100%; margin: 5px 0; padding: 8px;"/>
-      </div>
-      
-      <div class="section">
-        <button id="createChannelBtn" data-translate="createBtn">Oluştur</button>
-        <button onclick="createChannelModal.classList.remove('open')" data-translate="cancelBtn">İptal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🎯 Hobiler Modal -->
-  <div id="hobbyModal" class="modal">
-    <div class="modal-content" style="max-height:70vh;overflow:auto">
-      <button onclick="hobbyModal.classList.remove('open')" class="modal-close">✖</button>
-      <h3 data-translate="hobbiesTitle">İlgi Alanları</h3>
-      <div id="hobbyList"></div>
-      <div style="margin-top:8px">
-        <b data-translate="selectedHobbies">Seçilenler:</b>
-        <div id="hobbyPicked"></div>
-      </div>
-      <button id="saveHobbies" data-translate="saveHobbies">Kaydet</button>
-      <div class="muted" data-translate="hobbiesHint">Seçtiklerine göre önerilen kanallar otomatik eklenecek.</div>
-    </div>
-  </div>
-
-  <!-- 💡 Öneri / Feedback Modal -->
-  <div id="feedbackModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="feedbackModal.classList.remove('open')">✖</button>
-      <h3>Öneri Gönder</h3>
-      <textarea id="feedbackText" placeholder="Önerini / isteğini yaz..."
-        style="width:60vw;max-width:600px;height:120px"></textarea>
-      <div class="section">
-        <button id="sendFeedback">Gönder</button>
-      </div>
-      <div class="muted">Teşekkürler! Düşünceleriniz geliştirmemize yardımcı olur.</div>
-    </div>
-  </div>
-
-  <!-- Çok dilli destek -->
-  <script src="translations.js"></script>
-  
-  <!-- app.js (mevcut mantığın) -->
-  <script src="app.js"></script>
-  
-  <!-- Yeni özellikler -->
-  <script src="advanced-features.js"></script>
-  
-
-  
-  <!-- Kanal Sistemi -->
-  <script src="channel-system.js"></script>
-
-  <!-- === İnce ayar: giriş & profil & hobiler davranışı + yatay hobby chips === -->
-  <script>
-    // Mobil menü
-    function toggleMobileMenu(force){
-      const el=document.getElementById("mobileMenu");
-      if(!el) return;
-      if(force===false){el.classList.remove("open");return;}
-      el.classList.toggle("open");
-    }
-
-    // app.js bazen "hobbiesModal" ismini arıyor; aynı modala işaret etsin:
-    window.hobbiesModal = document.getElementById('hobbyModal');
-    window.hobbyModal = document.getElementById('hobbyModal');
-
-    // Giriş butonuna basınca: Sadece login modalı aç
-    const btnLogin = document.getElementById('btnLogin');
-    const loginModal = document.getElementById('loginModal');
-    if(btnLogin && loginModal){
-      btnLogin.onclick = ()=>{
-        loginModal.classList.add('open');
-      };
-    }
-
-    // Profil butonu (giriş yaptıysa app.js zaten görünür yapıyor, burada sadece modal açıyoruz)
-    const btnProfile = document.getElementById('btnProfile');
-    const profileModal = document.getElementById('profileModal');
-    if(btnProfile && profileModal){
-      btnProfile.onclick = ()=> profileModal.classList.add('open');
-    }
-
-    // HOBİLER: Yatay chips + “+” ile kaybolsun -> seçilenlere eklensin
-    const ALL_HOBBIES_FALLBACK = [
-      "Futbol","Basketbol","Voleybol","Koşu","Fitness","Yüzme","Tenis","MMA","Dalış","Kamp",
-      "Bilgisayar Oyunları","Mobil Oyunlar","CS:GO","LoL","Valorant","Satranç",
-      "Film","Dizi","Netflix","Anime","Belgesel",
-      "Müzik","Rock","Rap","Klasik","Piyano","Gitar","DJ",
-      "Kitap","Roman","Şiir","Kişisel Gelişim","Felsefe",
-      "Yemek","Tatlı","Kahve","Çay","Barbekü","Vegan",
-      "Teknoloji","Yazılım","Yapay Zekâ","Siber Güvenlik","Kripto",
-      "Seyahat","Fotoğraf","Doğa","Resim","Heykel","Tasarım","Moda",
-      "Araba","Motosiklet","Drone","RC","Model",
-      "Dil Öğrenme","İngilizce","Almanca","İspanyolca","Türkçe",
-      "Girişimcilik","Pazarlama","E-ticaret","Yatırım","Borsa",
-      "Sağlık","Psikoloji","Meditasyon","Yoga","Mindfulness"
-    ];
-
-    function getAllHobbies(){
-      // app.js içinden ALL_HOBBIES varsa onu kullan, yoksa fallback
-      return (window.ALL_HOBBIES && Array.isArray(window.ALL_HOBBIES) ? window.ALL_HOBBIES : ALL_HOBBIES_FALLBACK).slice();
-    }
-    function getPickedSet(){
-      try{
-        const arr = JSON.parse(localStorage.getItem('hobbies')||'[]');
-        return new Set(arr);
-      }catch{ return new Set(); }
-    }
-    function savePickedSet(set){
-      localStorage.setItem('hobbies', JSON.stringify([...set]));
-    }
-
-    function renderHobbyChips(){
-      const list = document.getElementById('hobbyList');
-      const pickedWrap = document.getElementById('hobbyPicked');
-      if(!list || !pickedWrap) return;
-
-      const picked = getPickedSet();
-      list.innerHTML = "";
-      pickedWrap.innerHTML = "";
-
-      // Seçilenleri üstte rozet gibi göster
-      [...picked].forEach(h=>{
-        const chip=document.createElement('div');
-        chip.className='picked-chip';
-        chip.textContent=h;
-        pickedWrap.appendChild(chip);
-      });
-
-      // Seçilmemiş (gösterilecek) hobiler
-      const all = getAllHobbies();
-      const remaining = all.filter(h=>!picked.has(h));
-
-      remaining.forEach(h=>{
-        const chip=document.createElement('div');
-        chip.className='hobby-chip';
-        chip.innerHTML = `<span>${h}</span>`;
-        const plus=document.createElement('button');
-        plus.textContent = "+";
-        plus.title = "Ekle";
-        plus.onclick = ()=>{
-          picked.add(h);
-          savePickedSet(picked);
-          // anında listeden kaybolsun:
-          chip.remove();
-          // seçilenlere rozeti ekle
-          const sel=document.createElement('div');
-          sel.className='picked-chip';
-          sel.textContent=h;
-          pickedWrap.appendChild(sel);
-        };
-        chip.appendChild(plus);
-        list.appendChild(chip);
-      });
-    }
-
-    // “İlgi Alanları” butonu da bu yeni yatay görünüme açsın
-    const btnHobbies = document.getElementById('btnHobbies');
-    if(btnHobbies){
-      btnHobbies.onclick = ()=>{
-        hobbyModal.classList.add('open');
-        renderHobbyChips();
-      };
-    }
-
-    // Kaydet -> localStorage'a yazıldı ve backend'e gönderildi
-    const saveHobbiesBtn = document.getElementById('saveHobbies');
-    if(saveHobbiesBtn){
-      saveHobbiesBtn.onclick = async ()=>{
-        const hobbies = Array.from(picked);
-        localStorage.setItem('hobbies', JSON.stringify(hobbies));
+    <!-- Mobil Menü -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3>Menü</h3>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()">✖</button>
+        </div>
         
-        // Backend'e gönder
-        try {
-          const response = await fetch('https://chat-backend-xi60.onrender.com/profile/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              token: localStorage.getItem('token'),
-              profile: { hobbies: hobbies }
-            })
-          });
-          
-          if (response.ok) {
-            alert("İlgi alanları kaydedildi.");
-            // Önerilen kanalları yükle
-            if (window.smartChannelSystem) {
-              window.smartChannelSystem.userHobbies = hobbies;
-              window.smartChannelSystem.loadSuggestedChannels();
+        <div class="mobile-menu-content">
+            <!-- Mobil Kanallar -->
+            <div class="mobile-channels">
+                <h4 data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</h4>
+                <ul class="mobile-list" id="sponsorListMobile"></ul>
+
+                <h4 data-translate="generalChannelsTitle">🌐 Genel Kanallar</h4>
+                <ul class="mobile-list" id="channelListMobile"></ul>
+
+                <h4 data-translate="favoriteChannelsTitle">⭐ Favori Kanallarım</h4>
+                <ul class="mobile-list" id="followListMobile"></ul>
+            </div>
+
+            <!-- Mobil Kullanıcılar -->
+            <div class="mobile-users">
+                <h4 data-translate="users">👥 Kullanıcılar</h4>
+                <ul class="mobile-list" id="userListMobile"></ul>
+            </div>
+
+            <!-- Mobil Kanal Ekleme -->
+            <div class="mobile-channel-add">
+                <input type="text" id="newChannelMobile" placeholder="Yeni kanal adı" data-placeholder="channelName">
+                <button id="btnAddChannelMobile" data-translate="addBtn">Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="translations.js"></script>
+    <script src="ip-detection.js"></script>
+    <script src="app.js"></script>
+    <script src="advanced-features.js"></script>
+
+    <script>
+        // Sayfa yüklendiğinde çalışacak fonksiyonlar
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Sayfa yüklendi, lokasyon sistemi başlatılıyor...');
+            
+            // Lokasyon göstergesini güncelle
+            updateLocationIndicator();
+            
+            // Menü butonları
+            document.getElementById('btnMenu').onclick = toggleMobileMenu;
+            document.getElementById('btnLocation').onclick = showLocationModal;
+            document.getElementById('btnSponsor').onclick = () => {
+                if (window.sponsorSystem) {
+                    window.sponsorSystem.showSponsorCreateModal();
+                }
+            };
+            
+            // Sponsor sistemi başlat
+            if (window.SponsorChannelSystem) {
+                window.sponsorSystem = new window.SponsorChannelSystem();
             }
-            // Kanal sistemini güncelle
-            if (window.channelSystem) {
-              window.channelSystem.updateHobbies(hobbies);
+        });
+
+        // Lokasyon göstergesini güncelle
+        function updateLocationIndicator() {
+            const locationData = JSON.parse(localStorage.getItem('userLocation') || '{}');
+            const locationIndicator = document.getElementById('locationIndicator');
+            const currentLocation = document.getElementById('currentLocation');
+            
+            if (locationData.city && locationData.country) {
+                locationIndicator.style.display = 'inline-flex';
+                currentLocation.textContent = `${locationData.city}, ${locationData.country}`;
             }
-            // Event tetikle
-            window.dispatchEvent(new CustomEvent('hobbiesSaved', { detail: { hobbies } }));
-          }
-        } catch (error) {
-          console.error('İlgi alanları kaydedilemedi:', error);
-          alert("İlgi alanları kaydedildi (yerel olarak).");
         }
-        
-        hobbyModal.classList.remove('open');
-        
-        // Sayfayı yenileme - sadece kanalları güncelle
-        console.log('✅ İlgi alanları kaydedildi, sayfa yenilenmeyecek');
-      };
-    }
-  </script>
+
+        // Lokasyon modal'ı göster
+        function showLocationModal() {
+            const locationData = JSON.parse(localStorage.getItem('userLocation') || '{}');
+            alert(`📍 Mevcut Lokasyon:\n${locationData.city || 'Bilinmiyor'}, ${locationData.country || 'Bilinmiyor'}\n\n🌍 Dil: ${localStorage.getItem('selectedLanguage') || 'TR'}\n\nLokasyon otomatik olarak algılanmıştır.`);
+        }
+
+        // Mobil menü toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('open');
+        }
+
+        // Lokasyon değiştiğinde göstergeleri güncelle
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'userLocation') {
+                updateLocationIndicator();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 "use strict";
 
 /* ===================== Config ===================== */
-const API = "https://chat-backend-xi60.onrender.com";
-const WS_URL = "wss://chat-backend-xi60.onrender.com";
+const API = "http://localhost:10000";
+const WS_URL = "ws://localhost:10000";
 
 let token = localStorage.getItem("token");
 
@@ -111,14 +111,18 @@ function sendJoin(){
 }
 
 /* ===================== Message send ===================== */
-form.onsubmit=e=>{
-  e.preventDefault();
-  let text=input.value.trim();
-  if(!text) return;
-  text=cleanMessage(text);
-  addMessage("Ben",text);
+document.addEventListener('DOMContentLoaded', () => {
+  const messageInput = document.getElementById('messageInput');
+  const btnSend = document.getElementById('btnSend');
+  
+  if (messageInput && btnSend) {
+    btnSend.onclick = () => {
+      let text = messageInput.value.trim();
+      if(!text) return;
+      text = cleanMessage(text);
+      addMessage("Ben", text);
 
-  if(currentChannel==="#heponsigorta"){
+      if(currentChannel==="#heponsigorta"){
     fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
     .then(r=>r.json()).then(data=>{
       if(data.answer) addMessage("HeponBot 🤖",data.answer);
@@ -159,12 +163,15 @@ form.onsubmit=e=>{
         addMessage("AI 🤖", "Üzgünüm, şu an yanıt veremiyorum.");
       });
     }, 1000);
-  }
-  input.value="";
-};
-input.addEventListener("input",()=>{
-  if(ws&&ws.readyState===WebSocket.OPEN){
-    ws.send(JSON.stringify({type:"typing"}));
+      }
+      messageInput.value="";
+    };
+    
+    messageInput.addEventListener("input",()=>{
+      if(ws&&ws.readyState===WebSocket.OPEN){
+        ws.send(JSON.stringify({type:"typing"}));
+      }
+    });
   }
 });
 
@@ -357,7 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-doLogin.onclick=async()=>{
+// Login fonksiyonu
+function doLogin() {
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
@@ -400,9 +408,10 @@ doLogin.onclick=async()=>{
     // Kendi kanallarımı yükle
     loadMyChannels();
   }catch(err){ alert("Giriş hatası: "+err.message); }
-};
+}
 
-doRegister.onclick=async()=>{
+// Register fonksiyonu
+function doRegister() {
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
@@ -411,7 +420,7 @@ doRegister.onclick=async()=>{
     if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
     alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
   }catch(err){ alert("Kayıt hatası: "+err.message); }
-};
+}
 
 btnLogout.onclick=()=>{
   localStorage.removeItem("token");
