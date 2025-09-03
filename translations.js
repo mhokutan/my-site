@@ -55,6 +55,7 @@ const translations = {
     'hobbiesHint': 'Seçtiklerine göre önerilen kanallar otomatik eklenecek.',
     'createChannel': 'Kanal Oluştur',
     'addChannel': 'Kanal Ekle',
+    'saveHobbies': 'İlgi Alanlarını Kaydet',
     
     // Login/Register specific
     'loginSubtitle': 'Hesabınıza giriş yapın',

@@ -130,10 +130,13 @@ form.onsubmit=e=>{
     setTimeout(() => {
       fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
       .then(r=>r.json()).then(data=>{
-        if(data.answer && data.answer !== "Şu an yanıt veremiyorum") {
+        if(data.answer && data.answer !== "Şu an yanıt veremiyorum" && data.answer !== "Yanıt yok") {
           addMessage("AI 🤖",data.answer);
         }
-      }).catch(()=>{});
+      }).catch((error)=>{
+        console.error('AI yanıt hatası:', error);
+        addMessage("AI 🤖", "Üzgünüm, şu an yanıt veremiyorum.");
+      });
     }, 1000);
   }
   input.value="";
