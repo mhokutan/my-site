@@ -129,7 +129,25 @@ form.onsubmit=e=>{
     // AI yanıtı için ayrı istek gönder - kanal ismine göre
     setTimeout(() => {
       const channelContext = currentChannel.replace('#', '');
-      const channelPrompt = `Sen "${channelContext}" kanalındasın. Bu kanalın konusu: ${channelContext}. Sadece bu konuyla ilgili cevap ver. Konu dışı sorulara "Bu kanal sadece ${channelContext} konusuna ayrılmıştır." de.`;
+      
+      // Kanal türüne göre prompt oluştur
+      let channelPrompt = '';
+      if (channelContext === 'genel') {
+        channelPrompt = 'Sen genel sohbet kanalındasın. Her konuda konuşabilirsin.';
+      } else if (channelContext === 'spor') {
+        channelPrompt = 'Sen spor kanalındasın. Sadece spor konularında konuş.';
+      } else if (channelContext === 'teknoloji') {
+        channelPrompt = 'Sen teknoloji kanalındasın. Sadece teknoloji konularında konuş.';
+      } else if (channelContext === 'müzik') {
+        channelPrompt = 'Sen müzik kanalındasın. Sadece müzik konularında konuş.';
+      } else if (channelContext === 'film') {
+        channelPrompt = 'Sen film kanalındasın. Sadece film/dizi konularında konuş.';
+      } else if (channelContext === 'oyun') {
+        channelPrompt = 'Sen oyun kanalındasın. Sadece oyun konularında konuş.';
+      } else {
+        // İlgi alanı kanalı
+        channelPrompt = `Sen "${channelContext}" kanalındasın. Bu kanalın konusu: ${channelContext}. Sadece bu konuyla ilgili cevap ver.`;
+      }
       
       fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text: channelPrompt + " Kullanıcı: " + text})})
       .then(r=>r.json()).then(data=>{

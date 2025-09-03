@@ -168,6 +168,9 @@
   
   <!-- IP Lokasyon Algılama -->
   <script src="ip-detection.js"></script>
+  
+  <!-- Kanal Sistemi -->
+  <script src="channel-system.js"></script>
 
   <!-- === İnce ayar: giriş & profil & hobiler davranışı + yatay hobby chips === -->
   <script>
@@ -307,6 +310,12 @@
               window.smartChannelSystem.userHobbies = hobbies;
               window.smartChannelSystem.loadSuggestedChannels();
             }
+            // Kanal sistemini güncelle
+            if (window.channelSystem) {
+              window.channelSystem.updateHobbies(hobbies);
+            }
+            // Event tetikle
+            window.dispatchEvent(new CustomEvent('hobbiesSaved', { detail: { hobbies } }));
           }
         } catch (error) {
           console.error('İlgi alanları kaydedilemedi:', error);
