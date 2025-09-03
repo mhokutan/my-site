@@ -44,10 +44,8 @@ async function detectUserLocation() {
       // Kullanıcıya bildir
       alert(`📍 Lokasyonunuz algılandı: ${data.city}, ${data.country_name}\n🌍 Dil: ${detectedLanguage}`);
       
-      // Sayfayı yenile
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
+      // Sayfayı yenileme - sadece dil değiştir
+      console.log('✅ Lokasyon algılandı, sayfa yenilenmeyecek');
       
     } else {
       console.error('❌ Lokasyon bilgisi alınamadı');
@@ -62,7 +60,14 @@ async function detectUserLocation() {
 
 // Sayfa yüklendiğinde çalıştır
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 Sayfa yüklendi, lokasyon algılanıyor...');
+  console.log('🚀 Sayfa yüklendi, lokasyon kontrol ediliyor...');
+  
+  // Eğer lokasyon zaten algılanmışsa tekrar algılama
+  const existingLocation = localStorage.getItem('userLocation');
+  if (existingLocation) {
+    console.log('✅ Lokasyon zaten mevcut:', JSON.parse(existingLocation));
+    return;
+  }
   
   // 2 saniye bekle ki diğer scriptler yüklensin
   setTimeout(() => {

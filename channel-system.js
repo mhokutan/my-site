@@ -4,7 +4,9 @@ console.log('🎯 Kanal Sistemi başlatılıyor...');
 class ChannelSystem {
   constructor() {
     this.hobbyChannels = new Map();
-    this.defaultChannels = ['#genel', '#spor', '#teknoloji', '#müzik', '#film', '#oyun'];
+    this.sponsorChannels = ['#heponsigorta', '#sponsor1', '#sponsor2'];
+    this.generalChannels = ['#genel', '#spor', '#teknoloji', '#müzik', '#film', '#oyun'];
+    this.favoriteCities = ['#istanbul', '#newyork', '#paris', '#london', '#tokyo', '#berlin', '#madrid', '#rome'];
     this.userHobbies = JSON.parse(localStorage.getItem('hobbies') || '[]');
   }
 
@@ -46,19 +48,46 @@ class ChannelSystem {
 
   // Kanalları ekrana render et
   renderChannels() {
-    const channelList = document.getElementById('channelList');
+    // Sponsor kanalları
+    this.renderChannelList('sponsorList', this.sponsorChannels, '💰');
+    this.renderChannelList('sponsorListMobile', this.sponsorChannels, '💰');
+    
+    // Genel kanallar
+    this.renderChannelList('channelList', this.generalChannels, '🌐');
+    this.renderChannelList('channelListMobile', this.generalChannels, '🌐');
+    
+    // Favori şehir kanalları
+    this.renderChannelList('favList', this.favoriteCities, '🏙️');
+    this.renderChannelList('favListMobile', this.favoriteCities, '🏙️');
+    
+    // İlgi alanı kanalları (kendi kanalları)
+    this.renderHobbyChannels();
+    this.renderHobbyChannelsMobile();
+
+    console.log('✅ Tüm kanallar render edildi');
+  }
+
+  // Kanal listesi render et
+  renderChannelList(listId, channels, icon) {
+    const channelList = document.getElementById(listId);
     if (!channelList) return;
 
     // Mevcut kanalları temizle
     channelList.innerHTML = '';
 
-    // Varsayılan kanallar
-    this.defaultChannels.forEach(channelName => {
+    // Kanalları ekle
+    channels.forEach(channelName => {
       const li = document.createElement('li');
-      li.textContent = channelName;
+      li.innerHTML = `<span style="color: #FFD700;">${icon}</span> ${channelName}`;
       li.onclick = () => this.joinChannel(channelName);
       channelList.appendChild(li);
     });
+  }
+
+  // İlgi alanı kanallarını render et
+  renderHobbyChannels() {
+    const channelList = document.getElementById('channelList');
+    if (!channelList) return;
 
     // İlgi alanı kanalları
     this.hobbyChannels.forEach((channel, channelName) => {
@@ -67,8 +96,20 @@ class ChannelSystem {
       li.onclick = () => this.joinChannel(channelName);
       channelList.appendChild(li);
     });
+  }
 
-    console.log('✅ Kanallar render edildi');
+  // Mobil ilgi alanı kanallarını render et
+  renderHobbyChannelsMobile() {
+    const channelList = document.getElementById('channelListMobile');
+    if (!channelList) return;
+
+    // İlgi alanı kanalları
+    this.hobbyChannels.forEach((channel, channelName) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span style="color: #4CAF50;">🎯</span> ${channelName}`;
+      li.onclick = () => this.joinChannel(channelName);
+      channelList.appendChild(li);
+    });
   }
 
   // Kanala katıl

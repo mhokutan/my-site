@@ -26,13 +26,13 @@
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu(false)">✖ Kapat</button>
     
-    <div class="pane-title" data-translate="sponsorChannels">Sponsorlu Kanallar</div>
+    <div class="pane-title" data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</div>
     <ul id="sponsorListMobile" class="list"></ul>
 
-    <div class="pane-title" data-translate="generalChannels">Genel Kanallar</div>
+    <div class="pane-title" data-translate="generalChannelsTitle">🌐 Genel Kanallar</div>
     <ul id="channelListMobile" class="list"></ul>
 
-    <div class="pane-title" data-translate="favoriteChannels">Favori Kanallarım</div>
+    <div class="pane-title" data-translate="favoriteCitiesTitle">🏙️ Favori Şehirler</div>
     <ul id="favListMobile" class="list"></ul>
 
     <div class="pane-title" data-translate="users">Kullanıcılar</div>
@@ -54,13 +54,13 @@
 
   <div class="layout">
     <aside class="pane">
-      <div class="pane-title" data-translate="sponsorChannels">Sponsorlu Kanallar</div>
+      <div class="pane-title" data-translate="sponsorChannelsTitle">💰 Sponsor Kanallar</div>
       <ul id="sponsorList" class="list"></ul>
 
-      <div class="pane-title" data-translate="generalChannels">Genel Kanallar</div>
+      <div class="pane-title" data-translate="generalChannelsTitle">🌐 Genel Kanallar</div>
       <ul id="channelList" class="list"></ul>
 
-      <div class="pane-title" data-translate="favoriteChannels">Favori Kanallarım</div>
+      <div class="pane-title" data-translate="favoriteCitiesTitle">🏙️ Favori Şehirler</div>
       <ul id="favList" class="list"></ul>
 
       <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
@@ -97,6 +97,13 @@
       <h3 data-translate="loginTitle">Giriş / Kayıt</h3>
       <input id="identifier" placeholder="Email veya Telefon" data-placeholder="email"/>
       <input id="password" type="password" placeholder="Şifre" data-placeholder="password"/>
+      
+      <!-- Beni Hatırla checkbox -->
+      <div style="display: flex; align-items: center; margin: 10px 0;">
+        <input type="checkbox" id="rememberMe" style="margin-right: 8px;">
+        <label for="rememberMe" data-translate="rememberMe">Beni Hatırla</label>
+      </div>
+      
       <div class="section">
         <button id="doLogin" data-translate="loginBtn">Giriş</button>
         <button id="doRegister" data-translate="registerBtn">Kayıt</button>

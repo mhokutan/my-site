@@ -20,6 +20,11 @@ const translations = {
     'users': 'Kullanıcılar',
     'following': 'Takip Ettiklerim',
     
+    // Kanal başlıkları
+    'sponsorChannelsTitle': '💰 Sponsor Kanallar',
+    'generalChannelsTitle': '🌐 Genel Kanallar',
+    'favoriteCitiesTitle': '🏙️ Favori Şehirler',
+    
     // Modals
     'loginTitle': 'Giriş / Kayıt',
     'profileTitle': 'Profil Düzenle',
@@ -49,6 +54,7 @@ const translations = {
     'addBtn': 'Ekle',
     'closeBtn': 'Kapat',
     'saveHobbiesBtn': 'İlgi Alanlarını Kaydet',
+    'rememberMe': 'Beni Hatırla',
     'hobbiesTitle': 'İlgi Alanları',
     'selectHobbies': 'İlgi alanlarınızı seçin',
     'selectedHobbies': 'Seçilenler:',
@@ -115,6 +121,11 @@ const translations = {
     'users': 'Users',
     'following': 'Following',
     
+    // Kanal başlıkları
+    'sponsorChannelsTitle': '💰 Sponsor Channels',
+    'generalChannelsTitle': '🌐 General Channels',
+    'favoriteCitiesTitle': '🏙️ Favorite Cities',
+    
     'loginTitle': 'Login / Register',
     'profileTitle': 'Edit Profile',
     'locationTitle': 'Set Location',
@@ -141,6 +152,7 @@ const translations = {
     'addBtn': 'Add',
     'closeBtn': 'Close',
     'saveHobbiesBtn': 'Save Interests',
+    'rememberMe': 'Remember Me',
     
     // Login/Register specific
     'loginSubtitle': 'Sign in to your account',

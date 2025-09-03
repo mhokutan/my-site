@@ -247,6 +247,13 @@ btnLogin.onclick=(e)=>{
       <h3>Giriş / Kayıt</h3>
       <input id="identifier" placeholder="Email veya Telefon" style="width: 100%; margin: 5px 0; padding: 8px;"/>
       <input id="password" type="password" placeholder="Şifre" style="width: 100%; margin: 5px 0; padding: 8px;"/>
+      
+      <!-- Beni Hatırla checkbox -->
+      <div style="display: flex; align-items: center; margin: 10px 0;">
+        <input type="checkbox" id="rememberMe" style="margin-right: 8px;">
+        <label for="rememberMe">Beni Hatırla</label>
+      </div>
+      
       <div class="section">
         <button id="doLogin">Giriş</button>
         <button id="doRegister">Kayıt</button>
@@ -264,11 +271,47 @@ btnLogin.onclick=(e)=>{
   newDoLogin.onclick = doLogin.onclick;
   newDoRegister.onclick = doRegister.onclick;
   
+  // Kaydedilmiş giriş bilgilerini yükle
+  setTimeout(() => {
+    loadSavedCredentials();
+  }, 100);
+  
   return false;
 };
 
+// Kaydedilmiş giriş bilgilerini yükle
+function loadSavedCredentials() {
+  try {
+    const savedCredentials = localStorage.getItem('savedCredentials');
+    if (savedCredentials) {
+      const credentials = JSON.parse(savedCredentials);
+      if (credentials.rememberMe && credentials.identifier) {
+        // Giriş modalı açıldığında email'i doldur
+        setTimeout(() => {
+          const identifierInput = document.getElementById('identifier');
+          const rememberMeCheckbox = document.getElementById('rememberMe');
+          
+          if (identifierInput) {
+            identifierInput.value = credentials.identifier;
+          }
+          if (rememberMeCheckbox) {
+            rememberMeCheckbox.checked = true;
+          }
+          
+          console.log('✅ Kaydedilmiş giriş bilgileri yüklendi');
+        }, 100);
+      }
+    }
+  } catch (error) {
+    console.error('Kaydedilmiş giriş bilgileri yüklenemedi:', error);
+  }
+}
+
 // Giriş modalındaki input alanları için event listener
 document.addEventListener('DOMContentLoaded', () => {
+  // Kaydedilmiş giriş bilgilerini yükle
+  loadSavedCredentials();
+  
   const identifierInput = document.getElementById('identifier');
   const passwordInput = document.getElementById('password');
   
@@ -305,6 +348,8 @@ doLogin.onclick=async()=>{
   try{
     const identifier=document.getElementById("identifier").value.trim();
     const password=document.getElementById("password").value;
+    const rememberMe = document.getElementById("rememberMe")?.checked || false;
+    
     const res=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier,password})});
     const data=await res.json();
     if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
@@ -312,6 +357,18 @@ doLogin.onclick=async()=>{
     token=data.token;
     localStorage.setItem("token",token);
     window.token = token; // Global token'ı güncelle
+    
+    // Beni Hatırla seçiliyse giriş bilgilerini kaydet
+    if (rememberMe) {
+      localStorage.setItem("savedCredentials", JSON.stringify({
+        identifier: identifier,
+        rememberMe: true
+      }));
+      console.log('✅ Giriş bilgileri kaydedildi');
+    } else {
+      localStorage.removeItem("savedCredentials");
+    }
+    
     authStatus.textContent=identifier;
     btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block";
     loginModal.classList.remove("open");
@@ -352,12 +409,21 @@ btnProfile.onclick=()=> {
   
   // Lokasyon bilgilerini otomatik doldur
   const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
-  if (userLocation.countryName) {
-    country.value = userLocation.countryName;
+  if (userLocation.country) {
+    country.value = userLocation.country;
   }
   if (userLocation.city) {
     city.value = userLocation.city;
   }
+  if (userLocation.region) {
+    // State alanı varsa doldur
+    const stateField = document.getElementById('state');
+    if (stateField) {
+      stateField.value = userLocation.region;
+    }
+  }
+  
+  console.log('📍 Profil lokasyon bilgileri dolduruldu:', userLocation);
 };
 
 saveProfile.onclick=async()=>{
