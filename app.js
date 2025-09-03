@@ -397,6 +397,9 @@ async function doLogin() {
     document.getElementById("addChannelBoxMobile").style.display="block";
     ws&&ws.close(); connectWS();
     
+    // Modal'ı kapat
+    closeLoginModal();
+    
     // İlgi alanları modalını aç
     setTimeout(() => {
       const hobbyModal = document.getElementById('hobbyModal');
@@ -419,14 +422,30 @@ async function doRegister() {
     const data=await res.json();
     if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
     alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
+    closeLoginModal();
   }catch(err){ alert("Kayıt hatası: "+err.message); }
 }
+
+// Global olarak erişilebilir yap
+window.doLogin = doLogin;
+window.doRegister = doRegister;
+window.openLoginModal = openLoginModal;
+window.closeLoginModal = closeLoginModal;
 
 // Logout fonksiyonu
 function doLogout() {
   localStorage.removeItem("token");
   token = null;
   location.reload();
+}
+
+/* ===================== Modal Fonksiyonları ===================== */
+function openLoginModal() {
+  document.getElementById('loginModal').classList.add('open');
+}
+
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('open');
 }
 
 /* ===================== Lokasyon ===================== */
@@ -498,7 +517,8 @@ btnProfile.onclick=()=> {
   console.log('📍 Profil lokasyon bilgileri dolduruldu:', userLocation);
 };
 
-saveProfile.onclick=async()=>{
+// Profil kaydetme fonksiyonu
+async function saveProfile() {
   const profile={
     nickname: nickname.value,
     firstName:firstName.value,lastName:lastName.value,

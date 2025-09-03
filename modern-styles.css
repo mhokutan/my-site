@@ -628,10 +628,10 @@ html, body {
 .modal-content {
   background: var(--panel);
   border-radius: var(--radius-lg);
-  padding: 20px;
-  max-width: 400px;
-  width: 90%;
-  max-height: 80vh;
+  padding: 15px;
+  max-width: 320px;
+  width: 85%;
+  max-height: 60vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   transform: scale(0.8);
@@ -646,8 +646,8 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -729,6 +729,28 @@ html, body {
 
 .modal-footer button.secondary:hover {
   background: var(--muted);
+}
+
+/* Login Modal için özel küçük boyut */
+#loginModal .modal-content {
+  max-width: 280px !important;
+  width: 80% !important;
+  padding: 12px !important;
+}
+
+#loginModal .modal-header h3 {
+  font-size: 16px !important;
+}
+
+#loginModal .modal-body input {
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  margin-bottom: 12px !important;
+}
+
+#loginModal .modal-footer button {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
 }
 
 .time {
@@ -1153,10 +1175,10 @@ html, body {
 .modal-content {
   background: var(--panel);
   border-radius: var(--radius-lg);
-  padding: 20px;
-  max-width: 400px;
-  width: 90%;
-  max-height: 80vh;
+  padding: 15px;
+  max-width: 320px;
+  width: 85%;
+  max-height: 60vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   transform: scale(0.8);
@@ -1171,8 +1193,8 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1254,4 +1276,26 @@ html, body {
 
 .modal-footer button.secondary:hover {
   background: var(--muted);
+}
+
+/* Login Modal için özel küçük boyut */
+#loginModal .modal-content {
+  max-width: 280px !important;
+  width: 80% !important;
+  padding: 12px !important;
+}
+
+#loginModal .modal-header h3 {
+  font-size: 16px !important;
+}
+
+#loginModal .modal-body input {
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  margin-bottom: 12px !important;
+}
+
+#loginModal .modal-footer button {
+  padding: 8px 16px !important;
+  font-size: 13px !important;
 }

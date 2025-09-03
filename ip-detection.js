@@ -196,12 +196,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let countryCode = locationData.countryCode;
     if (countryCode === 'staates' || countryCode === 'united staates') {
       countryCode = 'US';
+      // localStorage'ı güncelle
+      locationData.countryCode = 'US';
+      localStorage.setItem('userLocation', JSON.stringify(locationData));
+      console.log('🔧 Ülke kodu düzeltildi: staates -> US');
     }
     
     const detectedLanguage = languageMap[countryCode] || 'TR';
     console.log('🌍 Dil eşleme:', countryCode, '->', detectedLanguage);
     if (window.onLocationChange) {
       window.onLocationChange(detectedLanguage);
+    } else {
+      console.log('⚠️ onLocationChange fonksiyonu bulunamadı');
     }
     
     // Lokasyona göre kanalları yükle
