@@ -52,11 +52,103 @@ function getRegionalSponsorChannels(userRegion) {
 function getSuggestedChannels(hobbies) {
   const suggestions = [];
   const hobbyChannels = {
-    'Futbol': ['#futbol', '#spor', '#fenerbahce', '#galatasaray'],
-    'Müzik': ['#müzik', '#rap', '#rock', '#klasik'],
-    'Film': ['#film', '#sinema', '#netflix', '#anime'],
-    'Teknoloji': ['#teknoloji', '#yazılım', '#ai', '#blockchain'],
-    'Oyun': ['#oyun', '#gaming', '#valorant', '#lol']
+    // Spor
+    'Futbol': ['#futbol', '#spor', '#fenerbahce', '#galatasaray', '#besiktas', '#trabzonspor'],
+    'Basketbol': ['#basketbol', '#spor', '#nba', '#euroleague'],
+    'Voleybol': ['#voleybol', '#spor'],
+    'Koşu': ['#kosu', '#spor', '#maraton'],
+    'Fitness': ['#fitness', '#spor', '#gym'],
+    'Yüzme': ['#yuzme', '#spor'],
+    'Tenis': ['#tenis', '#spor'],
+    'MMA': ['#mma', '#spor', '#ufc'],
+    'Dalış': ['#dalis', '#spor'],
+    'Kamp': ['#kamp', '#spor', '#dogada'],
+    
+    // Oyunlar
+    'Bilgisayar Oyunları': ['#oyun', '#gaming', '#pc'],
+    'Mobil Oyunlar': ['#mobiloyun', '#gaming'],
+    'CS:GO': ['#csgo', '#oyun', '#gaming'],
+    'LoL': ['#lol', '#oyun', '#gaming'],
+    'Valorant': ['#valorant', '#oyun', '#gaming'],
+    'Satranç': ['#satranc', '#oyun'],
+    
+    // Eğlence
+    'Film': ['#film', '#sinema', '#netflix'],
+    'Dizi': ['#dizi', '#netflix', '#sohbet'],
+    'Anime': ['#anime', '#manga'],
+    'Belgesel': ['#belgesel'],
+    
+    // Müzik
+    'Müzik': ['#muzik', '#sohbet'],
+    'Rock': ['#rock', '#muzik'],
+    'Rap': ['#rap', '#muzik'],
+    'Klasik': ['#klasik', '#muzik'],
+    'Piyano': ['#piyano', '#muzik'],
+    'Gitar': ['#gitar', '#muzik'],
+    'DJ': ['#dj', '#muzik'],
+    
+    // Kitap & Eğitim
+    'Kitap': ['#kitap', '#okuma'],
+    'Roman': ['#roman', '#kitap'],
+    'Şiir': ['#siir', '#kitap'],
+    'Kişisel Gelişim': ['#kisiselgelisim'],
+    'Felsefe': ['#felsefe'],
+    
+    // Yemek
+    'Yemek': ['#yemek', '#tarif'],
+    'Tatlı': ['#tatli', '#yemek'],
+    'Kahve': ['#kahve', '#yemek'],
+    'Çay': ['#cay', '#yemek'],
+    'Barbekü': ['#barbeku', '#yemek'],
+    'Vegan': ['#vegan', '#yemek'],
+    
+    // Teknoloji
+    'Teknoloji': ['#teknoloji', '#sohbet'],
+    'Yazılım': ['#yazilim', '#teknoloji'],
+    'Yapay Zekâ': ['#yapayzeka', '#teknoloji', '#ai', '#chatgpt', '#openai'],
+    'Siber Güvenlik': ['#siberguvenlik', '#teknoloji'],
+    'Kripto': ['#kripto', '#teknoloji', '#bitcoin', '#blockchain'],
+    'Web Tasarım': ['#webtasarim', '#teknoloji'],
+    'Mobil Uygulama': ['#mobiluygulama', '#teknoloji'],
+    'Veri Bilimi': ['#veribilimi', '#teknoloji', '#ai'],
+    'Makine Öğrenmesi': ['#makineogrenmesi', '#teknoloji', '#ai'],
+    
+    // Sanat & Tasarım
+    'Seyahat': ['#seyahat', '#tatil'],
+    'Fotoğraf': ['#fotograf', '#sanat'],
+    'Doğa': ['#doga', '#seyahat'],
+    'Resim': ['#resim', '#sanat'],
+    'Heykel': ['#heykel', '#sanat'],
+    'Tasarım': ['#tasarim', '#sanat'],
+    'Moda': ['#moda', '#tasarim'],
+    
+    // Araçlar
+    'Araba': ['#araba', '#otomobil'],
+    'Motosiklet': ['#motosiklet'],
+    'Drone': ['#drone', '#teknoloji'],
+    'RC': ['#rc', '#oyun'],
+    'Model': ['#model', '#hobi'],
+    
+    // Dil & Eğitim
+    'Dil Öğrenme': ['#dilogrenme'],
+    'İngilizce': ['#ingilizce', '#dilogrenme'],
+    'Almanca': ['#almanca', '#dilogrenme'],
+    'İspanyolca': ['#ispanyolca', '#dilogrenme'],
+    'Türkçe': ['#turkce', '#dilogrenme'],
+    
+    // İş & Finans
+    'Girişimcilik': ['#girisimcilik'],
+    'Pazarlama': ['#pazarlama'],
+    'E-ticaret': ['#eticaret'],
+    'Yatırım': ['#yatirim'],
+    'Borsa': ['#borsa', '#yatirim'],
+    
+    // Sağlık & Wellness
+    'Sağlık': ['#saglik'],
+    'Psikoloji': ['#psikoloji'],
+    'Meditasyon': ['#meditasyon'],
+    'Yoga': ['#yoga'],
+    'Mindfulness': ['#mindfulness']
   };
 
   hobbies.forEach(hobby => {
