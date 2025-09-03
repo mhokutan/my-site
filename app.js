@@ -192,8 +192,76 @@ function sendDM(room,formEl){
 btnLogin.onclick=(e)=>{
   e.preventDefault();
   e.stopPropagation();
-  loginModal.classList.add("open");
+  e.stopImmediatePropagation();
+  
+  // Modal'ı tamamen yeniden oluştur
+  const existingModal = document.getElementById('loginModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  const modal = document.createElement('div');
+  modal.id = 'loginModal';
+  modal.className = 'modal open';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <button class="modal-close" onclick="this.parentElement.parentElement.remove()">✖</button>
+      <h3>Giriş / Kayıt</h3>
+      <input id="identifier" placeholder="Email veya Telefon" style="width: 100%; margin: 5px 0; padding: 8px;"/>
+      <input id="password" type="password" placeholder="Şifre" style="width: 100%; margin: 5px 0; padding: 8px;"/>
+      <div class="section">
+        <button id="doLogin">Giriş</button>
+        <button id="doRegister">Kayıt</button>
+      </div>
+      <div class="muted">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Yeni modal için event listener'ları ekle
+  const newDoLogin = modal.querySelector('#doLogin');
+  const newDoRegister = modal.querySelector('#doRegister');
+  
+  newDoLogin.onclick = doLogin.onclick;
+  newDoRegister.onclick = doRegister.onclick;
+  
+  return false;
 };
+
+// Giriş modalındaki input alanları için event listener
+document.addEventListener('DOMContentLoaded', () => {
+  const identifierInput = document.getElementById('identifier');
+  const passwordInput = document.getElementById('password');
+  
+  if (identifierInput) {
+    identifierInput.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+    
+    identifierInput.addEventListener('focus', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+  }
+  
+  if (passwordInput) {
+    passwordInput.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+    
+    passwordInput.addEventListener('focus', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    });
+  }
+});
 
 doLogin.onclick=async()=>{
   try{
