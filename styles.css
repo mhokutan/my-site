@@ -96,3 +96,79 @@ body{margin:0;font-family:"Courier New",monospace;background:var(--bg);color:var
   .menubar .mobile-toggle{display:none}
   #mobileMenu{display:none !important;}
 }
+
+/* ===================== YENİ ÖZELLİKLER CSS ===================== */
+
+/* Sponsor kanallar */
+.sponsor {
+  color: #ffd700 !important;
+  font-weight: bold;
+  background: linear-gradient(45deg, #1a1a1a, #2a2a00);
+  border: 1px solid #ffd700;
+}
+
+.sponsor:hover {
+  background: linear-gradient(45deg, #2a2a2a, #3a3a00);
+}
+
+/* Kanal türleri */
+.channel-suggested {
+  color: #4fc3f7;
+  background: rgba(79, 195, 247, 0.1);
+}
+
+.channel-popular {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.channel-private {
+  color: #9b59b6;
+  background: rgba(155, 89, 182, 0.1);
+}
+
+/* Kanal oluşturma modal */
+.channel-create-modal {
+  max-width: 400px;
+}
+
+/* Lokasyon göstergesi */
+.location-indicator {
+  color: #888;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #222;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+/* Sponsor kanal modal */
+.sponsor-modal {
+  max-width: 450px;
+}
+
+/* Menubar butonları */
+.menubar button {
+  margin-left: 4px;
+}
+
+/* Kanal listesi iyileştirmeleri */
+.list li {
+  transition: all 0.2s ease;
+}
+
+.list li:hover {
+  transform: translateX(2px);
+}
+
+/* Responsive iyileştirmeler */
+@media(max-width:768px) {
+  .menubar button {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+  
+  .sponsor {
+    font-size: 12px;
+  }
+}
