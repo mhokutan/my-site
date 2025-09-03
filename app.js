@@ -5,6 +5,10 @@ const API = "https://chat-backend-xi60.onrender.com";
 const WS_URL = "wss://chat-backend-xi60.onrender.com";
 
 let token = localStorage.getItem("token");
+
+// Global değişkenleri window'a ekle
+window.API = API;
+window.token = token;
 let ws, currentChannel = "#genel";
 
 /* ===================== State ===================== */
@@ -283,6 +287,7 @@ doLogin.onclick=async()=>{
 
     token=data.token;
     localStorage.setItem("token",token);
+    window.token = token; // Global token'ı güncelle
     authStatus.textContent=identifier;
     btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block";
     loginModal.classList.remove("open");
