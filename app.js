@@ -128,7 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if(data.answer) addMessage("HeponBot 🤖",data.answer);
     }).catch(()=>addMessage("HeponBot 🤖","Üzgünüm, şu an yanıt veremiyorum."));
   } else {
-    ws.send(JSON.stringify({type:"message",text}));
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({type:"message",text}));
+    } else {
+      console.log('⚠️ WebSocket bağlantısı yok, mesaj gönderilemiyor');
+      addMessage("Sistem", "Bağlantı kuruluyor, lütfen bekleyin...");
+    }
     
     // AI yanıtı için ayrı istek gönder - kanal ismine göre
     setTimeout(() => {
@@ -431,6 +436,7 @@ window.doLogin = doLogin;
 window.doRegister = doRegister;
 window.openLoginModal = openLoginModal;
 window.closeLoginModal = closeLoginModal;
+window.saveProfile = saveProfile;
 
 // Logout fonksiyonu
 function doLogout() {
@@ -899,6 +905,86 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDonateMobile.onclick = openDonateModal;
   }
 });
+
+/* ===================== Mesaj Fonksiyonları ===================== */
+function addMessage(user, text, timestamp) {
+  const messages = document.getElementById('messages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'message';
+  
+  const time = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+  
+  messageDiv.innerHTML = `
+    <div class="message-header">
+      <span class="message-user">${user}</span>
+      <span class="message-time">${time}</span>
+    </div>
+    <div class="message-text">${cleanMessage(text)}</div>
+  `;
+  
+  messages.appendChild(messageDiv);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function updateUserList(users) {
+  const userList = document.getElementById('userList');
+  if (userList) {
+    userList.innerHTML = '';
+    users.forEach(user => {
+      const li = document.createElement('li');
+      li.textContent = user;
+      userList.appendChild(li);
+    });
+  }
+}
+
+function showTyping(user) {
+  const typingArea = document.getElementById('typingArea');
+  if (typingArea) {
+    typingArea.textContent = `${user} yazıyor...`;
+    setTimeout(() => {
+      typingArea.textContent = '';
+    }, 3000);
+  }
+}
+
+/* ===================== WebSocket ===================== */
+function connectWS() {
+  if (ws) {
+    ws.close();
+  }
+  
+  ws = new WebSocket(WS_URL);
+  
+  ws.onopen = () => {
+    console.log('🔌 WebSocket bağlantısı kuruldu');
+    if (token) {
+      ws.send(JSON.stringify({type: "auth", token}));
+    }
+  };
+  
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.type === "message") {
+      addMessage(data.user, data.text, data.timestamp);
+    } else if (data.type === "userList") {
+      updateUserList(data.users);
+    } else if (data.type === "typing") {
+      showTyping(data.user);
+    }
+  };
+  
+  ws.onclose = () => {
+    console.log('🔌 WebSocket bağlantısı kapandı');
+    // 3 saniye sonra yeniden bağlan
+    setTimeout(connectWS, 3000);
+  };
+  
+  ws.onerror = (error) => {
+    console.error('🔌 WebSocket hatası:', error);
+  };
+}
 
 /* ===================== Init ===================== */
 if(token){ authStatus.textContent="Giriş yapıldı"; btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block"; }
