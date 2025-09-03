@@ -434,7 +434,8 @@ btnLocation.onclick=()=> {
   locationModal.classList.add("open");
 };
 
-saveLocation.onclick=()=> {
+// Lokasyon kaydetme fonksiyonu
+function saveLocation() {
   const countryInput = document.getElementById('countryInput').value;
   const cityInput = document.getElementById('cityInput').value;
   
@@ -472,7 +473,7 @@ saveLocation.onclick=()=> {
   
   alert(`📍 Lokasyon güncellendi: ${cityInput}, ${countryName}`);
   locationModal.classList.remove("open");
-};
+}
 
 /* ===================== Profil ===================== */
 btnProfile.onclick=()=> {

@@ -50,10 +50,16 @@ async function detectUserLocation() {
     console.log('🌍 Gerçek lokasyon:', data.country_name, data.city, data.region);
     
     if (data.country_name && data.city) {
+      // Ülke kodunu düzelt
+      let countryCode = data.country_code;
+      if (countryCode === 'staates' || countryCode === 'united staates') {
+        countryCode = 'US';
+      }
+      
       // Lokasyon bilgilerini kaydet
       const locationData = {
         country: data.country_name,
-        countryCode: data.country_code,
+        countryCode: countryCode,
         city: data.city,
         region: data.region || null,
         ip: data.ip,
@@ -186,7 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
       'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
     };
     
-    const detectedLanguage = languageMap[locationData.countryCode] || 'TR';
+    // Ülke kodunu düzelt
+    let countryCode = locationData.countryCode;
+    if (countryCode === 'staates' || countryCode === 'united staates') {
+      countryCode = 'US';
+    }
+    
+    const detectedLanguage = languageMap[countryCode] || 'TR';
+    console.log('🌍 Dil eşleme:', countryCode, '->', detectedLanguage);
     if (window.onLocationChange) {
       window.onLocationChange(detectedLanguage);
     }
