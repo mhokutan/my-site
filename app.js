@@ -656,35 +656,35 @@ async function createChannel() {
     
     console.log('📺 Kanal oluşturuluyor:', channelData);
     
-    // Backend'e gönder (şimdilik localStorage'a kaydet)
-    const channels = JSON.parse(localStorage.getItem('userChannels') || '[]');
-    const newChannel = {
-      id: Date.now(),
-      name: name,
-      description: description,
-      type: type,
-      password: type === 'private' ? password : null,
-      createdAt: new Date().toISOString(),
-      userCount: 0,
-      messages: []
-    };
+    // Backend'e gönder
+    const response = await fetch(`${API}/channels/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: window.token,
+        ...channelData
+      })
+    });
     
-    channels.push(newChannel);
-    localStorage.setItem('userChannels', JSON.stringify(channels));
+    const data = await response.json();
     
-    // Modal'ı kapat
-    closeCreateChannelModal();
-    
-    // Form'u temizle
-    document.getElementById('channelNameInput').value = '';
-    document.getElementById('channelDescriptionInput').value = '';
-    document.getElementById('channelTypeSelect').value = 'public';
-    document.getElementById('channelPasswordInput').value = '';
-    
-    // Kanalları yeniden yükle
-    loadChannels();
-    
-    alert('Kanal başarıyla oluşturuldu!');
+    if (data.success) {
+      // Modal'ı kapat
+      closeCreateChannelModal();
+      
+      // Form'u temizle
+      document.getElementById('channelNameInput').value = '';
+      document.getElementById('channelDescriptionInput').value = '';
+      document.getElementById('channelTypeSelect').value = 'public';
+      document.getElementById('channelPasswordInput').value = '';
+      
+      // Kanalları yeniden yükle
+      loadChannels();
+      
+      alert('Kanal başarıyla oluşturuldu!');
+    } else {
+      alert('Hata: ' + (data.error || 'Kanal oluşturulamadı'));
+    }
     
   } catch (error) {
     console.error('❌ Kanal oluşturma hatası:', error);
@@ -819,16 +819,59 @@ function closeHobbyModal() {
 }
 
 // Profil verilerini yükle
-function loadProfileData() {
-  const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-  
-  if (nickname) nickname.value = profile.nickname || '';
-  if (firstName) firstName.value = profile.firstName || '';
-  if (lastName) lastName.value = profile.lastName || '';
-  if (gender) gender.value = profile.gender || '';
-  if (birth) birth.value = profile.birth || '';
-  if (country) country.value = profile.country || '';
-  if (city) city.value = profile.city || '';
+async function loadProfileData() {
+  try {
+    // Backend'den profil verilerini al
+    const response = await fetch(`${API}/me`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: window.token })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      const profile = data.profile || {};
+      const hobbies = data.hobbies || [];
+      
+      // Form alanlarını doldur
+      if (nickname) nickname.value = profile.nickname || '';
+      if (firstName) firstName.value = profile.firstName || '';
+      if (lastName) lastName.value = profile.lastName || '';
+      if (gender) gender.value = profile.gender || '';
+      if (birth) birth.value = profile.birth || '';
+      if (country) country.value = profile.country || '';
+      if (city) city.value = profile.city || '';
+      
+      // İlgi alanlarını localStorage'a kaydet
+      localStorage.setItem('userHobbies', JSON.stringify(hobbies));
+      
+      console.log('👤 Profil verileri yüklendi:', profile);
+    } else {
+      // Fallback: localStorage'dan yükle
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      
+      if (nickname) nickname.value = profile.nickname || '';
+      if (firstName) firstName.value = profile.firstName || '';
+      if (lastName) lastName.value = profile.lastName || '';
+      if (gender) gender.value = profile.gender || '';
+      if (birth) birth.value = profile.birth || '';
+      if (country) country.value = profile.country || '';
+      if (city) city.value = profile.city || '';
+    }
+  } catch (error) {
+    console.error('❌ Profil yükleme hatası:', error);
+    // Fallback: localStorage'dan yükle
+    const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    
+    if (nickname) nickname.value = profile.nickname || '';
+    if (firstName) firstName.value = profile.firstName || '';
+    if (lastName) lastName.value = profile.lastName || '';
+    if (gender) gender.value = profile.gender || '';
+    if (birth) birth.value = profile.birth || '';
+    if (country) country.value = profile.country || '';
+    if (city) city.value = profile.city || '';
+  }
 }
 
 // İlgi alanları verilerini yükle
@@ -841,72 +884,85 @@ function loadHobbyData() {
 }
 
 // İlgi alanlarını kaydet
-function saveHobbies() {
+async function saveHobbies() {
   const selectedHobbies = Array.from(document.querySelectorAll('.hobby-checkbox:checked'))
     .map(checkbox => checkbox.value);
   
-  localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
-  
-  closeHobbyModal();
-  
-  // Kanalları yeniden yükle (ilgi alanlarına göre)
-  loadInterestBasedChannels();
-  
-  alert('İlgi alanlarınız kaydedildi!');
+  try {
+    const response = await fetch(`${API}/hobbies/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: window.token,
+        hobbies: selectedHobbies
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
+      closeHobbyModal();
+      loadInterestBasedChannels();
+      alert('İlgi alanlarınız kaydedildi!');
+    } else {
+      alert('Hata: ' + (data.error || 'İlgi alanları kaydedilemedi'));
+    }
+  } catch (error) {
+    console.error('❌ İlgi alanları kaydetme hatası:', error);
+    // Fallback: localStorage'a kaydet
+    localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
+    closeHobbyModal();
+    loadInterestBasedChannels();
+    alert('İlgi alanlarınız kaydedildi! (Offline)');
+  }
 }
 
 // İlgi alanlarına göre kanalları yükle
-function loadInterestBasedChannels() {
+async function loadInterestBasedChannels() {
   const userHobbies = JSON.parse(localStorage.getItem('userHobbies') || '[]');
   
-  if (userHobbies.length === 0) {
-    loadPopularChannels(); // İlgi alanı yoksa popüler kanalları göster
-    return;
-  }
-  
-  const allChannels = [
-    { name: 'genel', description: 'Genel sohbet kanalı', users: 156, type: 'public', interests: [] },
-    { name: 'teknoloji', description: 'Teknoloji ve yazılım', users: 89, type: 'public', interests: ['teknoloji'] },
-    { name: 'spor', description: 'Spor haberleri ve tartışmaları', users: 67, type: 'public', interests: ['spor'] },
-    { name: 'müzik', description: 'Müzik paylaşımları', users: 45, type: 'public', interests: ['müzik'] },
-    { name: 'oyun', description: 'Oyun sohbetleri', users: 123, type: 'public', interests: ['oyun'] },
-    { name: 'film', description: 'Film ve dizi tartışmaları', users: 78, type: 'public', interests: ['film'] },
-    { name: 'sanat', description: 'Sanat ve tasarım', users: 34, type: 'public', interests: ['sanat'] },
-    { name: 'bilim', description: 'Bilim ve araştırma', users: 56, type: 'public', interests: ['bilim'] },
-    { name: 'yemek', description: 'Yemek tarifleri ve mutfak', users: 42, type: 'public', interests: ['yemek'] },
-    { name: 'seyahat', description: 'Seyahat ve tatil', users: 38, type: 'public', interests: ['seyahat'] },
-    { name: 'kitap', description: 'Kitap önerileri ve tartışmaları', users: 29, type: 'public', interests: ['kitap'] },
-    { name: 'fotoğraf', description: 'Fotoğrafçılık', users: 31, type: 'public', interests: ['fotoğraf'] },
-    { name: 'moda', description: 'Moda ve stil', users: 25, type: 'public', interests: ['moda'] }
-  ];
-  
-  // İlgi alanlarına göre filtrele
-  const filteredChannels = allChannels.filter(channel => 
-    channel.interests.length === 0 || // Genel kanal her zaman dahil
-    channel.interests.some(interest => userHobbies.includes(interest))
-  );
-  
-  // Kullanıcı sayısına göre sırala
-  filteredChannels.sort((a, b) => b.users - a.users);
-  
-  if (channelList) {
-    channelList.innerHTML = '';
-    filteredChannels.forEach(channel => {
-      const li = document.createElement('li');
-      li.className = 'channel-item';
-      li.innerHTML = `
-        <div class="channel-info">
-          <span class="channel-name">#${channel.name}</span>
-          <span class="channel-users">👥 ${channel.users}</span>
-        </div>
-        <div class="channel-description">${channel.description}</div>
-      `;
-      li.onclick = () => switchChannel(`#${channel.name}`);
-      channelList.appendChild(li);
+  try {
+    // Backend'den kanalları al
+    const response = await fetch(`${API}/channels/list`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: window.token,
+        interests: userHobbies
+      })
     });
+    
+    const data = await response.json();
+    
+    if (data.success && data.channels) {
+      // Backend'den gelen kanalları göster
+      if (channelList) {
+        channelList.innerHTML = '';
+        data.channels.forEach(channel => {
+          const li = document.createElement('li');
+          li.className = 'channel-item';
+          li.innerHTML = `
+            <div class="channel-info">
+              <span class="channel-name">#${channel.name}</span>
+              <span class="channel-users">👥 ${channel.users}</span>
+            </div>
+            <div class="channel-description">${channel.description}</div>
+          `;
+          li.onclick = () => switchChannel(`#${channel.name}`);
+          channelList.appendChild(li);
+        });
+      }
+      console.log('🎯 Backend\'den kanallar yüklendi:', data.channels.length);
+    } else {
+      // Fallback: localStorage'dan yükle
+      loadPopularChannels();
+    }
+  } catch (error) {
+    console.error('❌ Kanal yükleme hatası:', error);
+    // Fallback: localStorage'dan yükle
+    loadPopularChannels();
   }
-  
-  console.log('🎯 İlgi alanlarına göre kanallar yüklendi:', filteredChannels.length);
 }
 
 // Global fonksiyonlar
