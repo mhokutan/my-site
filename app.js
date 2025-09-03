@@ -200,12 +200,18 @@ function startDM(user){
   ws.send(JSON.stringify({type:"dm",toUid:user.uid}));
 }
 function openDM(room,peer){
-  if(dmWindows[room]) return;
+  // Eğer DM penceresi zaten açıksa, sadece odaklan
+  if(dmWindows[room]) {
+    dmWindows[room].style.display = 'block';
+    dmWindows[room].classList.add('open');
+    return;
+  }
+  
   const win=document.createElement("div");
   win.className="modal open";
   win.innerHTML=`
     <div class="modal-content" style="width:420px;max-height:90vh;overflow:auto">
-      <button class="modal-close" onclick="this.parentElement.parentElement.remove()">✖</button>
+      <button class="modal-close" onclick="closeDM('${room}')">✖</button>
       <h3>DM: ${peer.display}</h3>
       <div class="messages" id="msg-${room}" style="height:300px"></div>
       <form onsubmit="sendDM('${room}',this);return false;" class="inputbar">
@@ -215,6 +221,13 @@ function openDM(room,peer){
     </div>`;
   document.body.appendChild(win);
   dmWindows[room]=win;
+}
+
+function closeDM(room){
+  if(dmWindows[room]) {
+    dmWindows[room].classList.remove('open');
+    dmWindows[room].style.display = 'none';
+  }
 }
 function sendDM(room,formEl){
   const raw=(formEl.text.value||"").trim();
@@ -401,6 +414,49 @@ btnLogout.onclick=()=>{
   localStorage.removeItem("token");
   token=null;
   location.reload();
+};
+
+/* ===================== Lokasyon ===================== */
+btnLocation.onclick=()=> {
+  locationModal.classList.add("open");
+};
+
+saveLocation.onclick=()=> {
+  const country = countrySelect.value;
+  const state = stateSelect.value;
+  const city = citySelect.value;
+  
+  if (!country || !city) {
+    alert("Lütfen ülke ve şehir seçin.");
+    return;
+  }
+  
+  // Lokasyon bilgilerini kaydet
+  const locationData = {
+    country: country,
+    state: state,
+    city: city,
+    countryCode: country
+  };
+  
+  localStorage.setItem('userLocation', JSON.stringify(locationData));
+  
+  // Dil değiştir
+  const languageMap = {
+    'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
+    'TR': 'TR',
+    'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
+    'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
+    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
+  };
+  
+  const detectedLanguage = languageMap[country] || 'TR';
+  if (window.onLocationChange) {
+    window.onLocationChange(detectedLanguage);
+  }
+  
+  alert(`📍 Lokasyon güncellendi: ${city}, ${country}`);
+  locationModal.classList.remove("open");
 };
 
 /* ===================== Profil ===================== */

@@ -14,6 +14,7 @@
     <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ <span data-translate="menu">Menü</span></button>
     <span id="authStatus" data-translate="anonymous">Anonim</span>
     <div>
+      <button id="btnLocation" data-translate="location">🌍 Lokasyon</button>
       <button id="btnFeedback" data-translate="feedback">Öneri</button>
       <button id="btnDonate" data-translate="donate">☕ Kahve İkram Et</button>
       <button id="btnLogin" data-translate="login">Giriş</button>
@@ -109,6 +110,44 @@
         <button id="doRegister" data-translate="registerBtn">Kayıt</button>
       </div>
       <div class="muted" data-translate="loginHint">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
+    </div>
+  </div>
+
+  <!-- 🌍 Lokasyon Modal -->
+  <div id="locationModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="locationModal.classList.remove('open')">✖</button>
+      <h3 data-translate="locationTitle">Lokasyon Ayarla</h3>
+      
+      <div style="margin: 10px 0;">
+        <label data-translate="country">Ülke:</label>
+        <select id="countrySelect" style="width: 100%; padding: 8px; margin: 5px 0;">
+          <option value="TR">🇹🇷 Türkiye</option>
+          <option value="US">🇺🇸 Amerika</option>
+          <option value="FR">🇫🇷 Fransa</option>
+          <option value="DE">🇩🇪 Almanya</option>
+          <option value="ES">🇪🇸 İspanya</option>
+        </select>
+      </div>
+      
+      <div id="stateSection" style="margin: 10px 0; display: none;">
+        <label data-translate="state">Eyalet/Bölge:</label>
+        <select id="stateSelect" style="width: 100%; padding: 8px; margin: 5px 0;">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      
+      <div style="margin: 10px 0;">
+        <label data-translate="city">Şehir:</label>
+        <select id="citySelect" style="width: 100%; padding: 8px; margin: 5px 0;">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      
+      <div class="section">
+        <button id="saveLocation" data-translate="saveBtn">Kaydet</button>
+        <button onclick="locationModal.classList.remove('open')" data-translate="cancelBtn">İptal</button>
+      </div>
     </div>
   </div>
 
