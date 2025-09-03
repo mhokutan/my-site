@@ -11,9 +11,60 @@ window.API = API;
 window.token = token;
 let ws, currentChannel = "#genel";
 
+// DOM elementleri
+let btnLogin, btnProfile, btnLogout, btnLocation, btnSponsor, btnCreateChannel, btnDonate;
+let authStatus, userName, userStatus, locationIndicator, currentLocation;
+let messageInput, btnSend, messages, userList, channelList, sponsorList;
+let loginModal, profileModal, locationModal, createChannelModal;
+let nickname, firstName, lastName, gender, birth, country, city;
+
 /* ===================== State ===================== */
 let follows = JSON.parse(localStorage.getItem("follows") || "[]");
 const bannedWords = ["küfür1","küfür2","badword"];
+
+/* ===================== DOM Initialization ===================== */
+function initDOM() {
+  // Butonlar
+  btnLogin = document.getElementById('btnLogin');
+  btnProfile = document.getElementById('btnProfile');
+  btnLogout = document.getElementById('btnLogout');
+  btnLocation = document.getElementById('btnLocation');
+  btnSponsor = document.getElementById('btnSponsor');
+  btnCreateChannel = document.getElementById('btnCreateChannel');
+  btnDonate = document.getElementById('btnDonate');
+  
+  // UI elementleri
+  authStatus = document.getElementById('authStatus');
+  userName = document.getElementById('userName');
+  userStatus = document.getElementById('userStatus');
+  locationIndicator = document.getElementById('locationIndicator');
+  currentLocation = document.getElementById('currentLocation');
+  
+  // Chat elementleri
+  messageInput = document.getElementById('messageInput');
+  btnSend = document.getElementById('btnSend');
+  messages = document.getElementById('messages');
+  userList = document.getElementById('userList');
+  channelList = document.getElementById('channelList');
+  sponsorList = document.getElementById('sponsorList');
+  
+  // Modaller
+  loginModal = document.getElementById('loginModal');
+  profileModal = document.getElementById('profileModal');
+  locationModal = document.getElementById('locationModal');
+  createChannelModal = document.getElementById('createChannelModal');
+  
+  // Form elementleri
+  nickname = document.getElementById('nickname');
+  firstName = document.getElementById('firstName');
+  lastName = document.getElementById('lastName');
+  gender = document.getElementById('gender');
+  birth = document.getElementById('birth');
+  country = document.getElementById('country');
+  city = document.getElementById('city');
+  
+  console.log('✅ DOM elementleri başlatıldı');
+}
 
 /* ===================== Helpers ===================== */
 function cleanMessage(text){
@@ -564,17 +615,16 @@ async function saveProfile() {
 };
 
 /* ===================== Kanal Oluşturma ===================== */
-const btnCreateChannel = document.getElementById('btnCreateChannel');
-const createChannelModal = document.getElementById('createChannelModal');
-
-if (btnCreateChannel) {
-  btnCreateChannel.onclick = () => {
-    if (createChannelModal) {
-      createChannelModal.classList.add("open");
-    } else {
-      console.log('⚠️ createChannelModal bulunamadı');
-    }
-  };
+function initChannelCreation() {
+  if (btnCreateChannel) {
+    btnCreateChannel.onclick = () => {
+      if (createChannelModal) {
+        createChannelModal.classList.add("open");
+      } else {
+        console.log('⚠️ createChannelModal bulunamadı');
+      }
+    };
+  }
 }
 
 // Kanal türü değiştiğinde şifre alanını göster/gizle
@@ -1010,5 +1060,63 @@ function connectWS() {
 }
 
 /* ===================== Init ===================== */
-if(token){ authStatus.textContent="Giriş yapıldı"; btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block"; }
-connectWS();
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 App başlatılıyor...');
+  
+  // DOM elementlerini başlat
+  initDOM();
+  
+  // Kanal oluşturma sistemini başlat
+  initChannelCreation();
+  
+  // Event listener'ları ekle
+  if (btnSend) {
+    btnSend.onclick = () => {
+      const text = messageInput.value.trim();
+      if (!text) return;
+      
+      messageInput.value = '';
+      
+      if (currentChannel === "#heponsigorta") {
+        fetch(API + "/sponsor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.answer) addMessage("HeponBot 🤖", data.answer);
+        })
+        .catch(() => addMessage("HeponBot 🤖", "Üzgünüm, şu an yanıt veremiyorum."));
+      } else {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "message", text }));
+        } else {
+          console.log('⚠️ WebSocket bağlantısı yok, mesaj gönderilemiyor');
+          addMessage("Sistem", "Bağlantı kuruluyor, lütfen bekleyin...");
+        }
+      }
+    };
+  }
+  
+  if (messageInput) {
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        btnSend.click();
+      }
+    });
+  }
+  
+  // Auth durumunu kontrol et
+  if (token && authStatus) {
+    authStatus.textContent = "Giriş yapıldı";
+    if (btnLogin) btnLogin.style.display = "none";
+    if (btnProfile) btnProfile.style.display = "inline-block";
+    if (btnLogout) btnLogout.style.display = "inline-block";
+  }
+  
+  // WebSocket bağlantısını başlat
+  connectWS();
+  
+  console.log('✅ App başlatıldı');
+});
