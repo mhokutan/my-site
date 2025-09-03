@@ -627,6 +627,299 @@ function initChannelCreation() {
   }
 }
 
+// Kanal oluşturma modal'ını kapat
+function closeCreateChannelModal() {
+  if (createChannelModal) {
+    createChannelModal.classList.remove("open");
+  }
+}
+
+// Kanal oluştur
+async function createChannel() {
+  const name = document.getElementById('channelNameInput').value.trim();
+  const description = document.getElementById('channelDescriptionInput').value.trim();
+  const type = document.getElementById('channelTypeSelect').value;
+  const password = document.getElementById('channelPasswordInput').value;
+  
+  if (!name) {
+    alert('Kanal adı gerekli!');
+    return;
+  }
+  
+  try {
+    const channelData = {
+      name: name,
+      description: description,
+      type: type,
+      password: type === 'private' ? password : null
+    };
+    
+    console.log('📺 Kanal oluşturuluyor:', channelData);
+    
+    // Backend'e gönder (şimdilik localStorage'a kaydet)
+    const channels = JSON.parse(localStorage.getItem('userChannels') || '[]');
+    const newChannel = {
+      id: Date.now(),
+      name: name,
+      description: description,
+      type: type,
+      password: type === 'private' ? password : null,
+      createdAt: new Date().toISOString(),
+      userCount: 0,
+      messages: []
+    };
+    
+    channels.push(newChannel);
+    localStorage.setItem('userChannels', JSON.stringify(channels));
+    
+    // Modal'ı kapat
+    closeCreateChannelModal();
+    
+    // Form'u temizle
+    document.getElementById('channelNameInput').value = '';
+    document.getElementById('channelDescriptionInput').value = '';
+    document.getElementById('channelTypeSelect').value = 'public';
+    document.getElementById('channelPasswordInput').value = '';
+    
+    // Kanalları yeniden yükle
+    loadChannels();
+    
+    alert('Kanal başarıyla oluşturuldu!');
+    
+  } catch (error) {
+    console.error('❌ Kanal oluşturma hatası:', error);
+    alert('Kanal oluşturulurken hata oluştu!');
+  }
+}
+
+// Popüler kanalları yükle
+function loadPopularChannels() {
+  const popularChannels = [
+    { name: 'genel', description: 'Genel sohbet kanalı', users: 156, type: 'public' },
+    { name: 'teknoloji', description: 'Teknoloji ve yazılım', users: 89, type: 'public' },
+    { name: 'spor', description: 'Spor haberleri ve tartışmaları', users: 67, type: 'public' },
+    { name: 'müzik', description: 'Müzik paylaşımları', users: 45, type: 'public' },
+    { name: 'oyun', description: 'Oyun sohbetleri', users: 123, type: 'public' },
+    { name: 'film', description: 'Film ve dizi tartışmaları', users: 78, type: 'public' },
+    { name: 'sanat', description: 'Sanat ve tasarım', users: 34, type: 'public' },
+    { name: 'bilim', description: 'Bilim ve araştırma', users: 56, type: 'public' }
+  ];
+  
+  // Kullanıcı sayısına göre sırala
+  popularChannels.sort((a, b) => b.users - a.users);
+  
+  if (channelList) {
+    channelList.innerHTML = '';
+    popularChannels.forEach(channel => {
+      const li = document.createElement('li');
+      li.className = 'channel-item';
+      li.innerHTML = `
+        <div class="channel-info">
+          <span class="channel-name">#${channel.name}</span>
+          <span class="channel-users">👥 ${channel.users}</span>
+        </div>
+        <div class="channel-description">${channel.description}</div>
+      `;
+      li.onclick = () => switchChannel(`#${channel.name}`);
+      channelList.appendChild(li);
+    });
+  }
+  
+  console.log('📺 Popüler kanallar yüklendi:', popularChannels.length);
+}
+
+// Sponsor kanalları yükle
+function loadSponsorChannels() {
+  const sponsorChannels = [
+    { name: 'heponsigorta', description: 'Hepon Sigorta - Resmi Kanal', users: 234, type: 'sponsor', price: 'Premium' },
+    { name: 'technews', description: 'TechNews - Teknoloji Haberleri', users: 189, type: 'sponsor', price: 'Gold' },
+    { name: 'cryptotalk', description: 'Crypto Talk - Kripto Para', users: 145, type: 'sponsor', price: 'Silver' },
+    { name: 'fitnesspro', description: 'Fitness Pro - Sağlık ve Spor', users: 98, type: 'sponsor', price: 'Bronze' },
+    { name: 'foodie', description: 'Foodie - Yemek Tarifleri', users: 167, type: 'sponsor', price: 'Gold' }
+  ];
+  
+  // Kullanıcı sayısına göre sırala
+  sponsorChannels.sort((a, b) => b.users - a.users);
+  
+  if (sponsorList) {
+    sponsorList.innerHTML = '';
+    sponsorChannels.forEach(channel => {
+      const li = document.createElement('li');
+      li.className = 'channel-item sponsor';
+      li.innerHTML = `
+        <div class="channel-info">
+          <span class="channel-name">💰 #${channel.name}</span>
+          <span class="channel-users">👥 ${channel.users}</span>
+          <span class="sponsor-badge">${channel.price}</span>
+        </div>
+        <div class="channel-description">${channel.description}</div>
+      `;
+      li.onclick = () => switchChannel(`#${channel.name}`);
+      sponsorList.appendChild(li);
+    });
+  }
+  
+  console.log('💰 Sponsor kanallar yüklendi:', sponsorChannels.length);
+}
+
+// Kanal değiştir
+function switchChannel(channelName) {
+  currentChannel = channelName;
+  
+  // Kanal başlığını güncelle
+  const channelHeader = document.getElementById('currentChannel');
+  if (channelHeader) {
+    channelHeader.textContent = channelName;
+  }
+  
+  // Mesajları temizle
+  if (messages) {
+    messages.innerHTML = `
+      <div class="info">🚀 ${channelName} kanalına hoş geldiniz!</div>
+      <div class="info">💬 Sohbete katılmak için mesaj yazın...</div>
+    `;
+  }
+  
+  console.log('📺 Kanal değiştirildi:', channelName);
+}
+
+// Kanalları yükle
+function loadChannels() {
+  loadPopularChannels();
+  loadSponsorChannels();
+}
+
+// Profil modal fonksiyonları
+function openProfileModal() {
+  if (profileModal) {
+    profileModal.classList.add("open");
+    loadProfileData();
+  }
+}
+
+function closeProfileModal() {
+  if (profileModal) {
+    profileModal.classList.remove("open");
+  }
+}
+
+function openHobbyModal() {
+  const hobbyModal = document.getElementById('hobbyModal');
+  if (hobbyModal) {
+    hobbyModal.classList.add("open");
+    loadHobbyData();
+  }
+}
+
+function closeHobbyModal() {
+  const hobbyModal = document.getElementById('hobbyModal');
+  if (hobbyModal) {
+    hobbyModal.classList.remove("open");
+  }
+}
+
+// Profil verilerini yükle
+function loadProfileData() {
+  const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  
+  if (nickname) nickname.value = profile.nickname || '';
+  if (firstName) firstName.value = profile.firstName || '';
+  if (lastName) lastName.value = profile.lastName || '';
+  if (gender) gender.value = profile.gender || '';
+  if (birth) birth.value = profile.birth || '';
+  if (country) country.value = profile.country || '';
+  if (city) city.value = profile.city || '';
+}
+
+// İlgi alanları verilerini yükle
+function loadHobbyData() {
+  const hobbies = JSON.parse(localStorage.getItem('userHobbies') || '[]');
+  
+  document.querySelectorAll('.hobby-checkbox').forEach(checkbox => {
+    checkbox.checked = hobbies.includes(checkbox.value);
+  });
+}
+
+// İlgi alanlarını kaydet
+function saveHobbies() {
+  const selectedHobbies = Array.from(document.querySelectorAll('.hobby-checkbox:checked'))
+    .map(checkbox => checkbox.value);
+  
+  localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
+  
+  closeHobbyModal();
+  
+  // Kanalları yeniden yükle (ilgi alanlarına göre)
+  loadInterestBasedChannels();
+  
+  alert('İlgi alanlarınız kaydedildi!');
+}
+
+// İlgi alanlarına göre kanalları yükle
+function loadInterestBasedChannels() {
+  const userHobbies = JSON.parse(localStorage.getItem('userHobbies') || '[]');
+  
+  if (userHobbies.length === 0) {
+    loadPopularChannels(); // İlgi alanı yoksa popüler kanalları göster
+    return;
+  }
+  
+  const allChannels = [
+    { name: 'genel', description: 'Genel sohbet kanalı', users: 156, type: 'public', interests: [] },
+    { name: 'teknoloji', description: 'Teknoloji ve yazılım', users: 89, type: 'public', interests: ['teknoloji'] },
+    { name: 'spor', description: 'Spor haberleri ve tartışmaları', users: 67, type: 'public', interests: ['spor'] },
+    { name: 'müzik', description: 'Müzik paylaşımları', users: 45, type: 'public', interests: ['müzik'] },
+    { name: 'oyun', description: 'Oyun sohbetleri', users: 123, type: 'public', interests: ['oyun'] },
+    { name: 'film', description: 'Film ve dizi tartışmaları', users: 78, type: 'public', interests: ['film'] },
+    { name: 'sanat', description: 'Sanat ve tasarım', users: 34, type: 'public', interests: ['sanat'] },
+    { name: 'bilim', description: 'Bilim ve araştırma', users: 56, type: 'public', interests: ['bilim'] },
+    { name: 'yemek', description: 'Yemek tarifleri ve mutfak', users: 42, type: 'public', interests: ['yemek'] },
+    { name: 'seyahat', description: 'Seyahat ve tatil', users: 38, type: 'public', interests: ['seyahat'] },
+    { name: 'kitap', description: 'Kitap önerileri ve tartışmaları', users: 29, type: 'public', interests: ['kitap'] },
+    { name: 'fotoğraf', description: 'Fotoğrafçılık', users: 31, type: 'public', interests: ['fotoğraf'] },
+    { name: 'moda', description: 'Moda ve stil', users: 25, type: 'public', interests: ['moda'] }
+  ];
+  
+  // İlgi alanlarına göre filtrele
+  const filteredChannels = allChannels.filter(channel => 
+    channel.interests.length === 0 || // Genel kanal her zaman dahil
+    channel.interests.some(interest => userHobbies.includes(interest))
+  );
+  
+  // Kullanıcı sayısına göre sırala
+  filteredChannels.sort((a, b) => b.users - a.users);
+  
+  if (channelList) {
+    channelList.innerHTML = '';
+    filteredChannels.forEach(channel => {
+      const li = document.createElement('li');
+      li.className = 'channel-item';
+      li.innerHTML = `
+        <div class="channel-info">
+          <span class="channel-name">#${channel.name}</span>
+          <span class="channel-users">👥 ${channel.users}</span>
+        </div>
+        <div class="channel-description">${channel.description}</div>
+      `;
+      li.onclick = () => switchChannel(`#${channel.name}`);
+      channelList.appendChild(li);
+    });
+  }
+  
+  console.log('🎯 İlgi alanlarına göre kanallar yüklendi:', filteredChannels.length);
+}
+
+// Global fonksiyonlar
+window.closeCreateChannelModal = closeCreateChannelModal;
+window.createChannel = createChannel;
+window.loadChannels = loadChannels;
+window.switchChannel = switchChannel;
+window.openProfileModal = openProfileModal;
+window.closeProfileModal = closeProfileModal;
+window.openHobbyModal = openHobbyModal;
+window.closeHobbyModal = closeHobbyModal;
+window.saveHobbies = saveHobbies;
+
 // Kanal türü değiştiğinde şifre alanını göster/gizle
 document.addEventListener('change', (e) => {
   if (e.target.name === 'channelType') {
@@ -1117,6 +1410,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // WebSocket bağlantısını başlat
   connectWS();
+  
+  // Kanalları yükle
+  loadChannels();
   
   console.log('✅ App başlatıldı');
 });

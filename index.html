@@ -157,6 +157,126 @@
     </div>
   </div>
 
+    <!-- Kanal Oluşturma Modal -->
+    <div class="modal" id="createChannelModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="channelTitle">Yeni Kanal Oluştur</h3>
+                <button class="modal-close" onclick="closeCreateChannelModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="channelNameInput" placeholder="Kanal adı" data-placeholder="channelName">
+                <input type="text" id="channelDescriptionInput" placeholder="Kanal açıklaması" data-placeholder="channelDescription">
+                <select id="channelTypeSelect" name="channelType" data-translate="channelType">
+                    <option value="public" data-translate="public">Genel</option>
+                    <option value="private" data-translate="private">Özel</option>
+                </select>
+                <div id="passwordSection" style="display:none;">
+                    <input type="password" id="channelPasswordInput" placeholder="Şifre" data-placeholder="password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="createChannel()" data-translate="createChannel">Kanal Oluştur</button>
+                <button onclick="closeCreateChannelModal()" data-translate="cancelBtn">İptal</button>
+            </div>
+            </div>
+  </div>
+
+    <!-- Profil Düzenleme Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="profileTitle">Profil Düzenle</h3>
+                <button class="modal-close" onclick="closeProfileModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="nickname" placeholder="Nickname" data-placeholder="nickname">
+                <input type="text" id="firstName" placeholder="Ad" data-placeholder="firstName">
+                <input type="text" id="lastName" placeholder="Soyad" data-placeholder="lastName">
+                <select id="gender" data-translate="gender">
+                    <option value="">Cinsiyet Seçin</option>
+                    <option value="male">Erkek</option>
+                    <option value="female">Kadın</option>
+                    <option value="other">Diğer</option>
+                </select>
+                <input type="date" id="birth" data-translate="birth">
+                <input type="text" id="country" placeholder="Ülke" data-placeholder="country">
+                <input type="text" id="city" placeholder="Şehir" data-placeholder="city">
+                <button onclick="openHobbyModal()" class="hobby-btn">🎯 İlgi Alanlarını Seç</button>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveProfile()" data-translate="saveBtn">Kaydet</button>
+                <button onclick="closeProfileModal()" data-translate="cancelBtn">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- İlgi Alanları Modal -->
+    <div class="modal" id="hobbyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="hobbiesTitle">İlgi Alanlarınızı Seçin</h3>
+                <button class="modal-close" onclick="closeHobbyModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="hobby-grid">
+                    <label class="hobby-item">
+                        <input type="checkbox" value="teknoloji" class="hobby-checkbox">
+                        <span class="hobby-label">💻 Teknoloji</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="spor" class="hobby-checkbox">
+                        <span class="hobby-label">⚽ Spor</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="müzik" class="hobby-checkbox">
+                        <span class="hobby-label">🎵 Müzik</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="oyun" class="hobby-checkbox">
+                        <span class="hobby-label">🎮 Oyun</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="film" class="hobby-checkbox">
+                        <span class="hobby-label">🎬 Film</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="sanat" class="hobby-checkbox">
+                        <span class="hobby-label">🎨 Sanat</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="bilim" class="hobby-checkbox">
+                        <span class="hobby-label">🔬 Bilim</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="yemek" class="hobby-checkbox">
+                        <span class="hobby-label">🍳 Yemek</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="seyahat" class="hobby-checkbox">
+                        <span class="hobby-label">✈️ Seyahat</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="kitap" class="hobby-checkbox">
+                        <span class="hobby-label">📚 Kitap</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="fotoğraf" class="hobby-checkbox">
+                        <span class="hobby-label">📸 Fotoğraf</span>
+                    </label>
+                    <label class="hobby-item">
+                        <input type="checkbox" value="moda" class="hobby-checkbox">
+                        <span class="hobby-label">👗 Moda</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveHobbies()" data-translate="saveBtn">Kaydet</button>
+                <button onclick="closeHobbyModal()" data-translate="cancelBtn">İptal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
   <script src="translations.js"></script>
     <script src="location-manager.js"></script>
