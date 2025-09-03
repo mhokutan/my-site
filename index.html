@@ -11,13 +11,13 @@
 </head>
 <body>
   <div class="menubar">
-    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ Menü</button>
-    <span id="authStatus">Anonim</span>
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">☰ <span data-translate="menu">Menü</span></button>
+    <span id="authStatus" data-translate="anonymous">Anonim</span>
     <div>
-      <button id="btnFeedback">Öneri</button>
-      <button id="btnLogin">Giriş</button>
-      <button id="btnProfile" style="display:none">Profil Düzenle</button>
-      <button id="btnLogout" style="display:none">Çıkış</button>
+      <button id="btnFeedback" data-translate="feedback">Öneri</button>
+      <button id="btnLogin" data-translate="login">Giriş</button>
+      <button id="btnProfile" style="display:none" data-translate="profile">Profil Düzenle</button>
+      <button id="btnLogout" style="display:none" data-translate="logout">Çıkış</button>
     </div>
   </div>
 
@@ -25,19 +25,19 @@
   <div id="mobileMenu">
     <button class="closeBtn" onclick="toggleMobileMenu(false)">✖ Kapat</button>
     
-    <div class="pane-title">Sponsorlu Kanallar</div>
+    <div class="pane-title" data-translate="sponsorChannels">Sponsorlu Kanallar</div>
     <ul id="sponsorListMobile" class="list"></ul>
 
-    <div class="pane-title">Genel Kanallar</div>
+    <div class="pane-title" data-translate="generalChannels">Genel Kanallar</div>
     <ul id="channelListMobile" class="list"></ul>
 
-    <div class="pane-title">Favori Kanallarım</div>
+    <div class="pane-title" data-translate="favoriteChannels">Favori Kanallarım</div>
     <ul id="favListMobile" class="list"></ul>
 
-    <div class="pane-title">Kullanıcılar</div>
+    <div class="pane-title" data-translate="users">Kullanıcılar</div>
     <ul id="userListMobile" class="list"></ul>
 
-    <div class="pane-title">Takip Ettiklerim</div>
+    <div class="pane-title" data-translate="following">Takip Ettiklerim</div>
     <ul id="followListMobile" class="list"></ul>
 
     <div id="addChannelBoxMobile" style="display:none;padding:6px;border-top:1px solid #333">
@@ -49,19 +49,19 @@
 
   <div class="layout">
     <aside class="pane">
-      <div class="pane-title">Sponsorlu Kanallar</div>
+      <div class="pane-title" data-translate="sponsorChannels">Sponsorlu Kanallar</div>
       <ul id="sponsorList" class="list"></ul>
 
-      <div class="pane-title">Genel Kanallar</div>
+      <div class="pane-title" data-translate="generalChannels">Genel Kanallar</div>
       <ul id="channelList" class="list"></ul>
 
-      <div class="pane-title">Favori Kanallarım</div>
+      <div class="pane-title" data-translate="favoriteChannels">Favori Kanallarım</div>
       <ul id="favList" class="list"></ul>
 
       <div id="addChannelBox" style="display:none;padding:6px;border-top:1px solid #333">
-        <input id="newChannel" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px"/>
-        <button id="btnAddChannel" style="width:100%">Ekle</button>
-        <div class="hint muted">Kendi kanalını ekle (#konya gibi).</div>
+        <input id="newChannel" placeholder="#kanal-adı" style="width:100%;margin-bottom:4px" data-placeholder="channelName"/>
+        <button id="btnAddChannel" style="width:100%" data-translate="addBtn">Ekle</button>
+        <div class="hint muted" data-translate="channelHint">Kendi kanalını ekle (#konya gibi).</div>
       </div>
     </aside>
 
@@ -78,9 +78,9 @@
     </main>
 
     <aside class="pane pane-right">
-      <div class="pane-title">Kullanıcılar</div>
+      <div class="pane-title" data-translate="users">Kullanıcılar</div>
       <ul id="userList" class="list"></ul>
-      <div class="pane-title">Takip Ettiklerim</div>
+      <div class="pane-title" data-translate="following">Takip Ettiklerim</div>
       <ul id="followList" class="list"></ul>
     </aside>
   </div>
@@ -89,14 +89,14 @@
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="loginModal.classList.remove('open')">✖</button>
-      <h3>Giriş / Kayıt</h3>
-      <input id="identifier" placeholder="Email veya Telefon"/>
-      <input id="password" type="password" placeholder="Şifre"/>
+      <h3 data-translate="loginTitle">Giriş / Kayıt</h3>
+      <input id="identifier" placeholder="Email veya Telefon" data-placeholder="email"/>
+      <input id="password" type="password" placeholder="Şifre" data-placeholder="password"/>
       <div class="section">
-        <button id="doLogin">Giriş</button>
-        <button id="doRegister">Kayıt</button>
+        <button id="doLogin" data-translate="loginBtn">Giriş</button>
+        <button id="doRegister" data-translate="registerBtn">Kayıt</button>
       </div>
-      <div class="muted">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
+      <div class="muted" data-translate="loginHint">Giriş yapmadan anonim sohbet edebilirsin; fakat DM, arkadaş ekleme ve kanal ekleme için giriş gerekir.</div>
     </div>
   </div>
 
@@ -157,6 +157,9 @@
   
   <!-- Yeni özellikler -->
   <script src="advanced-features.js"></script>
+  
+  <!-- Çok dilli destek -->
+  <script src="translations.js"></script>
 
   <!-- === İnce ayar: giriş & profil & hobiler davranışı + yatay hobby chips === -->
   <script>
