@@ -126,9 +126,12 @@ form.onsubmit=e=>{
   } else {
     ws.send(JSON.stringify({type:"message",text}));
     
-    // AI yanıtı için ayrı istek gönder
+    // AI yanıtı için ayrı istek gönder - kanal ismine göre
     setTimeout(() => {
-      fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
+      const channelContext = currentChannel.replace('#', '');
+      const channelPrompt = `Sen "${channelContext}" kanalındasın. Bu kanalın konusu: ${channelContext}. Sadece bu konuyla ilgili cevap ver. Konu dışı sorulara "Bu kanal sadece ${channelContext} konusuna ayrılmıştır." de.`;
+      
+      fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text: channelPrompt + " Kullanıcı: " + text})})
       .then(r=>r.json()).then(data=>{
         if(data.answer && data.answer !== "Şu an yanıt veremiyorum" && data.answer !== "Yanıt yok") {
           addMessage("AI 🤖",data.answer);
@@ -326,7 +329,19 @@ btnLogout.onclick=()=>{
 };
 
 /* ===================== Profil ===================== */
-btnProfile.onclick=()=> profileModal.classList.add("open");
+btnProfile.onclick=()=> {
+  profileModal.classList.add("open");
+  
+  // Lokasyon bilgilerini otomatik doldur
+  const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
+  if (userLocation.countryName) {
+    country.value = userLocation.countryName;
+  }
+  if (userLocation.city) {
+    city.value = userLocation.city;
+  }
+};
+
 saveProfile.onclick=async()=>{
   const profile={
     firstName:firstName.value,lastName:lastName.value,

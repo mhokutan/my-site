@@ -311,6 +311,11 @@
         }
         
         hobbyModal.classList.remove('open');
+        
+        // Sayfayı yenile ki değişiklikler görünsün
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
       };
     }
   </script>
