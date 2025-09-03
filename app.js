@@ -422,11 +422,12 @@ async function doRegister() {
   }catch(err){ alert("Kayıt hatası: "+err.message); }
 }
 
-btnLogout.onclick=()=>{
+// Logout fonksiyonu
+function doLogout() {
   localStorage.removeItem("token");
-  token=null;
+  token = null;
   location.reload();
-};
+}
 
 /* ===================== Lokasyon ===================== */
 btnLocation.onclick=()=> {

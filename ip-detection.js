@@ -47,6 +47,7 @@ async function detectUserLocation() {
     const data = await response.json();
     
     console.log('📍 API Yanıtı:', data);
+    console.log('🌍 Gerçek lokasyon:', data.country_name, data.city, data.region);
     
     if (data.country_name && data.city) {
       // Lokasyon bilgilerini kaydet
@@ -167,12 +168,14 @@ function loadLocationBasedChannels(locationData) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 Sayfa yüklendi, lokasyon kontrol ediliyor...');
   
-  // Eğer lokasyon zaten algılanmışsa tekrar algılama
+  // DEBUG: localStorage'ı kontrol et
   const existingLocation = localStorage.getItem('userLocation');
+  console.log('🔍 Mevcut localStorage lokasyon:', existingLocation);
+  
+  // Eğer lokasyon zaten algılanmışsa tekrar algılama
   if (existingLocation) {
-    console.log('✅ Lokasyon zaten mevcut:', JSON.parse(existingLocation));
-    
     const locationData = JSON.parse(existingLocation);
+    console.log('✅ Lokasyon zaten mevcut:', locationData);
     
     // Mevcut lokasyona göre dil değiştir
     const languageMap = {
@@ -191,6 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lokasyona göre kanalları yükle
     loadLocationBasedChannels(locationData);
     
+    // DEBUG: Yeniden algılama seçeneği sun
+    console.log('🔄 Yeniden lokasyon algılamak için: localStorage.removeItem("userLocation")');
     return;
   }
   
@@ -200,7 +205,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2000);
 });
 
+// Lokasyon verisini temizle ve yeniden algıla
+function clearLocationAndRedetect() {
+  console.log('🗑️ Eski lokasyon verisi temizleniyor...');
+  localStorage.removeItem('userLocation');
+  localStorage.removeItem('selectedLanguage');
+  console.log('✅ Lokasyon verisi temizlendi, yeniden algılanıyor...');
+  
+  // 1 saniye bekle ve yeniden algıla
+  setTimeout(() => {
+    detectUserLocation();
+  }, 1000);
+}
+
 // Global fonksiyonlar olarak ekle
 window.detectUserLocation = detectUserLocation;
 window.loadLocationBasedChannels = loadLocationBasedChannels;
 window.locationBasedChannels = locationBasedChannels;
+window.clearLocationAndRedetect = clearLocationAndRedetect;
