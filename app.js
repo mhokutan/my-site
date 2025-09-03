@@ -398,8 +398,25 @@ btnFeedback.onclick=()=>feedbackModal.classList.add("open");
 sendFeedback.onclick=async()=>{
   const text=document.getElementById("feedbackText").value.trim();
   if(!text) return;
+  
+  // Backend'e gönder
   await fetch(API+"/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,text})});
-  alert("Teşekkürler! Öneriniz kaydedildi.");
+  
+  // Bana da bildirim gönder
+  try {
+    await fetch('https://api.telegram.org/bot7123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: '123456789',
+        text: `🚀 Yeni Öneri:\n\n${text}\n\n👤 Kullanıcı: ${token ? 'Giriş yapmış' : 'Anonim'}\n🌍 Lokasyon: ${localStorage.getItem('userLocation') ? JSON.parse(localStorage.getItem('userLocation')).countryName : 'Bilinmiyor'}\n⏰ Tarih: ${new Date().toLocaleString('tr-TR')}`
+      })
+    });
+  } catch (error) {
+    console.error('Telegram bildirimi gönderilemedi:', error);
+  }
+  
+  alert("Teşekkürler! Öneriniz kaydedildi ve geliştiriciye bildirim gönderildi.");
   feedbackModal.classList.remove("open");
 };
 
