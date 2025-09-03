@@ -1,8 +1,8 @@
 "use strict";
 
 /* ===================== Config ===================== */
-const API = "http://localhost:3000";
-const WS_URL = "ws://localhost:3000";
+const API = "https://chat-backend-xi60.onrender.com";
+const WS_URL = "wss://chat-backend-xi60.onrender.com";
 
 let token = localStorage.getItem("token");
 let ws, currentChannel = "#genel";
