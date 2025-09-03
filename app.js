@@ -169,18 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (messageInput && btnSend) {
     btnSend.onclick = () => {
       let text = messageInput.value.trim();
-      if(!text) return;
+  if(!text) return;
       text = cleanMessage(text);
       addMessage("Ben", text);
 
-      if(currentChannel==="#heponsigorta"){
+  if(currentChannel==="#heponsigorta"){
     fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})})
     .then(r=>r.json()).then(data=>{
       if(data.answer) addMessage("HeponBot 🤖",data.answer);
     }).catch(()=>addMessage("HeponBot 🤖","Üzgünüm, şu an yanıt veremiyorum."));
   } else {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({type:"message",text}));
+    ws.send(JSON.stringify({type:"message",text}));
     } else {
       console.log('⚠️ WebSocket bağlantısı yok, mesaj gönderilemiyor');
       addMessage("Sistem", "Bağlantı kuruluyor, lütfen bekleyin...");
@@ -219,13 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage("AI 🤖", "Üzgünüm, şu an yanıt veremiyorum.");
       });
     }, 1000);
-      }
+  }
       messageInput.value="";
-    };
+};
     
     messageInput.addEventListener("input",()=>{
-      if(ws&&ws.readyState===WebSocket.OPEN){
-        ws.send(JSON.stringify({type:"typing"}));
+  if(ws&&ws.readyState===WebSocket.OPEN){
+    ws.send(JSON.stringify({type:"typing"}));
       }
     });
   }
@@ -433,7 +433,7 @@ function initAuth() {
   }, 100);
   
   return false;
-    };
+};
   }
 }
 
@@ -605,9 +605,15 @@ function closeLoginModal() {
 }
 
 /* ===================== Lokasyon ===================== */
-btnLocation.onclick=()=> {
+function initLocation() {
+  if (btnLocation) {
+    btnLocation.onclick = () => {
+      if (locationModal) {
   locationModal.classList.add("open");
+      }
 };
+  }
+}
 
 // Lokasyon kaydetme fonksiyonu
 function saveLocation() {
@@ -704,7 +710,7 @@ function initChannelCreation() {
   if (btnCreateChannel) {
     btnCreateChannel.onclick = () => {
       if (createChannelModal) {
-        createChannelModal.classList.add("open");
+  createChannelModal.classList.add("open");
       } else {
         console.log('⚠️ createChannelModal bulunamadı');
       }
@@ -874,12 +880,62 @@ function loadChannels() {
   loadSponsorChannels();
 }
 
+// Rastgele nickname oluştur
+function generateRandomNickname() {
+  const adjectives = ['Cool', 'Smart', 'Fast', 'Bright', 'Happy', 'Lucky', 'Brave', 'Wise', 'Kind', 'Funny'];
+  const nouns = ['Tiger', 'Eagle', 'Wolf', 'Fox', 'Bear', 'Lion', 'Dragon', 'Phoenix', 'Falcon', 'Panther'];
+  const numbers = Math.floor(Math.random() * 999) + 1;
+  
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  
+  return `${adjective}${noun}${numbers}`;
+}
+
 // Profil modal fonksiyonları
 function openProfileModal() {
   if (profileModal) {
     profileModal.classList.add("open");
-    loadProfileData();
+    initProfileModal();
   }
+}
+
+function initProfileModal() {
+  // Rastgele nickname oluştur
+  const randomNickname = generateRandomNickname();
+  
+  // İlgi alanları event listener'larını ekle
+  document.querySelectorAll('.hobby-item-large').forEach(item => {
+    item.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      updateSelectedHobbies();
+    });
+  });
+  
+  // Kişisel bilgiler bölümünü gizle
+  const personalInfoSection = document.getElementById('personalInfoSection');
+  if (personalInfoSection) {
+    personalInfoSection.style.display = 'none';
+  }
+  
+  console.log('🎯 Profil modal başlatıldı, rastgele nickname:', randomNickname);
+}
+
+function updateSelectedHobbies() {
+  const selectedHobbies = Array.from(document.querySelectorAll('.hobby-item-large.selected'))
+    .map(item => item.dataset.hobby);
+  
+  // En az 3 ilgi alanı seçildiyse kişisel bilgiler bölümünü göster
+  const personalInfoSection = document.getElementById('personalInfoSection');
+  if (personalInfoSection) {
+    if (selectedHobbies.length >= 3) {
+      personalInfoSection.style.display = 'block';
+    } else {
+      personalInfoSection.style.display = 'none';
+    }
+  }
+  
+  console.log('🎯 Seçilen ilgi alanları:', selectedHobbies);
 }
 
 function closeProfileModal() {
@@ -1050,6 +1106,84 @@ async function loadInterestBasedChannels() {
   }
 }
 
+// Profil kaydetme fonksiyonu
+async function saveProfile() {
+  const selectedHobbies = Array.from(document.querySelectorAll('.hobby-item-large.selected'))
+    .map(item => item.dataset.hobby);
+  
+  if (selectedHobbies.length === 0) {
+    alert('En az bir ilgi alanı seçmelisiniz!');
+    return;
+  }
+  
+  const randomNickname = generateRandomNickname();
+  
+  const profileData = {
+    nickname: randomNickname,
+    firstName: firstName?.value || '',
+    lastName: lastName?.value || '',
+    gender: gender?.value || '',
+    birth: birth?.value || '',
+    country: country?.value || '',
+    city: city?.value || ''
+  };
+  
+  console.log('👤 Profil kaydediliyor:', profileData);
+  console.log('🎯 İlgi alanları:', selectedHobbies);
+  
+  try {
+    // Profil kaydet
+    const profileResponse = await fetch(`${API}/profile/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: window.token,
+        profile: profileData
+      })
+    });
+    
+    const profileData_result = await profileResponse.json();
+    
+    // İlgi alanlarını kaydet
+    const hobbiesResponse = await fetch(`${API}/hobbies/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: window.token,
+        hobbies: selectedHobbies
+      })
+    });
+    
+    const hobbiesData = await hobbiesResponse.json();
+    
+    if (profileData_result.success && hobbiesData.success) {
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
+      localStorage.setItem('userNickname', randomNickname);
+      
+      closeProfileModal();
+      
+      // Kanalları yeniden yükle
+      loadInterestBasedChannels();
+      
+      alert(`Profil oluşturuldu! Nickname'iniz: ${randomNickname}`);
+    } else {
+      alert('Hata: ' + (profileData_result.error || hobbiesData.error || 'Profil kaydedilemedi'));
+    }
+  } catch (error) {
+    console.error('❌ Profil kaydetme hatası:', error);
+    // Fallback: localStorage'a kaydet
+    localStorage.setItem('userProfile', JSON.stringify(profileData));
+    localStorage.setItem('userHobbies', JSON.stringify(selectedHobbies));
+    localStorage.setItem('userNickname', randomNickname);
+    
+    closeProfileModal();
+    loadInterestBasedChannels();
+    
+    alert(`Profil oluşturuldu! (Offline) Nickname'iniz: ${randomNickname}`);
+  }
+}
+
 // Global fonksiyonlar
 window.closeCreateChannelModal = closeCreateChannelModal;
 window.createChannel = createChannel;
@@ -1060,6 +1194,7 @@ window.closeProfileModal = closeProfileModal;
 window.openHobbyModal = openHobbyModal;
 window.closeHobbyModal = closeHobbyModal;
 window.saveHobbies = saveHobbies;
+window.saveProfile = saveProfile;
 
 // Kanal türü değiştiğinde şifre alanını göster/gizle
 document.addEventListener('change', (e) => {
@@ -1552,8 +1687,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth sistemini başlat
   initAuth();
   
+  // Lokasyon sistemini başlat
+  initLocation();
+  
   // WebSocket bağlantısını başlat
-  connectWS();
+connectWS();
   
   // Kanalları yükle
   loadChannels();

@@ -5,6 +5,7 @@ class LocationManager {
   constructor() {
     this.cookieName = 'userLocation';
     this.cookieExpiry = 365; // 1 yıl
+    this.locationDetected = false; // Döngüyü önlemek için
     this.supportedLanguages = {
       'US': { name: 'English', flag: '🇺🇸', cities: ['New York', 'Los Angeles', 'Chicago', 'Houston'] },
       'TR': { name: 'Türkçe', flag: '🇹🇷', cities: ['Istanbul', 'Ankara', 'Izmir', 'Bursa'] },
@@ -127,6 +128,10 @@ class LocationManager {
 
   // Lokasyonu uygula
   applyLocation(countryCode, city) {
+    if (this.locationDetected) return; // Döngüyü önle
+    
+    this.locationDetected = true;
+    
     // Dil değiştir
     if (window.onLocationChange) {
       window.onLocationChange(countryCode);

@@ -184,28 +184,139 @@
 
     <!-- Profil Düzenleme Modal -->
     <div class="modal" id="profileModal">
-        <div class="modal-content">
+        <div class="modal-content profile-modal">
             <div class="modal-header">
-                <h3 data-translate="profileTitle">Profil Düzenle</h3>
+                <h3 data-translate="profileTitle">Profil Oluştur</h3>
                 <button class="modal-close" onclick="closeProfileModal()">✖</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="nickname" placeholder="Nickname" data-placeholder="nickname">
-                <input type="text" id="firstName" placeholder="Ad" data-placeholder="firstName">
-                <input type="text" id="lastName" placeholder="Soyad" data-placeholder="lastName">
-                <select id="gender" data-translate="gender">
-                    <option value="">Cinsiyet Seçin</option>
-                    <option value="male">Erkek</option>
-                    <option value="female">Kadın</option>
-                    <option value="other">Diğer</option>
-                </select>
-                <input type="date" id="birth" data-translate="birth">
-                <input type="text" id="country" placeholder="Ülke" data-placeholder="country">
-                <input type="text" id="city" placeholder="Şehir" data-placeholder="city">
-                <button onclick="openHobbyModal()" class="hobby-btn">🎯 İlgi Alanlarını Seç</button>
+                <!-- İlgi Alanları Bölümü -->
+                <div class="profile-section">
+                    <h4>🎯 İlgi Alanlarınızı Seçin</h4>
+                    <p class="section-description">İlgi alanlarınızı seçin, size uygun kanallar önerilecek</p>
+                    <div class="hobby-grid-large">
+                        <div class="hobby-item-large" data-hobby="teknoloji">
+                            <span class="hobby-icon">💻</span>
+                            <span class="hobby-name">Teknoloji</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="spor">
+                            <span class="hobby-icon">⚽</span>
+                            <span class="hobby-name">Spor</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="müzik">
+                            <span class="hobby-icon">🎵</span>
+                            <span class="hobby-name">Müzik</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="oyun">
+                            <span class="hobby-icon">🎮</span>
+                            <span class="hobby-name">Oyun</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="film">
+                            <span class="hobby-icon">🎬</span>
+                            <span class="hobby-name">Film</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="sanat">
+                            <span class="hobby-icon">🎨</span>
+                            <span class="hobby-name">Sanat</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="bilim">
+                            <span class="hobby-icon">🔬</span>
+                            <span class="hobby-name">Bilim</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="yemek">
+                            <span class="hobby-icon">🍳</span>
+                            <span class="hobby-name">Yemek</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="seyahat">
+                            <span class="hobby-icon">✈️</span>
+                            <span class="hobby-name">Seyahat</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="kitap">
+                            <span class="hobby-icon">📚</span>
+                            <span class="hobby-name">Kitap</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="fotoğraf">
+                            <span class="hobby-icon">📸</span>
+                            <span class="hobby-name">Fotoğraf</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="moda">
+                            <span class="hobby-icon">👗</span>
+                            <span class="hobby-name">Moda</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="doğa">
+                            <span class="hobby-icon">🌿</span>
+                            <span class="hobby-name">Doğa</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="müzik">
+                            <span class="hobby-icon">🎼</span>
+                            <span class="hobby-name">Müzik</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="dans">
+                            <span class="hobby-icon">💃</span>
+                            <span class="hobby-name">Dans</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="yoga">
+                            <span class="hobby-icon">🧘</span>
+                            <span class="hobby-name">Yoga</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="koşu">
+                            <span class="hobby-icon">🏃</span>
+                            <span class="hobby-name">Koşu</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="yüzme">
+                            <span class="hobby-icon">🏊</span>
+                            <span class="hobby-name">Yüzme</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="bisiklet">
+                            <span class="hobby-icon">🚴</span>
+                            <span class="hobby-name">Bisiklet</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                        <div class="hobby-item-large" data-hobby="kamp">
+                            <span class="hobby-icon">⛺</span>
+                            <span class="hobby-name">Kamp</span>
+                            <span class="hobby-plus">+</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kişisel Bilgiler Bölümü (Gizli) -->
+                <div class="profile-section" id="personalInfoSection" style="display: none;">
+                    <h4>👤 Kişisel Bilgiler (Gizli)</h4>
+                    <p class="section-description">Bu bilgiler sadece size özel, diğer kullanıcılar göremez</p>
+                    <input type="text" id="firstName" placeholder="Adınız" data-placeholder="firstName">
+                    <input type="text" id="lastName" placeholder="Soyadınız" data-placeholder="lastName">
+                    <select id="gender" data-translate="gender">
+                        <option value="">Cinsiyet Seçin</option>
+                        <option value="male">Erkek</option>
+                        <option value="female">Kadın</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                    <input type="date" id="birth" data-translate="birth">
+                    <input type="text" id="country" placeholder="Ülke" data-placeholder="country">
+                    <input type="text" id="city" placeholder="Şehir" data-placeholder="city">
+                </div>
             </div>
             <div class="modal-footer">
-                <button onclick="saveProfile()" data-translate="saveBtn">Kaydet</button>
+                <button onclick="saveProfile()" data-translate="saveBtn">Profil Oluştur</button>
                 <button onclick="closeProfileModal()" data-translate="cancelBtn">İptal</button>
             </div>
         </div>
