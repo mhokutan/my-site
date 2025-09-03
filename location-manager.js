@@ -238,7 +238,7 @@ class LocationManager {
     // Kaydedilmiş lokasyonu kontrol et
     const savedLocation = this.loadSavedLocation();
     
-    if (savedLocation) {
+    if (savedLocation && savedLocation.countryCode) {
       console.log('✅ Kaydedilmiş lokasyon bulundu:', savedLocation);
       this.applyLocation(savedLocation.countryCode, savedLocation.city);
     } else {

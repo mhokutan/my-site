@@ -302,8 +302,88 @@ function sendDM(room,formEl){
   formEl.text.value="";
 }
 
+/* ===================== WebSocket ===================== */
+function connectWS() {
+  try {
+    ws = new WebSocket(WS_URL);
+    
+    ws.onopen = () => {
+      console.log('✅ WebSocket bağlantısı kuruldu');
+      if (token) {
+        ws.send(JSON.stringify({type:"auth",token}));
+      }
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        handleWebSocketMessage(data);
+      } catch (error) {
+        console.error('❌ WebSocket mesaj hatası:', error);
+      }
+    };
+    
+    ws.onclose = () => {
+      console.log('⚠️ WebSocket bağlantısı kapandı, yeniden bağlanılıyor...');
+      setTimeout(connectWS, 3000);
+    };
+    
+    ws.onerror = (error) => {
+      console.error('❌ WebSocket hatası:', error);
+    };
+  } catch (error) {
+    console.error('❌ WebSocket bağlantı hatası:', error);
+    setTimeout(connectWS, 5000);
+  }
+}
+
+function handleWebSocketMessage(data) {
+  switch (data.type) {
+    case 'message':
+      addMessage(data.nick, data.text);
+      break;
+    case 'users':
+      updateUserList(data.users);
+      break;
+    case 'typing':
+      showTyping(data.nick);
+      break;
+    case 'ai':
+      addMessage("AI", data.text);
+      break;
+  }
+}
+
+function addMessage(nick, text) {
+  if (messages) {
+    const div = document.createElement('div');
+    div.innerHTML = `<b>${nick}:</b> ${text}`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+}
+
+function updateUserList(users) {
+  if (userList) {
+    userList.innerHTML = '';
+    users.forEach(user => {
+      const li = document.createElement('li');
+      li.textContent = user.display || user.nick;
+      li.onclick = () => startDM(user);
+      userList.appendChild(li);
+    });
+  }
+}
+
+function showTyping(nick) {
+  // Typing indicator göster
+  console.log(`${nick} yazıyor...`);
+}
+
 /* ===================== Auth ===================== */
-btnLogin.onclick=(e)=>{
+function initAuth() {
+  if (btnLogin) {
+    btnLogin.onclick = (e) => {
   e.preventDefault();
   e.stopPropagation();
   e.stopImmediatePropagation();
@@ -353,7 +433,9 @@ btnLogin.onclick=(e)=>{
   }, 100);
   
   return false;
-};
+    };
+  }
+}
 
 // Kaydedilmiş giriş bilgilerini yükle
 function loadSavedCredentials() {
@@ -487,7 +569,10 @@ async function doRegister() {
     
     console.log('📝 Kayıt response:', {status: res.status, data});
     
-    if(!res.ok||!data.success) throw new Error(data?.error||("HTTP "+res.status));
+    if(!res.ok||!data.success) {
+      const errorMsg = data?.error === "Var" ? "Bu e-posta adresi zaten kayıtlı" : (data?.error || ("HTTP "+res.status));
+      throw new Error(errorMsg);
+    }
     alert("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
     closeLoginModal();
   }catch(err){ 
@@ -1463,6 +1548,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnProfile) btnProfile.style.display = "inline-block";
     if (btnLogout) btnLogout.style.display = "inline-block";
   }
+  
+  // Auth sistemini başlat
+  initAuth();
   
   // WebSocket bağlantısını başlat
   connectWS();
