@@ -173,8 +173,7 @@
   <!-- Yeni özellikler -->
   <script src="advanced-features.js"></script>
   
-  <!-- IP Lokasyon Algılama -->
-  <script src="ip-detection.js"></script>
+
   
   <!-- Kanal Sistemi -->
   <script src="channel-system.js"></script>
@@ -331,10 +330,8 @@
         
         hobbyModal.classList.remove('open');
         
-        // Sayfayı yenile ki değişiklikler görünsün
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
+        // Sayfayı yenileme - sadece kanalları güncelle
+        console.log('✅ İlgi alanları kaydedildi, sayfa yenilenmeyecek');
       };
     }
   </script>
