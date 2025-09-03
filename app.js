@@ -657,27 +657,32 @@ function saveLocation() {
 }
 
 /* ===================== Profil ===================== */
-btnProfile.onclick=()=> {
-  profileModal.classList.add("open");
-  
-  // Lokasyon bilgilerini otomatik doldur
-  const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
-  if (userLocation.country) {
-    document.getElementById('country').value = userLocation.country;
+function initProfile() {
+  if (btnProfile) {
+    btnProfile.onclick = () => {
+      if (profileModal) {
+        profileModal.classList.add("open");
+        
+        // Lokasyon bilgilerini otomatik doldur
+        const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
+        if (userLocation.country) {
+          const countryField = document.getElementById('country');
+          if (countryField) countryField.value = userLocation.country;
+        }
+        if (userLocation.city) {
+          const cityField = document.getElementById('city');
+          if (cityField) cityField.value = userLocation.city;
+        }
+        if (userLocation.state) {
+          const stateField = document.getElementById('state');
+          if (stateField) stateField.value = userLocation.state;
+        }
+        
+        console.log('📍 Profil lokasyon bilgileri dolduruldu:', userLocation);
+      }
+    };
   }
-  if (userLocation.city) {
-    document.getElementById('city').value = userLocation.city;
-  }
-  if (userLocation.state) {
-    // State alanı varsa doldur
-    const stateField = document.getElementById('state');
-    if (stateField) {
-      stateField.value = userLocation.state;
-    }
-  }
-  
-  console.log('📍 Profil lokasyon bilgileri dolduruldu:', userLocation);
-};
+}
 
 // Profil kaydetme fonksiyonu
 async function saveProfile() {
@@ -1687,11 +1692,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auth sistemini başlat
   initAuth();
   
-  // Lokasyon sistemini başlat
+    // Lokasyon sistemini başlat
   initLocation();
   
+  // Profil sistemini başlat
+  initProfile();
+  
   // WebSocket bağlantısını başlat
-connectWS();
+  connectWS();
   
   // Kanalları yükle
   loadChannels();
