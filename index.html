@@ -14,7 +14,7 @@
         <div class="menubar-buttons">
             <button id="btnLogin" data-translate="login">Giriş</button>
             <button id="btnProfile" data-translate="profile" style="display:none;">Profil</button>
-            <button id="btnLocation" data-translate="location">📍 Lokasyon</button>
+            <button id="btnLocation" onclick="openLocationModal()" data-translate="location">📍 Lokasyon</button>
             <button id="btnSponsor" data-translate="sponsor">💰 Sponsor</button>
             <button id="btnCreateChannel" data-translate="createChannel">➕ Kanal Oluştur</button>
             <button id="btnDonate">☕ Kahve İkram Et</button>
@@ -160,7 +160,7 @@
 
     <!-- Scripts -->
     <script src="translations.js"></script>
-    <script src="ip-detection.js"></script>
+    <script src="location-manager.js"></script>
     <script src="app.js"></script>
     <script src="advanced-features.js"></script>
 
