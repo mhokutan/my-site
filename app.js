@@ -287,6 +287,14 @@ window.saveHobbies = function() {
   }, 1000);
 };
 
+// Save hobbies butonuna event listener ekle
+document.addEventListener('DOMContentLoaded', () => {
+  const saveHobbiesBtn = document.getElementById('saveHobbies');
+  if (saveHobbiesBtn) {
+    saveHobbiesBtn.onclick = window.saveHobbies;
+  }
+});
+
 /* ===================== Feedback ===================== */
 btnFeedback.onclick=()=>feedbackModal.classList.add("open");
 sendFeedback.onclick=async()=>{
@@ -298,19 +306,28 @@ sendFeedback.onclick=async()=>{
 };
 
 /* ===================== Kanal Ekleme ===================== */
-document.getElementById("btnAddChannel").onclick=()=>{
-  const name=document.getElementById("newChannel").value.trim();
-  if(!name) return;
-  addChannel(name);
-  document.getElementById("newChannel").value="";
-};
-
-document.getElementById("btnAddChannelMobile").onclick=()=>{
-  const name=document.getElementById("newChannelMobile").value.trim();
-  if(!name) return;
-  addChannel(name);
-  document.getElementById("newChannelMobile").value="";
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAddChannel = document.getElementById("btnAddChannel");
+  const btnAddChannelMobile = document.getElementById("btnAddChannelMobile");
+  
+  if (btnAddChannel) {
+    btnAddChannel.onclick = () => {
+      const name = document.getElementById("newChannel").value.trim();
+      if (!name) return;
+      addChannel(name);
+      document.getElementById("newChannel").value = "";
+    };
+  }
+  
+  if (btnAddChannelMobile) {
+    btnAddChannelMobile.onclick = () => {
+      const name = document.getElementById("newChannelMobile").value.trim();
+      if (!name) return;
+      addChannel(name);
+      document.getElementById("newChannelMobile").value = "";
+    };
+  }
+});
 
 /* ===================== Init ===================== */
 if(token){ authStatus.textContent="Giriş yapıldı"; btnLogin.style.display="none"; btnProfile.style.display="inline-block"; btnLogout.style.display="inline-block"; }
