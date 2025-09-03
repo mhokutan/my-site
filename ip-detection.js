@@ -178,6 +178,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const existingLocation = localStorage.getItem('userLocation');
   console.log('🔍 Mevcut localStorage lokasyon:', existingLocation);
   
+  // Manuel lokasyon seçimi için modal aç
+  if (!existingLocation) {
+    openLocationModal();
+    return;
+  }
+  
   // Eğer lokasyon zaten algılanmışsa tekrar algılama
   if (existingLocation) {
     const locationData = JSON.parse(existingLocation);
@@ -204,6 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const detectedLanguage = languageMap[countryCode] || 'TR';
     console.log('🌍 Dil eşleme:', countryCode, '->', detectedLanguage);
+    console.log('🔍 languageMap:', languageMap);
+    console.log('🔍 countryCode:', countryCode);
     if (window.onLocationChange) {
       window.onLocationChange(detectedLanguage);
     } else {
@@ -224,21 +232,138 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 2000);
 });
 
+// Manuel lokasyon modal'ını aç
+function openLocationModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal open';
+  modal.id = 'locationModal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🌍 Lokasyon Seçin</h3>
+        <button class="modal-close" onclick="closeLocationModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <select id="countrySelect" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+          <option value="">Ülke Seçin</option>
+          <option value="US">🇺🇸 Amerika</option>
+          <option value="TR">🇹🇷 Türkiye</option>
+          <option value="FR">🇫🇷 Fransa</option>
+          <option value="DE">🇩🇪 Almanya</option>
+          <option value="ES">🇪🇸 İspanya</option>
+          <option value="GB">🇬🇧 İngiltere</option>
+          <option value="IT">🇮🇹 İtalya</option>
+          <option value="RU">🇷🇺 Rusya</option>
+          <option value="CN">🇨🇳 Çin</option>
+          <option value="JP">🇯🇵 Japonya</option>
+          <option value="KR">🇰🇷 Güney Kore</option>
+          <option value="IN">🇮🇳 Hindistan</option>
+          <option value="BR">🇧🇷 Brezilya</option>
+          <option value="CA">🇨🇦 Kanada</option>
+          <option value="AU">🇦🇺 Avustralya</option>
+        </select>
+        <input type="text" id="cityInput" placeholder="Şehir" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+      </div>
+      <div class="modal-footer">
+        <button onclick="saveManualLocation()" style="background: var(--brand); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Kaydet</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+// Manuel lokasyon modal'ını kapat
+function closeLocationModal() {
+  const modal = document.getElementById('locationModal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Manuel lokasyon kaydet
+function saveManualLocation() {
+  const countryCode = document.getElementById('countrySelect').value;
+  const city = document.getElementById('cityInput').value.trim();
+  
+  if (!countryCode || !city) {
+    alert('Lütfen ülke ve şehir seçin.');
+    return;
+  }
+  
+  const countryNames = {
+    'US': 'United States',
+    'TR': 'Turkey', 
+    'FR': 'France',
+    'DE': 'Germany',
+    'ES': 'Spain',
+    'GB': 'United Kingdom',
+    'IT': 'Italy',
+    'RU': 'Russia',
+    'CN': 'China',
+    'JP': 'Japan',
+    'KR': 'South Korea',
+    'IN': 'India',
+    'BR': 'Brazil',
+    'CA': 'Canada',
+    'AU': 'Australia'
+  };
+  
+  const locationData = {
+    country: countryNames[countryCode],
+    countryCode: countryCode,
+    city: city,
+    region: city,
+    ip: 'manual',
+    timezone: 'manual',
+    currency: 'manual',
+    updatedAt: new Date().toISOString()
+  };
+  
+  localStorage.setItem('userLocation', JSON.stringify(locationData));
+  console.log('📍 Manuel lokasyon kaydedildi:', locationData);
+  
+  // Dil değiştir
+  const languageMap = {
+    'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
+    'TR': 'TR',
+    'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
+    'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
+    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
+  };
+  
+  const selectedLanguage = languageMap[countryCode] || 'TR';
+  console.log(`🌍 Dil değiştiriliyor: ${countryCode} -> ${selectedLanguage}`);
+  
+  if (window.onLocationChange) {
+    window.onLocationChange(selectedLanguage);
+  }
+  
+  // Kanalları yükle
+  loadLocationBasedChannels(locationData);
+  
+  // Modal'ı kapat
+  closeLocationModal();
+  
+  // Sayfayı yenile
+  location.reload();
+}
+
 // Lokasyon verisini temizle ve yeniden algıla
 function clearLocationAndRedetect() {
   console.log('🗑️ Eski lokasyon verisi temizleniyor...');
   localStorage.removeItem('userLocation');
   localStorage.removeItem('selectedLanguage');
-  console.log('✅ Lokasyon verisi temizlendi, yeniden algılanıyor...');
-  
-  // 1 saniye bekle ve yeniden algıla
-  setTimeout(() => {
-    detectUserLocation();
-  }, 1000);
+  console.log('✅ Lokasyon verisi temizlendi, manuel seçim için modal açılıyor...');
+  openLocationModal();
 }
 
 // Global fonksiyonlar olarak ekle
 window.detectUserLocation = detectUserLocation;
 window.loadLocationBasedChannels = loadLocationBasedChannels;
 window.locationBasedChannels = locationBasedChannels;
+window.openLocationModal = openLocationModal;
+window.closeLocationModal = closeLocationModal;
+window.saveManualLocation = saveManualLocation;
+window.clearLocationAndRedetect = clearLocationAndRedetect;
 window.clearLocationAndRedetect = clearLocationAndRedetect;

@@ -550,9 +550,18 @@ async function saveProfile() {
 };
 
 /* ===================== Kanal Oluşturma ===================== */
-btnCreateChannel.onclick=()=> {
-  createChannelModal.classList.add("open");
-};
+const btnCreateChannel = document.getElementById('btnCreateChannel');
+const createChannelModal = document.getElementById('createChannelModal');
+
+if (btnCreateChannel) {
+  btnCreateChannel.onclick = () => {
+    if (createChannelModal) {
+      createChannelModal.classList.add("open");
+    } else {
+      console.log('⚠️ createChannelModal bulunamadı');
+    }
+  };
+}
 
 // Kanal türü değiştiğinde şifre alanını göster/gizle
 document.addEventListener('change', (e) => {
