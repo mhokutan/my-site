@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         channelPrompt = `Sen "${channelContext}" kanalındasın. Bu kanalın konusu: ${channelContext}. Sadece bu konuyla ilgili cevap ver.`;
       }
       
-      fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text: channelPrompt + " Kullanıcı: " + text})})
+      fetch(API+"/sponsor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text: text, channelName: channelContext})})
       .then(r=>r.json()).then(data=>{
         if(data.answer && data.answer !== "Şu an yanıt veremiyorum" && data.answer !== "Yanıt yok") {
           addMessage("AI 🤖",data.answer);
@@ -1213,46 +1213,7 @@ document.addEventListener('change', (e) => {
   }
 });
 
-createChannelBtn.onclick=async()=> {
-  const channelName = document.getElementById('channelName').value.trim();
-  const channelType = document.querySelector('input[name="channelType"]:checked').value;
-  const password = document.getElementById('channelPassword').value;
-  
-  if (!channelName || !channelName.startsWith('#')) {
-    alert("Kanal adı # ile başlamalı (örn: #mychannel)");
-    return;
-  }
-  
-  if (channelType === 'private' && !password) {
-    alert("Private kanal için şifre gerekli.");
-    return;
-  }
-  
-  try {
-    const res = await fetch(API + "/channel/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token,
-        name: channelName,
-        isPrivate: channelType === 'private',
-        password: channelType === 'private' ? password : null
-      })
-    });
-    
-    const data = await res.json();
-    if (data.success) {
-      alert("Kanal oluşturuldu!");
-      createChannelModal.classList.remove("open");
-      // Kendi kanallarım listesini güncelle
-      loadMyChannels();
-    } else {
-      alert("Hata: " + (data.error || "Kanal oluşturulamadı"));
-    }
-  } catch (error) {
-    alert("Hata: " + error.message);
-  }
-};
+// Eski createChannelBtn kodu kaldırıldı - yeni sistem kullanılıyor
 
 // Kendi kanallarımı yükle
 async function loadMyChannels() {
