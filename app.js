@@ -8,14 +8,49 @@ let token = localStorage.getItem("token");
 
 // WebSocket bağlantısı
 function connectWS() {
-  ws = new WebSocket(WS_URL);
-  ws.onopen = () => console.log('✅ WebSocket bağlantısı kuruldu');
-  ws.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if (data.type === "message") addMessage(data.user || data.nick, data.text);
-  };
-  ws.onclose = () => setTimeout(connectWS, 3000);
-  ws.onerror = (error) => console.error('❌ WebSocket hatası:', error);
+  try {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = () => {
+      console.log('✅ WebSocket bağlantısı kuruldu');
+      updateConnectionStatus('connected');
+    };
+    ws.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === "message") addMessage(data.user || data.nick, data.text);
+        else if (data.type === "typing") showTypingIndicator(data.user);
+        else if (data.type === "user_joined") updateOnlineUsers(data.user);
+        else if (data.type === "user_left") removeOnlineUser(data.user);
+      } catch (error) {
+        console.error('❌ Mesaj parse hatası:', error);
+      }
+    };
+    ws.onclose = () => {
+      console.log('⚠️ WebSocket bağlantısı kesildi, yeniden bağlanılıyor...');
+      updateConnectionStatus('disconnected');
+      setTimeout(connectWS, 3000);
+    };
+    ws.onerror = (error) => {
+      console.error('❌ WebSocket hatası:', error);
+      updateConnectionStatus('error');
+    };
+  } catch (error) {
+    console.error('❌ WebSocket bağlantı hatası:', error);
+    updateConnectionStatus('error');
+  }
+}
+
+// Bağlantı durumu güncelleme
+function updateConnectionStatus(status) {
+  const statusElement = document.getElementById('connectionStatus');
+  if (statusElement) {
+    const statusMap = {
+      'connected': '🟢 Bağlı',
+      'disconnected': '🟡 Bağlantı kesildi',
+      'error': '🔴 Bağlantı hatası'
+    };
+    statusElement.textContent = statusMap[status] || '❓ Bilinmeyen';
+  }
 }
 
 // Mesaj ekleme
@@ -24,9 +59,62 @@ function addMessage(user, text) {
   if (messages) {
     const div = document.createElement('div');
     const time = new Date().toLocaleTimeString();
-    div.innerHTML = `<span class="time">[${time}]</span> <b>${user}:</b> ${text}`;
+    div.className = 'message';
+    div.innerHTML = `
+      <span class="time">[${time}]</span> 
+      <span class="username">${user}:</span> 
+      <span class="message-text">${text}</span>
+    `;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
+  }
+}
+
+// Typing indicator göster
+function showTypingIndicator(user) {
+  const typingIndicator = document.getElementById('typingIndicator');
+  if (typingIndicator) {
+    typingIndicator.innerHTML = `<span>${user} yazıyor...</span>`;
+    typingIndicator.style.display = 'block';
+    
+    // 3 saniye sonra gizle
+    setTimeout(() => {
+      typingIndicator.style.display = 'none';
+    }, 3000);
+  }
+}
+
+// Online kullanıcıları güncelle
+function updateOnlineUsers(user) {
+  const onlineUsers = document.getElementById('onlineUsers');
+  if (onlineUsers) {
+    // Kullanıcı zaten var mı kontrol et
+    const existingUser = onlineUsers.querySelector(`[data-user="${user}"]`);
+    if (!existingUser) {
+      const div = document.createElement('div');
+      div.className = 'user-item';
+      div.dataset.user = user;
+      div.innerHTML = `
+        <div class="user-avatar">👤</div>
+        <div class="user-info">
+          <div class="user-name">${user}</div>
+          <div class="user-activity">#${currentChannel.replace('#', '')} kanalında</div>
+        </div>
+        <div class="user-status online"></div>
+      `;
+      onlineUsers.appendChild(div);
+    }
+  }
+}
+
+// Online kullanıcıyı kaldır
+function removeOnlineUser(user) {
+  const onlineUsers = document.getElementById('onlineUsers');
+  if (onlineUsers) {
+    const userElement = onlineUsers.querySelector(`[data-user="${user}"]`);
+    if (userElement) {
+      userElement.remove();
+    }
   }
 }
 
