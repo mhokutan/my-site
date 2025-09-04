@@ -457,6 +457,86 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Ayarlar</h2>
+                <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>🌍 Lokasyon Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="autoLocation">Otomatik Lokasyon Algılama:</label>
+                        <input type="checkbox" id="autoLocation" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="manualLocation">Manuel Lokasyon:</label>
+                        <select id="manualLocation">
+                            <option value="TR">🇹🇷 Türkiye</option>
+                            <option value="US">🇺🇸 Amerika</option>
+                            <option value="DE">🇩🇪 Almanya</option>
+                            <option value="FR">🇫🇷 Fransa</option>
+                            <option value="ES">🇪🇸 İspanya</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>💬 Chat Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="soundNotifications">Ses Bildirimleri:</label>
+                        <input type="checkbox" id="soundNotifications" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="messageHistory">Mesaj Geçmişi:</label>
+                        <select id="messageHistory">
+                            <option value="100">100 mesaj</option>
+                            <option value="500">500 mesaj</option>
+                            <option value="1000">1000 mesaj</option>
+                            <option value="unlimited">Sınırsız</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>🎨 Görünüm Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="theme">Tema:</label>
+                        <select id="theme">
+                            <option value="light">Açık Tema</option>
+                            <option value="dark">Koyu Tema</option>
+                            <option value="auto">Otomatik</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="fontSize">Yazı Boyutu:</label>
+                        <select id="fontSize">
+                            <option value="small">Küçük</option>
+                            <option value="medium" selected>Orta</option>
+                            <option value="large">Büyük</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>🔒 Gizlilik Ayarları</h3>
+                    <div class="setting-item">
+                        <label for="showOnlineStatus">Çevrimiçi Durumumu Göster:</label>
+                        <input type="checkbox" id="showOnlineStatus" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="allowDMs">DM'lere İzin Ver:</label>
+                        <input type="checkbox" id="allowDMs" checked>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Donate Modal -->
     <div id="donateModal" class="modal">
         <div class="modal-content">

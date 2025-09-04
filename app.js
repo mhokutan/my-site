@@ -202,6 +202,52 @@ function closeCreateChannelModal() {
   if (createChannelModal) createChannelModal.classList.remove("open");
 }
 
+// Kanal oluşturma
+function createChannel() {
+  const channelName = document.getElementById('channelName').value;
+  const channelType = document.querySelector('input[name="channelType"]:checked').value;
+  const channelPassword = document.getElementById('channelPassword').value;
+
+  if (!channelName) {
+    alert('Lütfen kanal adı girin!');
+    return;
+  }
+
+  console.log('Kanal oluşturuluyor:', { channelName, channelType, channelPassword });
+  
+  // Yeni kanalı listeye ekle
+  addChannelToList(channelName, channelType);
+  
+  // Modal'ı kapat
+  closeCreateChannelModal();
+  
+  // Form'u temizle
+  document.getElementById('createChannelForm').reset();
+  
+  alert(`✅ Kanal oluşturuldu: ${channelName}`);
+}
+
+// Kanalı listeye ekle
+function addChannelToList(channelName, channelType) {
+  let targetList;
+  
+  if (channelType === 'public') {
+    targetList = document.getElementById('generalChannels');
+  } else {
+    targetList = document.getElementById('interestChannels');
+  }
+  
+  if (targetList) {
+    const div = document.createElement('div');
+    div.className = 'channel-item';
+    div.textContent = channelName;
+    div.onclick = () => switchChannel(channelName);
+    targetList.appendChild(div);
+    
+    console.log(`📢 Kanal eklendi: ${channelName} -> ${channelType}`);
+  }
+}
+
 // Rastgele nickname oluştur
 function generateRandomNickname() {
   const adjectives = ['Cool', 'Smart', 'Fast', 'Bright', 'Happy', 'Lucky', 'Brave', 'Wise', 'Kind', 'Funny'];
@@ -254,16 +300,34 @@ function autoDetectLocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Basit lokasyon algılama - gerçek uygulamada API kullanılır
-        selectLocation('TR', 'Turkey', 'Istanbul');
+        // GPS koordinatlarından ülke belirleme
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        // Basit koordinat kontrolü (gerçek uygulamada API kullanılmalı)
+        if (lat >= 25 && lat <= 49 && lon >= -125 && lon <= -66) {
+          // Amerika koordinatları
+          selectLocation('US', 'United States', 'New York');
+        } else if (lat >= 36 && lat <= 42 && lon >= 26 && lon <= 45) {
+          // Türkiye koordinatları
+          selectLocation('TR', 'Turkey', 'Istanbul');
+        } else if (lat >= 47 && lat <= 55 && lon >= 6 && lon <= 15) {
+          // Almanya koordinatları
+          selectLocation('DE', 'Germany', 'Berlin');
+        } else {
+          // Varsayılan olarak Amerika
+          selectLocation('US', 'United States', 'New York');
+        }
       },
       (error) => {
         console.error('Geolocation hatası:', error);
-        selectLocation('TR', 'Turkey', 'Istanbul');
+        // Varsayılan olarak Amerika
+        selectLocation('US', 'United States', 'New York');
       }
     );
   } else {
-    selectLocation('TR', 'Turkey', 'Istanbul');
+    // Varsayılan olarak Amerika
+    selectLocation('US', 'United States', 'New York');
   }
 }
 
@@ -623,6 +687,119 @@ function createSponsorChannel() {
   document.querySelectorAll('input[name="visual[]"]').forEach(checkbox => checkbox.checked = false);
 }
 
+// Ayarlar modal açma
+function openSettingsModal() {
+  const settingsModal = document.getElementById('settingsModal');
+  if (settingsModal) {
+    settingsModal.classList.add('open');
+    loadSettings();
+  }
+}
+
+// Ayarlar modal kapatma
+function closeSettingsModal() {
+  const settingsModal = document.getElementById('settingsModal');
+  if (settingsModal) {
+    settingsModal.classList.remove('open');
+  }
+}
+
+// Ayarları yükle
+function loadSettings() {
+  const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+  
+  // Lokasyon ayarları
+  if (settings.autoLocation !== undefined) {
+    document.getElementById('autoLocation').checked = settings.autoLocation;
+  }
+  if (settings.manualLocation) {
+    document.getElementById('manualLocation').value = settings.manualLocation;
+  }
+  
+  // Chat ayarları
+  if (settings.soundNotifications !== undefined) {
+    document.getElementById('soundNotifications').checked = settings.soundNotifications;
+  }
+  if (settings.messageHistory) {
+    document.getElementById('messageHistory').value = settings.messageHistory;
+  }
+  
+  // Görünüm ayarları
+  if (settings.theme) {
+    document.getElementById('theme').value = settings.theme;
+  }
+  if (settings.fontSize) {
+    document.getElementById('fontSize').value = settings.fontSize;
+  }
+  
+  // Gizlilik ayarları
+  if (settings.showOnlineStatus !== undefined) {
+    document.getElementById('showOnlineStatus').checked = settings.showOnlineStatus;
+  }
+  if (settings.allowDMs !== undefined) {
+    document.getElementById('allowDMs').checked = settings.allowDMs;
+  }
+}
+
+// Ayarları kaydet
+function saveSettings() {
+  const settings = {
+    autoLocation: document.getElementById('autoLocation').checked,
+    manualLocation: document.getElementById('manualLocation').value,
+    soundNotifications: document.getElementById('soundNotifications').checked,
+    messageHistory: document.getElementById('messageHistory').value,
+    theme: document.getElementById('theme').value,
+    fontSize: document.getElementById('fontSize').value,
+    showOnlineStatus: document.getElementById('showOnlineStatus').checked,
+    allowDMs: document.getElementById('allowDMs').checked
+  };
+  
+  localStorage.setItem('userSettings', JSON.stringify(settings));
+  
+  // Ayarları uygula
+  applySettings(settings);
+  
+  alert('✅ Ayarlar kaydedildi!');
+  closeSettingsModal();
+}
+
+// Ayarları uygula
+function applySettings(settings) {
+  // Tema uygula
+  if (settings.theme === 'dark') {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+  
+  // Yazı boyutu uygula
+  const fontSizeMap = {
+    'small': '0.8rem',
+    'medium': '1rem',
+    'large': '1.2rem'
+  };
+  document.documentElement.style.fontSize = fontSizeMap[settings.fontSize] || '1rem';
+  
+  // Lokasyon ayarlarını uygula
+  if (!settings.autoLocation && settings.manualLocation) {
+    selectLocation(settings.manualLocation, getCountryName(settings.manualLocation), 'Unknown');
+  }
+  
+  console.log('⚙️ Ayarlar uygulandı:', settings);
+}
+
+// Ülke kodundan ülke adını al
+function getCountryName(countryCode) {
+  const countryMap = {
+    'TR': 'Turkey',
+    'US': 'United States',
+    'DE': 'Germany',
+    'FR': 'France',
+    'ES': 'Spain'
+  };
+  return countryMap[countryCode] || 'Unknown';
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -635,6 +812,7 @@ window.openLocationModal = openLocationModal;
 window.closeLocationModal = closeLocationModal;
 window.openCreateChannelModal = openCreateChannelModal;
 window.closeCreateChannelModal = closeCreateChannelModal;
+window.createChannel = createChannel;
 window.generateRandomNickname = generateRandomNickname;
 window.selectLocation = selectLocation;
 window.autoDetectLocation = autoDetectLocation;
@@ -652,6 +830,9 @@ window.processDonation = processDonation;
 window.openSponsorChannelModal = openSponsorChannelModal;
 window.closeSponsorChannelModal = closeSponsorChannelModal;
 window.createSponsorChannel = createSponsorChannel;
+window.openSettingsModal = openSettingsModal;
+window.closeSettingsModal = closeSettingsModal;
+window.saveSettings = saveSettings;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
