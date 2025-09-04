@@ -374,6 +374,12 @@ function updatePopularChannels(selectedHobbies) {
   const interestChannels = document.getElementById('interestChannels');
   if (!interestChannels) return;
 
+  // Eğer hiç ilgi alanı seçilmemişse, boş bırak
+  if (!selectedHobbies || selectedHobbies.length === 0) {
+    interestChannels.innerHTML = '<div class="empty-channels">🎯 İlgi alanlarınızı seçin, size özel kanallar gelsin!</div>';
+    return;
+  }
+
   // İlgi alanlarına göre popüler kanalları oluştur
   const popularChannels = generatePopularChannels(selectedHobbies);
   
@@ -604,6 +610,116 @@ function sendDMMessage() {
   dmMessages.scrollTop = dmMessages.scrollHeight;
   
   console.log(`💬 DM mesaj gönderildi: ${message}`);
+}
+
+// Arkadaş ekle modal açma
+function openAddFriendModal() {
+  const addFriendModal = document.getElementById('addFriendModal');
+  if (addFriendModal) {
+    addFriendModal.classList.add('open');
+  }
+}
+
+// Arkadaş ekle modal kapatma
+function closeAddFriendModal() {
+  const addFriendModal = document.getElementById('addFriendModal');
+  if (addFriendModal) {
+    addFriendModal.classList.remove('open');
+  }
+}
+
+// Kullanıcı arama (arkadaş ekleme için)
+function searchUsersForAdd() {
+  const searchTerm = document.getElementById('addFriendSearch').value.toLowerCase();
+  const searchResults = document.getElementById('searchResults');
+  
+  if (!searchTerm) {
+    searchResults.innerHTML = '';
+    return;
+  }
+  
+  // Örnek kullanıcılar
+  const sampleUsers = [
+    { name: 'TechGuru2024', email: 'tech@example.com', status: 'online' },
+    { name: 'ArtLover99', email: 'art@example.com', status: 'away' },
+    { name: 'MusicFan123', email: 'music@example.com', status: 'offline' },
+    { name: 'GameMaster456', email: 'game@example.com', status: 'online' },
+    { name: 'TravelBug789', email: 'travel@example.com', status: 'away' }
+  ];
+  
+  const filteredUsers = sampleUsers.filter(user => 
+    user.name.toLowerCase().includes(searchTerm) || 
+    user.email.toLowerCase().includes(searchTerm)
+  );
+  
+  searchResults.innerHTML = '';
+  filteredUsers.forEach(user => {
+    const div = document.createElement('div');
+    div.className = 'search-result-item';
+    div.innerHTML = `
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="user-name">${user.name}</div>
+        <div class="user-email">${user.email}</div>
+      </div>
+      <div class="user-status ${user.status}"></div>
+      <button class="btn btn-sm btn-primary" onclick="addFriend('${user.name}')">➕ Ekle</button>
+    `;
+    searchResults.appendChild(div);
+  });
+}
+
+// Arkadaş ekleme
+function addFriend(username) {
+  console.log(`👥 Arkadaş ekleniyor: ${username}`);
+  
+  // Arkadaş listesine ekle
+  const friendsList = document.getElementById('friendsList');
+  if (friendsList) {
+    const div = document.createElement('div');
+    div.className = 'friend-item';
+    div.innerHTML = `
+      <div class="friend-avatar">👤</div>
+      <div class="friend-info">
+        <div class="friend-name">${username}</div>
+        <div class="friend-status online">Çevrimiçi</div>
+      </div>
+      <div class="friend-actions">
+        <button class="btn-icon" onclick="startDM('${username}')" title="DM">💬</button>
+        <button class="btn-icon" onclick="toggleFollow('${username}')" title="Takip Et">👥</button>
+      </div>
+    `;
+    friendsList.appendChild(div);
+  }
+  
+  // Modal'ı kapat
+  closeAddFriendModal();
+  
+  alert(`✅ ${username} arkadaş olarak eklendi!`);
+}
+
+// E-posta daveti gönderme
+function sendInvite() {
+  const email = document.getElementById('inviteEmail').value.trim();
+  
+  if (!email) {
+    alert('Lütfen e-posta adresi girin!');
+    return;
+  }
+  
+  console.log(`📧 Davet gönderiliyor: ${email}`);
+  alert(`📧 ${email} adresine davet gönderildi!`);
+  
+  // Input'u temizle
+  document.getElementById('inviteEmail').value = '';
+}
+
+// Davet linkini kopyalama
+function copyInviteLink() {
+  const inviteLink = document.getElementById('inviteLink');
+  inviteLink.select();
+  document.execCommand('copy');
+  alert('🔗 Davet linki kopyalandı!');
 }
 
 // Takip etme/takibi bırakma
@@ -916,6 +1032,241 @@ function getCountryName(countryCode) {
   return countryMap[countryCode] || 'Unknown';
 }
 
+// Hobileri yükle
+function loadHobbies() {
+  const hobbyGrid = document.getElementById('hobbyGrid');
+  if (!hobbyGrid) return;
+
+  const hobbies = [
+    // Teknoloji
+    { name: 'Teknoloji', emoji: '💻', category: 'tech' },
+    { name: 'Programlama', emoji: '💻', category: 'tech' },
+    { name: 'Yapay Zeka', emoji: '🤖', category: 'tech' },
+    { name: 'Blockchain', emoji: '⛓️', category: 'tech' },
+    { name: 'Siber Güvenlik', emoji: '🔒', category: 'tech' },
+    { name: 'Robotik', emoji: '🤖', category: 'tech' },
+    { name: 'IoT', emoji: '🌐', category: 'tech' },
+    { name: 'Cloud', emoji: '☁️', category: 'tech' },
+    { name: 'AI', emoji: '🧠', category: 'tech' },
+    { name: 'Veri Bilimi', emoji: '📊', category: 'tech' },
+    
+    // Spor
+    { name: 'Futbol', emoji: '⚽', category: 'sport' },
+    { name: 'Basketbol', emoji: '🏀', category: 'sport' },
+    { name: 'Tenis', emoji: '🎾', category: 'sport' },
+    { name: 'Yüzme', emoji: '🏊', category: 'sport' },
+    { name: 'Koşu', emoji: '🏃', category: 'sport' },
+    { name: 'Fitness', emoji: '💪', category: 'sport' },
+    { name: 'Yoga', emoji: '🧘', category: 'sport' },
+    { name: 'Pilates', emoji: '🤸', category: 'sport' },
+    { name: 'CrossFit', emoji: '🏋️', category: 'sport' },
+    { name: 'Dans', emoji: '💃', category: 'sport' },
+    { name: 'Boks', emoji: '🥊', category: 'sport' },
+    { name: 'Kayak', emoji: '🎿', category: 'sport' },
+    { name: 'Surf', emoji: '🏄', category: 'sport' },
+    { name: 'Tırmanış', emoji: '🧗', category: 'sport' },
+    { name: 'Bisiklet', emoji: '🚴', category: 'sport' },
+    { name: 'Golf', emoji: '⛳', category: 'sport' },
+    { name: 'Satranç', emoji: '♟️', category: 'sport' },
+    
+    // Müzik
+    { name: 'Müzik', emoji: '🎵', category: 'music' },
+    { name: 'Gitar', emoji: '🎸', category: 'music' },
+    { name: 'Piyano', emoji: '🎹', category: 'music' },
+    { name: 'Davul', emoji: '🥁', category: 'music' },
+    { name: 'Keman', emoji: '🎻', category: 'music' },
+    { name: 'Saksofon', emoji: '🎷', category: 'music' },
+    { name: 'DJ', emoji: '🎧', category: 'music' },
+    { name: 'Konser', emoji: '🎤', category: 'music' },
+    { name: 'Opera', emoji: '🎭', category: 'music' },
+    { name: 'Jazz', emoji: '🎷', category: 'music' },
+    { name: 'Rock', emoji: '🎸', category: 'music' },
+    { name: 'Pop', emoji: '🎤', category: 'music' },
+    { name: 'Klasik', emoji: '🎼', category: 'music' },
+    { name: 'Elektronik', emoji: '🎛️', category: 'music' },
+    { name: 'Hip Hop', emoji: '🎤', category: 'music' },
+    { name: 'Reggae', emoji: '🎵', category: 'music' },
+    
+    // Sanat
+    { name: 'Resim', emoji: '🎨', category: 'art' },
+    { name: 'Heykel', emoji: '🗿', category: 'art' },
+    { name: 'Fotoğraf', emoji: '📸', category: 'art' },
+    { name: 'Video', emoji: '🎥', category: 'art' },
+    { name: 'Grafik', emoji: '🎨', category: 'art' },
+    { name: 'Web Tasarım', emoji: '🌐', category: 'art' },
+    { name: 'UI/UX', emoji: '📱', category: 'art' },
+    { name: 'Animasyon', emoji: '🎬', category: 'art' },
+    { name: '3D', emoji: '🎮', category: 'art' },
+    { name: 'El İşi', emoji: '🧵', category: 'art' },
+    { name: 'Origami', emoji: '📄', category: 'art' },
+    { name: 'Kaligrafi', emoji: '✍️', category: 'art' },
+    { name: 'Dövme', emoji: '🖋️', category: 'art' },
+    { name: 'Mimari', emoji: '🏗️', category: 'art' },
+    { name: 'İç Mimari', emoji: '🏠', category: 'art' },
+    
+    // Eğlence
+    { name: 'Film', emoji: '🎬', category: 'entertainment' },
+    { name: 'Dizi', emoji: '📺', category: 'entertainment' },
+    { name: 'Anime', emoji: '🎌', category: 'entertainment' },
+    { name: 'Manga', emoji: '📚', category: 'entertainment' },
+    { name: 'Kitap', emoji: '📖', category: 'entertainment' },
+    { name: 'Roman', emoji: '📚', category: 'entertainment' },
+    { name: 'Şiir', emoji: '📝', category: 'entertainment' },
+    { name: 'Tiyatro', emoji: '🎭', category: 'entertainment' },
+    { name: 'Stand-up', emoji: '🎤', category: 'entertainment' },
+    { name: 'Podcast', emoji: '🎧', category: 'entertainment' },
+    { name: 'YouTube', emoji: '📺', category: 'entertainment' },
+    { name: 'Twitch', emoji: '🎮', category: 'entertainment' },
+    { name: 'Netflix', emoji: '📺', category: 'entertainment' },
+    { name: 'Disney+', emoji: '🏰', category: 'entertainment' },
+    { name: 'Prime Video', emoji: '📺', category: 'entertainment' },
+    
+    // Oyun
+    { name: 'Oyun', emoji: '🎮', category: 'gaming' },
+    { name: 'PC', emoji: '💻', category: 'gaming' },
+    { name: 'PlayStation', emoji: '🎮', category: 'gaming' },
+    { name: 'Xbox', emoji: '🎮', category: 'gaming' },
+    { name: 'Nintendo', emoji: '🎮', category: 'gaming' },
+    { name: 'Mobil', emoji: '📱', category: 'gaming' },
+    { name: 'VR', emoji: '🥽', category: 'gaming' },
+    { name: 'E-Spor', emoji: '🏆', category: 'gaming' },
+    { name: 'LoL', emoji: '⚔️', category: 'gaming' },
+    { name: 'CS:GO', emoji: '🔫', category: 'gaming' },
+    { name: 'Valorant', emoji: '🎯', category: 'gaming' },
+    { name: 'Fortnite', emoji: '🏗️', category: 'gaming' },
+    { name: 'Minecraft', emoji: '⛏️', category: 'gaming' },
+    { name: 'Among Us', emoji: '👨‍🚀', category: 'gaming' },
+    { name: 'Board Games', emoji: '🎲', category: 'gaming' },
+    { name: 'Puzzle', emoji: '🧩', category: 'gaming' },
+    { name: 'RPG', emoji: '⚔️', category: 'gaming' },
+    { name: 'FPS', emoji: '🔫', category: 'gaming' },
+    { name: 'Strateji', emoji: '🏰', category: 'gaming' },
+    { name: 'Yarış', emoji: '🏎️', category: 'gaming' },
+    
+    // Yaşam Tarzı
+    { name: 'Yemek', emoji: '🍕', category: 'lifestyle' },
+    { name: 'Pişirme', emoji: '👨‍🍳', category: 'lifestyle' },
+    { name: 'Kahve', emoji: '☕', category: 'lifestyle' },
+    { name: 'Çay', emoji: '🍵', category: 'lifestyle' },
+    { name: 'Alkol', emoji: '🍷', category: 'lifestyle' },
+    { name: 'Kokteyl', emoji: '🍸', category: 'lifestyle' },
+    { name: 'Moda', emoji: '👗', category: 'lifestyle' },
+    { name: 'Makyaj', emoji: '💄', category: 'lifestyle' },
+    { name: 'Saç', emoji: '💇', category: 'lifestyle' },
+    { name: 'Cilt Bakımı', emoji: '🧴', category: 'lifestyle' },
+    { name: 'Parfüm', emoji: '🌸', category: 'lifestyle' },
+    { name: 'Ev Dekorasyonu', emoji: '🏠', category: 'lifestyle' },
+    { name: 'Bahçıvanlık', emoji: '🌱', category: 'lifestyle' },
+    { name: 'Bitki', emoji: '🌿', category: 'lifestyle' },
+    { name: 'Hayvan', emoji: '🐕', category: 'lifestyle' },
+    { name: 'Koleksiyon', emoji: '📦', category: 'lifestyle' },
+    { name: 'Antika', emoji: '🏺', category: 'lifestyle' },
+    { name: 'Vintage', emoji: '📻', category: 'lifestyle' },
+    { name: 'Minimalizm', emoji: '🧘', category: 'lifestyle' },
+    { name: 'Sıfır Atık', emoji: '♻️', category: 'lifestyle' },
+    
+    // Seyahat
+    { name: 'Seyahat', emoji: '✈️', category: 'travel' },
+    { name: 'Kamp', emoji: '🏕️', category: 'travel' },
+    { name: 'Trekking', emoji: '🥾', category: 'travel' },
+    { name: 'Hiking', emoji: '🥾', category: 'travel' },
+    { name: 'Backpacking', emoji: '🎒', category: 'travel' },
+    { name: 'Cruise', emoji: '🚢', category: 'travel' },
+    { name: 'Road Trip', emoji: '🛣️', category: 'travel' },
+    { name: 'City Break', emoji: '🏙️', category: 'travel' },
+    { name: 'Plaj', emoji: '🏖️', category: 'travel' },
+    { name: 'Dağ', emoji: '🏔️', category: 'travel' },
+    { name: 'Çöl', emoji: '🏜️', category: 'travel' },
+    { name: 'Orman', emoji: '🌴', category: 'travel' },
+    { name: 'Ada', emoji: '🏝️', category: 'travel' },
+    { name: 'Kültür', emoji: '🏛️', category: 'travel' },
+    { name: 'Tarih', emoji: '🏺', category: 'travel' },
+    { name: 'Müze', emoji: '🏛️', category: 'travel' },
+    { name: 'Festival', emoji: '🎪', category: 'travel' },
+    { name: 'Konser', emoji: '🎤', category: 'travel' },
+    { name: 'Gastronomi', emoji: '🍽️', category: 'travel' },
+    { name: 'Şarap', emoji: '🍷', category: 'travel' },
+    
+    // Eğitim
+    { name: 'Dil Öğrenme', emoji: '🗣️', category: 'education' },
+    { name: 'İngilizce', emoji: '🇺🇸', category: 'education' },
+    { name: 'Almanca', emoji: '🇩🇪', category: 'education' },
+    { name: 'Fransızca', emoji: '🇫🇷', category: 'education' },
+    { name: 'İspanyolca', emoji: '🇪🇸', category: 'education' },
+    { name: 'Japonca', emoji: '🇯🇵', category: 'education' },
+    { name: 'Korece', emoji: '🇰🇷', category: 'education' },
+    { name: 'Arapça', emoji: '🇸🇦', category: 'education' },
+    { name: 'Çince', emoji: '🇨🇳', category: 'education' },
+    { name: 'Rusça', emoji: '🇷🇺', category: 'education' },
+    { name: 'Matematik', emoji: '📐', category: 'education' },
+    { name: 'Fizik', emoji: '⚛️', category: 'education' },
+    { name: 'Kimya', emoji: '🧪', category: 'education' },
+    { name: 'Biyoloji', emoji: '🧬', category: 'education' },
+    { name: 'Tarih', emoji: '📚', category: 'education' },
+    { name: 'Coğrafya', emoji: '🌍', category: 'education' },
+    { name: 'Felsefe', emoji: '🤔', category: 'education' },
+    { name: 'Psikoloji', emoji: '🧠', category: 'education' },
+    { name: 'Sosyoloji', emoji: '👥', category: 'education' },
+    { name: 'Ekonomi', emoji: '💰', category: 'education' },
+    
+    // Sağlık
+    { name: 'Meditasyon', emoji: '🧘', category: 'health' },
+    { name: 'Mindfulness', emoji: '🧠', category: 'health' },
+    { name: 'Nefes', emoji: '🫁', category: 'health' },
+    { name: 'Masaj', emoji: '💆', category: 'health' },
+    { name: 'Akupunktur', emoji: '🪡', category: 'health' },
+    { name: 'Homeopati', emoji: '🌿', category: 'health' },
+    { name: 'Aromaterapi', emoji: '🕯️', category: 'health' },
+    { name: 'Refleksoloji', emoji: '🦶', category: 'health' },
+    { name: 'Reiki', emoji: '✨', category: 'health' },
+    { name: 'Kristal', emoji: '💎', category: 'health' },
+    { name: 'Astroloji', emoji: '🔮', category: 'health' },
+    { name: 'Tarot', emoji: '🃏', category: 'health' },
+    { name: 'Numeroloji', emoji: '🔢', category: 'health' },
+    { name: 'Feng Shui', emoji: '🏠', category: 'health' },
+    { name: 'Vegan', emoji: '🌱', category: 'health' },
+    { name: 'Vejetaryen', emoji: '🥬', category: 'health' },
+    { name: 'Keto', emoji: '🥑', category: 'health' },
+    { name: 'Paleo', emoji: '🥩', category: 'health' },
+    { name: 'Intermittent', emoji: '⏰', category: 'health' },
+    { name: 'Detox', emoji: '🧘', category: 'health' },
+    
+    // İş
+    { name: 'Girişimcilik', emoji: '🚀', category: 'business' },
+    { name: 'Yatırım', emoji: '📈', category: 'business' },
+    { name: 'Kripto', emoji: '₿', category: 'business' },
+    { name: 'Forex', emoji: '💱', category: 'business' },
+    { name: 'Borsa', emoji: '📊', category: 'business' },
+    { name: 'Emlak', emoji: '🏠', category: 'business' },
+    { name: 'Pazarlama', emoji: '📢', category: 'business' },
+    { name: 'Satış', emoji: '💼', category: 'business' },
+    { name: 'İK', emoji: '👥', category: 'business' },
+    { name: 'Finans', emoji: '💰', category: 'business' },
+    { name: 'Muhasebe', emoji: '📊', category: 'business' },
+    { name: 'Danışmanlık', emoji: '💡', category: 'business' },
+    { name: 'Koçluk', emoji: '🎯', category: 'business' },
+    { name: 'Mentorluk', emoji: '👨‍🏫', category: 'business' },
+    { name: 'Networking', emoji: '🤝', category: 'business' },
+    { name: 'Konuşma', emoji: '🎤', category: 'business' },
+    { name: 'Yazarlık', emoji: '✍️', category: 'business' },
+    { name: 'Blogging', emoji: '📝', category: 'business' },
+    { name: 'Vlogging', emoji: '📹', category: 'business' },
+    { name: 'Influencer', emoji: '⭐', category: 'business' }
+  ];
+
+  // Hobileri grid'e ekle
+  hobbies.forEach(hobby => {
+    const div = document.createElement('div');
+    div.className = 'hobby-item-large';
+    div.dataset.hobby = hobby.name.toLowerCase().replace(/\s+/g, '');
+    div.dataset.category = hobby.category;
+    div.innerHTML = `${hobby.emoji} ${hobby.name}`;
+    hobbyGrid.appendChild(div);
+  });
+
+  console.log(`🎯 ${hobbies.length} ilgi alanı yüklendi`);
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -954,6 +1305,12 @@ window.closeDMModal = closeDMModal;
 window.selectDMUser = selectDMUser;
 window.searchUsers = searchUsers;
 window.sendDMMessage = sendDMMessage;
+window.openAddFriendModal = openAddFriendModal;
+window.closeAddFriendModal = closeAddFriendModal;
+window.searchUsersForAdd = searchUsersForAdd;
+window.addFriend = addFriend;
+window.sendInvite = sendInvite;
+window.copyInviteLink = copyInviteLink;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
@@ -1067,6 +1424,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Rastgele nickname oluştur
   generateRandomNickname();
+  
+  // İlgi alanlarını yükle
+  loadHobbies();
   
   // İlgi alanları event listener'larını ekle
   document.querySelectorAll('.hobby-item-large').forEach(item => {
