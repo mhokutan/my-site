@@ -107,10 +107,8 @@ async function detectUserLocation() {
         window.onLocationChange(detectedLanguage);
       }
       
-      // Sayfayı yenile ki dil değişikliği uygulanabilsin
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
+      // Dil değişikliği uygulandı, sayfayı yenileme
+      console.log('✅ Dil değişikliği uygulandı, sayfa yenilenmeyecek');
       
       // Lokasyona göre kanalları yükle
       if (window.loadLocationBasedChannels) {
@@ -203,10 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const existingLocation = localStorage.getItem('userLocation');
   console.log('🔍 Mevcut localStorage lokasyon:', existingLocation);
   
-  // Otomatik lokasyon algılama yap
-  console.log('🔄 Otomatik lokasyon algılanıyor...');
-  detectUserLocation();
-  
   // Eğer lokasyon zaten algılanmışsa tekrar algılama
   if (existingLocation) {
     const locationData = JSON.parse(existingLocation);
@@ -249,10 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   
-  // 2 saniye bekle ki diğer scriptler yüklensin
-  setTimeout(() => {
-    detectUserLocation();
-  }, 2000);
+  // Sadece bir kez algılama yap
+  console.log('🔄 İlk kez lokasyon algılanıyor...');
+  detectUserLocation();
 });
 
 // Manuel lokasyon modal'ını aç
@@ -368,8 +361,8 @@ function saveManualLocation() {
   // Modal'ı kapat
   closeLocationModal();
   
-  // Sayfayı yenile
-  location.reload();
+  // Dil değişikliği uygulandı
+  console.log('✅ Manuel lokasyon kaydedildi ve dil değiştirildi');
 }
 
 // Lokasyon verisini temizle ve yeniden algıla
