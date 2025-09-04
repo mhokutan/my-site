@@ -288,12 +288,110 @@ function updateSelectedHobbies() {
   if (personalInfoSection) {
     if (selectedHobbies.length >= 3) {
       personalInfoSection.style.display = 'block';
-  } else {
+    } else {
       personalInfoSection.style.display = 'none';
     }
   }
   
+  // Popüler kanalları güncelle
+  updatePopularChannels(selectedHobbies);
+  
   console.log('🎯 Seçilen ilgi alanları:', selectedHobbies);
+}
+
+// Popüler kanalları güncelle
+function updatePopularChannels(selectedHobbies) {
+  const interestChannels = document.getElementById('interestChannels');
+  if (!interestChannels) return;
+
+  // İlgi alanlarına göre popüler kanalları oluştur
+  const popularChannels = generatePopularChannels(selectedHobbies);
+  
+  // Mevcut kanalları temizle
+  interestChannels.innerHTML = '';
+  
+  // Popüler kanalları ekle
+  popularChannels.forEach(channel => {
+    const div = document.createElement('div');
+    div.className = 'channel-item popular';
+    div.innerHTML = `
+      <div class="channel-name">${channel.name}</div>
+      <div class="channel-stats">
+        <span class="member-count">👥 ${channel.members}</span>
+        <span class="activity-level">🔥 ${channel.activity}</span>
+      </div>
+    `;
+    div.onclick = () => switchChannel(channel.name);
+    interestChannels.appendChild(div);
+  });
+  
+  console.log('🔥 Popüler kanallar güncellendi:', popularChannels);
+}
+
+// Popüler kanalları oluştur
+function generatePopularChannels(selectedHobbies) {
+  const channelMap = {
+    'teknoloji': [
+      { name: '#yapayzeka', members: '1.2K', activity: 'Yüksek' },
+      { name: '#programlama', members: '856', activity: 'Orta' },
+      { name: '#blockchain', members: '432', activity: 'Düşük' }
+    ],
+    'spor': [
+      { name: '#futbol', members: '2.1K', activity: 'Yüksek' },
+      { name: '#fitness', members: '1.5K', activity: 'Yüksek' },
+      { name: '#basketbol', members: '678', activity: 'Orta' }
+    ],
+    'müzik': [
+      { name: '#müzik', members: '1.8K', activity: 'Yüksek' },
+      { name: '#gitar', members: '945', activity: 'Orta' },
+      { name: '#konser', members: '567', activity: 'Düşük' }
+    ],
+    'oyun': [
+      { name: '#oyun', members: '3.2K', activity: 'Yüksek' },
+      { name: '#esports', members: '1.1K', activity: 'Yüksek' },
+      { name: '#minecraft', members: '789', activity: 'Orta' }
+    ],
+    'sanat': [
+      { name: '#resim', members: '654', activity: 'Orta' },
+      { name: '#fotograf', members: '1.3K', activity: 'Yüksek' },
+      { name: '#grafik', members: '432', activity: 'Düşük' }
+    ],
+    'yemek': [
+      { name: '#yemek', members: '1.7K', activity: 'Yüksek' },
+      { name: '#pisirme', members: '823', activity: 'Orta' },
+      { name: '#kahve', members: '456', activity: 'Düşük' }
+    ]
+  };
+
+  let popularChannels = [];
+  
+  // Seçilen ilgi alanlarına göre kanalları topla
+  selectedHobbies.forEach(hobby => {
+    if (channelMap[hobby]) {
+      popularChannels = popularChannels.concat(channelMap[hobby]);
+    }
+  });
+
+  // Eğer hiç ilgi alanı seçilmemişse genel kanalları göster
+  if (popularChannels.length === 0) {
+    popularChannels = [
+      { name: '#genel', members: '5.2K', activity: 'Yüksek' },
+      { name: '#teknoloji', members: '2.1K', activity: 'Yüksek' },
+      { name: '#spor', members: '1.8K', activity: 'Orta' },
+      { name: '#müzik', members: '1.5K', activity: 'Orta' },
+      { name: '#oyun', members: '3.2K', activity: 'Yüksek' }
+    ];
+  }
+
+  // Üyelerine göre sırala (en popüler önce)
+  popularChannels.sort((a, b) => {
+    const aMembers = parseInt(a.members.replace(/[^\d]/g, ''));
+    const bMembers = parseInt(b.members.replace(/[^\d]/g, ''));
+    return bMembers - aMembers;
+  });
+
+  // En fazla 8 kanal göster
+  return popularChannels.slice(0, 8);
 }
 
 // İlgi alanı arama
@@ -353,6 +451,178 @@ function updateStats() {
   console.log('📊 İstatistikler güncelleniyor...');
 }
 
+// Donate modal açma
+function openDonateModal() {
+  const donateModal = document.getElementById('donateModal');
+  if (donateModal) {
+    donateModal.classList.add('open');
+    // Event listener'ları ekle
+    setupDonateEventListeners();
+  }
+}
+
+// Donate modal kapatma
+function closeDonateModal() {
+  const donateModal = document.getElementById('donateModal');
+  if (donateModal) {
+    donateModal.classList.remove('open');
+  }
+}
+
+// Donate event listener'larını kur
+function setupDonateEventListeners() {
+  // Bağış seçenekleri
+  document.querySelectorAll('.donate-option').forEach(option => {
+    option.addEventListener('click', function() {
+      // Önceki seçimi kaldır
+      document.querySelectorAll('.donate-option').forEach(opt => opt.classList.remove('selected'));
+      // Yeni seçimi işaretle
+      this.classList.add('selected');
+      
+      // Özel miktar seçildiyse input'u göster
+      if (this.dataset.amount === 'custom') {
+        document.getElementById('customAmount').style.display = 'block';
+      } else {
+        document.getElementById('customAmount').style.display = 'none';
+      }
+    });
+  });
+
+  // Ödeme yöntemleri
+  document.querySelectorAll('.payment-method').forEach(method => {
+    method.addEventListener('click', function() {
+      // Önceki seçimi kaldır
+      document.querySelectorAll('.payment-method').forEach(meth => meth.classList.remove('active'));
+      // Yeni seçimi işaretle
+      this.classList.add('active');
+    });
+  });
+}
+
+// Bağış işleme
+function processDonation() {
+  const selectedOption = document.querySelector('.donate-option.selected');
+  const selectedMethod = document.querySelector('.payment-method.active');
+  const customAmount = document.getElementById('customAmount').value;
+  const message = document.getElementById('donateMessage').value;
+
+  if (!selectedOption) {
+    alert('Lütfen bir bağış miktarı seçin!');
+    return;
+  }
+
+  if (!selectedMethod) {
+    alert('Lütfen bir ödeme yöntemi seçin!');
+    return;
+  }
+
+  let amount = selectedOption.dataset.amount;
+  if (amount === 'custom') {
+    if (!customAmount || customAmount < 1) {
+      alert('Lütfen geçerli bir miktar girin!');
+      return;
+    }
+    amount = customAmount;
+  }
+
+  const paymentMethod = selectedMethod.dataset.method;
+  
+  console.log('💰 Bağış işlemi:', {
+    amount: amount + '₺',
+    method: paymentMethod,
+    message: message
+  });
+
+  // Bağış işlemini simüle et
+  alert(`💰 ${amount}₺ bağış ${paymentMethod} ile işleniyor...\n\nMesaj: ${message || 'Mesaj yok'}`);
+  
+  // Modal'ı kapat
+  closeDonateModal();
+  
+  // Form'u temizle
+  document.querySelectorAll('.donate-option').forEach(opt => opt.classList.remove('selected'));
+  document.querySelectorAll('.payment-method').forEach(meth => meth.classList.remove('active'));
+  document.querySelector('.payment-method[data-method="card"]').classList.add('active');
+  document.getElementById('customAmount').value = '';
+  document.getElementById('donateMessage').value = '';
+}
+
+// Sponsor kanal modal açma
+function openSponsorChannelModal() {
+  const sponsorModal = document.getElementById('sponsorChannelModal');
+  if (sponsorModal) {
+    sponsorModal.classList.add('open');
+    // Event listener'ları ekle
+    setupSponsorChannelEventListeners();
+  }
+}
+
+// Sponsor kanal modal kapatma
+function closeSponsorChannelModal() {
+  const sponsorModal = document.getElementById('sponsorChannelModal');
+  if (sponsorModal) {
+    sponsorModal.classList.remove('open');
+  }
+}
+
+// Sponsor kanal event listener'larını kur
+function setupSponsorChannelEventListeners() {
+  // Fiyatlandırma seçenekleri
+  document.querySelectorAll('.pricing-option').forEach(option => {
+    option.addEventListener('click', function() {
+      // Önceki seçimi kaldır
+      document.querySelectorAll('.pricing-option').forEach(opt => opt.classList.remove('selected'));
+      // Yeni seçimi işaretle
+      this.classList.add('selected');
+    });
+  });
+}
+
+// Sponsor kanal oluşturma
+function createSponsorChannel() {
+  const channelName = document.getElementById('sponsorChannelName').value;
+  const company = document.getElementById('sponsorCompany').value;
+  const description = document.getElementById('sponsorDescription').value;
+  const website = document.getElementById('sponsorWebsite').value;
+  const selectedPricing = document.querySelector('.pricing-option.selected');
+  const visualOptions = Array.from(document.querySelectorAll('input[name="visual[]"]:checked'))
+    .map(checkbox => checkbox.value);
+
+  if (!channelName || !company) {
+    alert('Lütfen kanal adı ve şirket adını girin!');
+    return;
+  }
+
+  if (!selectedPricing) {
+    alert('Lütfen bir fiyatlandırma seçeneği seçin!');
+    return;
+  }
+
+  const duration = selectedPricing.dataset.duration;
+  const price = selectedPricing.dataset.price;
+
+  console.log('💼 Sponsor kanal oluşturuluyor:', {
+    channelName,
+    company,
+    description,
+    website,
+    duration: duration + ' gün',
+    price: price + '₺',
+    visualOptions
+  });
+
+  // Sponsor kanal oluşturma işlemini simüle et
+  alert(`💼 Sponsor kanal oluşturuluyor!\n\nKanal: ${channelName}\nŞirket: ${company}\nSüre: ${duration} gün\nFiyat: ${price}₺\n\nGörsel özellikler: ${visualOptions.join(', ') || 'Yok'}`);
+  
+  // Modal'ı kapat
+  closeSponsorChannelModal();
+  
+  // Form'u temizle
+  document.getElementById('sponsorChannelForm').reset();
+  document.querySelectorAll('.pricing-option').forEach(opt => opt.classList.remove('selected'));
+  document.querySelectorAll('input[name="visual[]"]').forEach(checkbox => checkbox.checked = false);
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -376,6 +646,12 @@ window.toggleFollow = toggleFollow;
 window.updateOnlineUsers = updateOnlineUsers;
 window.updateRecentActivities = updateRecentActivities;
 window.updateStats = updateStats;
+window.openDonateModal = openDonateModal;
+window.closeDonateModal = closeDonateModal;
+window.processDonation = processDonation;
+window.openSponsorChannelModal = openSponsorChannelModal;
+window.closeSponsorChannelModal = closeSponsorChannelModal;
+window.createSponsorChannel = createSponsorChannel;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde

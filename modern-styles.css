@@ -861,6 +861,261 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Donate Modal Stilleri */
+.donate-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.donate-section h3 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Bağış Seçenekleri */
+.donate-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+}
+
+.donate-option {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.donate-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #667eea;
+}
+
+.donate-option.selected {
+    background: #667eea;
+    color: white;
+    border-color: #5a6fd8;
+}
+
+.donate-amount {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.donate-description {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Ödeme Yöntemleri */
+.payment-methods {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.payment-method {
+    flex: 1;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-method:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #667eea;
+}
+
+.payment-method.active {
+    background: #667eea;
+    color: white;
+    border-color: #5a6fd8;
+}
+
+.payment-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.payment-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Özel Miktar */
+.custom-amount input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.custom-amount input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Bağış Mesajı */
+#donateMessage {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+#donateMessage:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Sponsor Channel Modal Stilleri */
+.sponsor-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.sponsor-section h3 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Fiyatlandırma Seçenekleri */
+.pricing-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.pricing-option {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pricing-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #667eea;
+}
+
+.pricing-option.selected {
+    background: #667eea;
+    color: white;
+    border-color: #5a6fd8;
+}
+
+.pricing-duration {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-option.selected .pricing-price {
+    color: white;
+}
+
+.pricing-features {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Görsel Seçenekleri */
+.visual-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.visual-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.visual-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visual-option input[type="checkbox"] {
+    margin-right: 0.75rem;
+    transform: scale(1.2);
+}
+
+.visual-option label {
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Popüler Kanallar */
+.channel-item.popular {
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.channel-item.popular:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.channel-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.channel-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.member-count {
+    color: #ffd700;
+}
+
+.activity-level {
+    color: #ff6b6b;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .container {
