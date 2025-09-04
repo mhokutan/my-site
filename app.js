@@ -212,7 +212,7 @@ function createChannel() {
     alert('Lütfen kanal adı girin!');
     return;
   }
-
+  
   console.log('Kanal oluşturuluyor:', { channelName, channelType, channelPassword });
   
   // Yeni kanalı listeye ekle
@@ -286,10 +286,16 @@ function selectLocation(countryCode, countryName, cityName) {
     'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
   };
   
-  const detectedLanguage = languageMap[countryCode] || 'TR';
+  const detectedLanguage = languageMap[countryCode] || 'US';
+  
+  // Dil değiştirme fonksiyonunu çağır
   if (window.onLocationChange) {
     window.onLocationChange(detectedLanguage);
+  } else if (window.changeLanguage) {
+    window.changeLanguage(detectedLanguage);
   }
+  
+  console.log(`🌍 Lokasyon değişti: ${countryCode} -> ${detectedLanguage}`);
   
   alert(`📍 Lokasyon güncellendi: ${cityName}, ${countryName}`);
   closeLocationModal();
@@ -486,8 +492,118 @@ function checkHobbyLimit() {
 // DM başlatma
 function startDM(username) {
   console.log(`💬 DM başlatılıyor: ${username}`);
-  // DM modalını aç veya yeni sekme aç
-  alert(`💬 ${username} ile DM başlatılıyor...`);
+  openDMModal();
+  if (username) {
+    selectDMUser(username);
+  }
+}
+
+// DM modal açma
+function openDMModal() {
+  const dmModal = document.getElementById('dmModal');
+  if (dmModal) {
+    dmModal.classList.add('open');
+  }
+}
+
+// DM modal kapatma
+function closeDMModal() {
+  const dmModal = document.getElementById('dmModal');
+  if (dmModal) {
+    dmModal.classList.remove('open');
+  }
+}
+
+// DM kullanıcı seçme
+function selectDMUser(username) {
+  const dmUserName = document.getElementById('dmUserName');
+  const dmChatSection = document.getElementById('dmChatSection');
+  
+  if (dmUserName) {
+    dmUserName.textContent = username;
+  }
+  
+  if (dmChatSection) {
+    dmChatSection.style.display = 'block';
+  }
+  
+  // DM mesaj geçmişini yükle
+  loadDMMessages(username);
+  
+  console.log(`💬 DM kullanıcısı seçildi: ${username}`);
+}
+
+// DM mesajları yükle
+function loadDMMessages(username) {
+  const dmMessages = document.getElementById('dmMessages');
+  if (!dmMessages) return;
+  
+  // Örnek mesajlar
+  const sampleMessages = [
+    { sender: 'You', message: 'Merhaba!', time: '10:30', own: true },
+    { sender: username, message: 'Selam! Nasılsın?', time: '10:31', own: false },
+    { sender: 'You', message: 'İyiyim, teşekkürler!', time: '10:32', own: true }
+  ];
+  
+  dmMessages.innerHTML = '';
+  sampleMessages.forEach(msg => {
+    const div = document.createElement('div');
+    div.className = `dm-message ${msg.own ? 'own' : 'other'}`;
+    div.innerHTML = `
+      <div class="dm-message-sender">${msg.sender}</div>
+      <div class="dm-message-text">${msg.message}</div>
+      <div class="dm-message-time">${msg.time}</div>
+    `;
+    dmMessages.appendChild(div);
+  });
+  
+  // Scroll'u en alta kaydır
+  dmMessages.scrollTop = dmMessages.scrollHeight;
+}
+
+// DM kullanıcı arama
+function searchUsers() {
+  const searchTerm = document.getElementById('dmUserSearch').value.toLowerCase();
+  const userItems = document.querySelectorAll('.dm-user-item');
+  
+  userItems.forEach(item => {
+    const userName = item.querySelector('.dm-user-name').textContent.toLowerCase();
+    if (userName.includes(searchTerm)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// DM mesaj gönderme
+function sendDMMessage() {
+  const messageInput = document.getElementById('dmMessageInput');
+  const message = messageInput.value.trim();
+  
+  if (!message) return;
+  
+  const dmMessages = document.getElementById('dmMessages');
+  const dmUserName = document.getElementById('dmUserName').textContent;
+  
+  // Yeni mesaj ekle
+  const div = document.createElement('div');
+  div.className = 'dm-message own';
+  const time = new Date().toLocaleTimeString();
+  div.innerHTML = `
+    <div class="dm-message-sender">You</div>
+    <div class="dm-message-text">${message}</div>
+    <div class="dm-message-time">${time}</div>
+  `;
+  dmMessages.appendChild(div);
+  
+  // Input'u temizle
+  messageInput.value = '';
+  
+  // Scroll'u en alta kaydır
+  dmMessages.scrollTop = dmMessages.scrollHeight;
+  
+  console.log(`💬 DM mesaj gönderildi: ${message}`);
 }
 
 // Takip etme/takibi bırakma
@@ -546,7 +662,7 @@ function setupDonateEventListeners() {
       // Özel miktar seçildiyse input'u göster
       if (this.dataset.amount === 'custom') {
         document.getElementById('customAmount').style.display = 'block';
-      } else {
+    } else {
         document.getElementById('customAmount').style.display = 'none';
       }
     });
@@ -574,12 +690,12 @@ function processDonation() {
     alert('Lütfen bir bağış miktarı seçin!');
     return;
   }
-
+  
   if (!selectedMethod) {
     alert('Lütfen bir ödeme yöntemi seçin!');
     return;
   }
-
+  
   let amount = selectedOption.dataset.amount;
   if (amount === 'custom') {
     if (!customAmount || customAmount < 1) {
@@ -833,6 +949,11 @@ window.createSponsorChannel = createSponsorChannel;
 window.openSettingsModal = openSettingsModal;
 window.closeSettingsModal = closeSettingsModal;
 window.saveSettings = saveSettings;
+window.openDMModal = openDMModal;
+window.closeDMModal = closeDMModal;
+window.selectDMUser = selectDMUser;
+window.searchUsers = searchUsers;
+window.sendDMMessage = sendDMMessage;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
@@ -966,6 +1087,22 @@ document.addEventListener('DOMContentLoaded', () => {
       updateSelectedHobbies();
     });
   });
+
+  // DM mesaj gönderme event listener'ı
+  const dmSendBtn = document.getElementById('dmSendBtn');
+  const dmMessageInput = document.getElementById('dmMessageInput');
+  
+  if (dmSendBtn) {
+    dmSendBtn.addEventListener('click', sendDMMessage);
+  }
+  
+  if (dmMessageInput) {
+    dmMessageInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendDMMessage();
+      }
+    });
+  }
   
   console.log('✅ App başlatıldı');
 });

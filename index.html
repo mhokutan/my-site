@@ -537,6 +537,58 @@
         </div>
     </div>
 
+    <!-- DM Modal -->
+    <div id="dmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💬 Özel Mesaj</h2>
+                <button class="close-btn" onclick="closeDMModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="dm-section">
+                    <h3>👤 Kullanıcı Seç</h3>
+                    <div class="user-search">
+                        <input type="text" id="dmUserSearch" placeholder="Kullanıcı ara..." onkeyup="searchUsers()">
+                    </div>
+                    <div id="dmUserList" class="dm-user-list">
+                        <div class="dm-user-item" onclick="selectDMUser('CoolTiger123')">
+                            <div class="dm-user-avatar">👤</div>
+                            <div class="dm-user-info">
+                                <div class="dm-user-name">CoolTiger123</div>
+                                <div class="dm-user-status online">Çevrimiçi</div>
+                            </div>
+                        </div>
+                        <div class="dm-user-item" onclick="selectDMUser('SmartEagle456')">
+                            <div class="dm-user-avatar">👤</div>
+                            <div class="dm-user-info">
+                                <div class="dm-user-name">SmartEagle456</div>
+                                <div class="dm-user-status away">Uzakta</div>
+                            </div>
+                        </div>
+                        <div class="dm-user-item" onclick="selectDMUser('FastWolf789')">
+                            <div class="dm-user-avatar">👤</div>
+                            <div class="dm-user-info">
+                                <div class="dm-user-name">FastWolf789</div>
+                                <div class="dm-user-status offline">Çevrimdışı</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dm-section" id="dmChatSection" style="display: none;">
+                    <h3>💬 <span id="dmUserName">Kullanıcı</span> ile Sohbet</h3>
+                    <div id="dmMessages" class="dm-messages">
+                        <!-- DM mesajları buraya gelecek -->
+                    </div>
+                    <div class="dm-input-area">
+                        <input type="text" id="dmMessageInput" placeholder="Mesajınızı yazın..." maxlength="500">
+                        <button id="dmSendBtn" class="btn btn-primary">📤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Donate Modal -->
     <div id="donateModal" class="modal">
         <div class="modal-content">
