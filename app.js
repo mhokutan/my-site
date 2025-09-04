@@ -305,16 +305,47 @@ function createChannel() {
   
   console.log('Kanal oluşturuluyor:', { channelName, channelType, channelPassword });
   
-  // Yeni kanalı listeye ekle
-  addChannelToList(channelName, channelType);
-  
-  // Modal'ı kapat
-  closeCreateChannelModal();
-  
-  // Form'u temizle
-  document.getElementById('createChannelForm').reset();
-  
-  alert(`✅ Kanal oluşturuldu: ${channelName}`);
+  try {
+    const response = await fetch(API + '/channels/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: token,
+        name: channelName,
+        type: channelType,
+        password: channelPassword
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      if (data.joined) {
+        alert('Bu kanal zaten mevcut! Mevcut kanala katıldınız.');
+      } else {
+        alert('Kanal başarıyla oluşturuldu!');
+      }
+      
+      // Yeni kanalı listeye ekle
+      addChannelToList(channelName, channelType);
+      
+      // Modal'ı kapat
+      closeCreateChannelModal();
+      
+      // Form'u temizle
+      document.getElementById('createChannelForm').reset();
+      
+      // Oluşturulan kanala otomatik katıl
+      if (data.channel) {
+        switchChannel(data.channel.name);
+      }
+    } else {
+      alert('Kanal oluşturma hatası: ' + data.error);
+    }
+  } catch (error) {
+    console.error('Kanal oluşturma hatası:', error);
+    alert('Kanal oluşturulurken hata oluştu.');
+  }
 }
 
 // Kanalı listeye ekle
@@ -860,29 +891,48 @@ function searchUsersForAdd() {
 function addFriend(username) {
   console.log(`👥 Arkadaş ekleniyor: ${username}`);
   
-  // Arkadaş listesine ekle
-  const friendsList = document.getElementById('friendsList');
-  if (friendsList) {
-    const div = document.createElement('div');
-    div.className = 'friend-item';
-    div.innerHTML = `
-      <div class="friend-avatar">👤</div>
-      <div class="friend-info">
-        <div class="friend-name">${username}</div>
-        <div class="friend-status online">Çevrimiçi</div>
-      </div>
-      <div class="friend-actions">
-        <button class="btn-icon" onclick="startDM('${username}')" title="DM">💬</button>
-        <button class="btn-icon" onclick="toggleFollow('${username}')" title="Takip Et">👥</button>
-      </div>
-    `;
-    friendsList.appendChild(div);
+  try {
+    // Backend'e arkadaş ekleme isteği gönder
+    const response = await fetch(API + '/user/follow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: token,
+        targetUserId: username
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Arkadaş listesine ekle
+      const friendsList = document.getElementById('friendsList');
+      if (friendsList) {
+        const div = document.createElement('div');
+        div.className = 'friend-item';
+        div.innerHTML = `
+          <div class="friend-avatar">👤</div>
+          <div class="friend-info">
+            <div class="friend-name">${username}</div>
+            <div class="friend-status online">Çevrimiçi</div>
+          </div>
+          <div class="friend-actions">
+            <button class="btn-icon" onclick="startDM('${username}')" title="DM">💬</button>
+            <button class="btn-icon" onclick="toggleFollow('${username}')" title="Takip Et">👥</button>
+          </div>
+        `;
+        friendsList.appendChild(div);
+      }
+      
+      alert('Arkadaş başarıyla eklendi!');
+      closeAddFriendModal();
+    } else {
+      alert('Arkadaş eklenemedi: ' + (data.error || 'Bilinmeyen hata'));
+    }
+  } catch (error) {
+    console.error('Arkadaş ekleme hatası:', error);
+    alert('Arkadaş eklenirken hata oluştu.');
   }
-  
-  // Modal'ı kapat
-  closeAddFriendModal();
-  
-  alert(`✅ ${username} arkadaş olarak eklendi!`);
 }
 
 // E-posta daveti gönderme

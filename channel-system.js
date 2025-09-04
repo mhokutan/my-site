@@ -150,7 +150,31 @@ class ChannelSystem {
   updateHobbies(newHobbies) {
     console.log('🎯 İlgi alanları güncelleniyor:', newHobbies);
     this.userHobbies = newHobbies;
+    localStorage.setItem('hobbies', JSON.stringify(newHobbies));
     this.createHobbyChannels();
+    
+    // Backend'e ilgi alanlarını gönder
+    this.sendHobbiesToBackend(newHobbies);
+  }
+  
+  // Backend'e ilgi alanlarını gönder
+  async sendHobbiesToBackend(hobbies) {
+    try {
+      const response = await fetch(window.API + '/user/hobbies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: window.token || 'anonymous',
+          hobbies: hobbies
+        })
+      });
+      
+      if (response.ok) {
+        console.log('✅ İlgi alanları backend\'e gönderildi');
+      }
+    } catch (error) {
+      console.error('❌ İlgi alanları gönderme hatası:', error);
+    }
   }
 
   // Sayfa yüklendiğinde çalıştır

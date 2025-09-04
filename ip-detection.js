@@ -107,6 +107,11 @@ async function detectUserLocation() {
         window.onLocationChange(detectedLanguage);
       }
       
+      // Sayfayı yenile ki dil değişikliği uygulanabilsin
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+      
       // Lokasyona göre kanalları yükle
       if (window.loadLocationBasedChannels) {
         window.loadLocationBasedChannels(locationData);
