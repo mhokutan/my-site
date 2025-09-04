@@ -46,94 +46,11 @@
                     </div>
                 </div>
 
-                <!-- Arkadaşlar Bölümü -->
-                <div class="sidebar-section">
-                    <h3>👥 Arkadaşlarım</h3>
-                    <div id="friendsList" class="friends-list">
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">CoolTiger123</div>
-                                <div class="friend-status online">Çevrimiçi</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" onclick="startDM('CoolTiger123')" title="DM">💬</button>
-                                <button class="btn-icon" onclick="toggleFollow('CoolTiger123')" title="Takip Et">👥</button>
-                            </div>
-                        </div>
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">SmartEagle456</div>
-                                <div class="friend-status away">Uzakta</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" onclick="startDM('SmartEagle456')" title="DM">💬</button>
-                                <button class="btn-icon" onclick="toggleFollow('SmartEagle456')" title="Takip Et">👥</button>
-                            </div>
-                        </div>
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">FastWolf789</div>
-                                <div class="friend-status offline">Çevrimdışı</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" onclick="startDM('FastWolf789')" title="DM">💬</button>
-                                <button class="btn-icon" onclick="toggleFollow('FastWolf789')" title="Takip Et">👥</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Arkadaş Ekle Butonu -->
-                    <div class="add-friend-section">
-                        <button class="btn btn-primary btn-sm" onclick="openAddFriendModal()">➕ Arkadaş Ekle</button>
-                    </div>
-                </div>
 
                 <div class="sidebar-section">
                     <button id="btnCreateChannel" class="btn btn-success btn-full" onclick="openCreateChannelModal()">➕ Kanal Oluştur</button>
                 </div>
 
-                <!-- Arkadaşlar Bölümü -->
-                <div class="sidebar-section">
-                    <h3>👥 Arkadaşlarım</h3>
-                    <div id="friendsList" class="friends-list">
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">CoolTiger123</div>
-                                <div class="friend-status online">Çevrimiçi</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" title="Mesaj Gönder" onclick="startDM('CoolTiger123')">💬</button>
-                                <button class="btn-icon" title="Takip Et" onclick="toggleFollow('CoolTiger123')">➕</button>
-                            </div>
-                        </div>
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">SmartEagle456</div>
-                                <div class="friend-status away">Uzakta</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" title="Mesaj Gönder" onclick="startDM('SmartEagle456')">💬</button>
-                                <button class="btn-icon" title="Takip Et" onclick="toggleFollow('SmartEagle456')">➕</button>
-                            </div>
-                        </div>
-                        <div class="friend-item">
-                            <div class="friend-avatar">👤</div>
-                            <div class="friend-info">
-                                <div class="friend-name">FastWolf789</div>
-                                <div class="friend-status offline">Çevrimdışı</div>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="btn-icon" title="Mesaj Gönder" onclick="startDM('FastWolf789')">💬</button>
-                                <button class="btn-icon" title="Takip Et" onclick="toggleFollow('FastWolf789')">➕</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </aside>
 
             <!-- Chat Area -->
@@ -223,6 +140,51 @@
                         <button class="btn btn-sm btn-secondary" onclick="openLocationModal()">🌍 Lokasyon Değiştir</button>
                         <button class="btn btn-sm btn-success" onclick="openDonateModal()">💰 Bağış Yap</button>
                         <button class="btn btn-sm btn-info" onclick="openSettingsModal()">⚙️ Ayarlar</button>
+                    </div>
+                </div>
+
+                <!-- Arkadaşlar Bölümü -->
+                <div class="right-section">
+                    <h3>👥 Arkadaşlarım</h3>
+                    <div id="friendsList" class="friends-list">
+                        <div class="friend-item">
+                            <div class="friend-avatar">👤</div>
+                            <div class="friend-info">
+                                <div class="friend-name">CoolTiger123</div>
+                                <div class="friend-status online">Çevrimiçi</div>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="btn-icon" onclick="startDM('CoolTiger123')" title="DM">💬</button>
+                                <button class="btn-icon" onclick="toggleFollow('CoolTiger123')" title="Takip Et">👥</button>
+                            </div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">👤</div>
+                            <div class="friend-info">
+                                <div class="friend-name">SmartEagle456</div>
+                                <div class="friend-status away">Uzakta</div>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="btn-icon" onclick="startDM('SmartEagle456')" title="DM">💬</button>
+                                <button class="btn-icon" onclick="toggleFollow('SmartEagle456')" title="Takip Et">👥</button>
+                            </div>
+                        </div>
+                        <div class="friend-item">
+                            <div class="friend-avatar">👤</div>
+                            <div class="friend-info">
+                                <div class="friend-name">FastWolf789</div>
+                                <div class="friend-status offline">Çevrimdışı</div>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="btn-icon" onclick="startDM('FastWolf789')" title="DM">💬</button>
+                                <button class="btn-icon" onclick="toggleFollow('FastWolf789')" title="Takip Et">👥</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Arkadaş Ekle Butonu -->
+                    <div class="add-friend-section">
+                        <button class="btn btn-primary btn-sm" onclick="openAddFriendModal()">➕ Arkadaş Ekle</button>
                     </div>
                 </div>
 
