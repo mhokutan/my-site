@@ -129,5 +129,5 @@ npm start
 ---
 
 **Geliştirici**: Hazim  
-**Versiyon**: 1.0.0  
+**Versiyon**: 4.4.3  
 **Lisans**: MIT

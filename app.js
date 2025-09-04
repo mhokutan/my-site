@@ -21,6 +21,8 @@ function connectWS() {
         else if (data.type === "typing") showTypingIndicator(data.user);
         else if (data.type === "user_joined") updateOnlineUsers(data.user);
         else if (data.type === "user_left") removeOnlineUser(data.user);
+        else if (data.type === "dm-message") handleDMMessage(data);
+        else if (data.type === "dm-error") handleDMError(data);
       } catch (error) {
         console.error('❌ Mesaj parse hatası:', error);
       }
@@ -628,17 +630,57 @@ function selectDMUser(username) {
 }
 
 // DM mesajları yükle
-function loadDMMessages(username) {
+async function loadDMMessages(username) {
   const dmMessages = document.getElementById('dmMessages');
   if (!dmMessages) return;
-  
-  // Örnek mesajlar
+
+  // Gerçek API'den DM geçmişini al
+  try {
+    const response = await fetch(API + '/dm/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: token,
+        userId1: getCurrentUserId(),
+        userId2: getUserIdByUsername(username)
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      dmMessages.innerHTML = '';
+      data.messages.forEach(msg => {
+        const div = document.createElement('div');
+        const isOwn = msg.from === getCurrentUserId();
+        div.className = `dm-message ${isOwn ? 'own' : 'other'}`;
+        div.innerHTML = `
+          <div class="dm-message-sender">${isOwn ? 'You' : msg.fromDisplay}</div>
+          <div class="dm-message-text">${msg.text}</div>
+          <div class="dm-message-time">${formatTime(msg.timestamp)}</div>
+        `;
+        dmMessages.appendChild(div);
+      });
+    } else {
+      // Hata durumunda örnek mesajlar göster
+      showSampleDMMessages(dmMessages, username);
+    }
+  } catch (error) {
+    console.error('DM geçmişi yükleme hatası:', error);
+    showSampleDMMessages(dmMessages, username);
+  }
+
+  dmMessages.scrollTop = dmMessages.scrollHeight;
+}
+
+// Örnek DM mesajları göster
+function showSampleDMMessages(dmMessages, username) {
   const sampleMessages = [
     { sender: 'You', message: 'Merhaba!', time: '10:30', own: true },
     { sender: username, message: 'Selam! Nasılsın?', time: '10:31', own: false },
     { sender: 'You', message: 'İyiyim, teşekkürler!', time: '10:32', own: true }
   ];
-  
+
   dmMessages.innerHTML = '';
   sampleMessages.forEach(msg => {
     const div = document.createElement('div');
@@ -650,9 +692,6 @@ function loadDMMessages(username) {
     `;
     dmMessages.appendChild(div);
   });
-  
-  // Scroll'u en alta kaydır
-  dmMessages.scrollTop = dmMessages.scrollHeight;
 }
 
 // DM kullanıcı arama
@@ -671,7 +710,7 @@ function searchUsers() {
 }
 
 // DM mesaj gönderme
-function sendDMMessage() {
+async function sendDMMessage() {
   const messageInput = document.getElementById('dmMessageInput');
   const message = messageInput.value.trim();
   
@@ -697,7 +736,67 @@ function sendDMMessage() {
   // Scroll'u en alta kaydır
   dmMessages.scrollTop = dmMessages.scrollHeight;
   
+  // WebSocket ile DM mesajını gönder
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    const dmData = {
+      type: 'dm',
+      toUid: getUserIdByUsername(dmUserName),
+      text: message
+    };
+    ws.send(JSON.stringify(dmData));
+  }
+  
   console.log(`💬 DM mesaj gönderildi: ${message}`);
+}
+
+// Eksik yardımcı fonksiyonlar
+function getCurrentUserId() {
+  return localStorage.getItem('userId') || 'anonymous';
+}
+
+function getUserIdByUsername(username) {
+  // Bu fonksiyon gerçek implementasyonda kullanıcı listesinden ID döndürmeli
+  return username.toLowerCase().replace(/\s+/g, '_');
+}
+
+function formatTime(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString('tr-TR', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+}
+
+// DM mesaj handler'ları
+function handleDMMessage(data) {
+  const dmMessages = document.getElementById('dmMessages');
+  if (!dmMessages) return;
+  
+  const div = document.createElement('div');
+  const isOwn = data.from === getCurrentUserId();
+  div.className = `dm-message ${isOwn ? 'own' : 'other'}`;
+  div.innerHTML = `
+    <div class="dm-message-sender">${isOwn ? 'You' : data.fromDisplay}</div>
+    <div class="dm-message-text">${data.text}</div>
+    <div class="dm-message-time">${formatTime(data.timestamp)}</div>
+  `;
+  dmMessages.appendChild(div);
+  dmMessages.scrollTop = dmMessages.scrollHeight;
+}
+
+function handleDMError(data) {
+  console.error('DM Hatası:', data.message);
+  // Kullanıcıya hata mesajı göster
+  const dmMessages = document.getElementById('dmMessages');
+  if (dmMessages) {
+    const div = document.createElement('div');
+    div.className = 'dm-message error';
+    div.innerHTML = `
+      <div class="dm-message-text">❌ ${data.message}</div>
+    `;
+    dmMessages.appendChild(div);
+    dmMessages.scrollTop = dmMessages.scrollHeight;
+  }
 }
 
 // Arkadaş ekle modal açma

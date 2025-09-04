@@ -42,9 +42,29 @@ async function detectUserLocation() {
   try {
     console.log('🔍 IP adresinden lokasyon algılanıyor...');
     
-    // IP API'den lokasyon bilgisi al
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
+    // IP API'den lokasyon bilgisi al (birden fazla API dene)
+    let data;
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      data = await response.json();
+    } catch (error) {
+      console.log('⚠️ ipapi.co başarısız, alternatif API deneniyor...');
+      try {
+        const response = await fetch('https://ipinfo.io/json');
+        const ipinfoData = await response.json();
+        data = {
+          country_name: ipinfoData.country,
+          country_code: ipinfoData.country,
+          city: ipinfoData.city,
+          region: ipinfoData.region,
+          ip: ipinfoData.ip,
+          timezone: ipinfoData.timezone
+        };
+      } catch (error2) {
+        console.log('⚠️ ipinfo.io da başarısız, varsayılan lokasyon kullanılıyor...');
+        throw new Error('Tüm IP API\'leri başarısız');
+      }
+    }
     
     console.log('📍 API Yanıtı:', data);
     console.log('🌍 Gerçek lokasyon:', data.country_name, data.city, data.region);
@@ -178,10 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const existingLocation = localStorage.getItem('userLocation');
   console.log('🔍 Mevcut localStorage lokasyon:', existingLocation);
   
-  // Manuel lokasyon seçimi için modal aç (her zaman)
-  console.log('🔄 Manuel lokasyon seçimi için modal açılıyor...');
-  openLocationModal();
-  return;
+  // Otomatik lokasyon algılama yap
+  console.log('🔄 Otomatik lokasyon algılanıyor...');
+  detectUserLocation();
   
   // Eğer lokasyon zaten algılanmışsa tekrar algılama
   if (existingLocation) {
