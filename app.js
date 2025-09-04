@@ -6,6 +6,41 @@ const WS_URL = "wss://chat-backend-xi60.onrender.com";
 let ws, currentChannel = "#genel";
 let token = localStorage.getItem("token");
 
+// Temel modal fonksiyonları
+function openLoginModal() {
+  const loginModal = document.getElementById('loginModal');
+  if (loginModal) {
+    loginModal.classList.add('open');
+  }
+}
+
+function closeLoginModal() {
+  const loginModal = document.getElementById('loginModal');
+  if (loginModal) {
+    loginModal.classList.remove('open');
+  }
+}
+
+function openLocationModal() {
+  const locationModal = document.getElementById('locationModal');
+  if (locationModal) {
+    locationModal.classList.add('open');
+  }
+}
+
+function closeLocationModal() {
+  const locationModal = document.getElementById('locationModal');
+  if (locationModal) {
+    locationModal.classList.remove('open');
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem("token");
+  token = null;
+  location.reload();
+}
+
 // WebSocket bağlantısı
 function connectWS() {
   try {
@@ -70,6 +105,29 @@ function addMessage(user, text) {
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   }
+}
+
+// Mesaj gönderme
+function sendMessage() {
+  const messageInput = document.getElementById('messageInput');
+  const message = messageInput.value.trim();
+  
+  if (!message) return;
+  
+  // Mesajı UI'ya ekle
+  addMessage('You', message);
+  
+  // WebSocket ile mesaj gönder
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      type: 'message',
+      text: message,
+      channel: currentChannel
+    }));
+  }
+  
+  // Input'u temizle
+  messageInput.value = '';
 }
 
 // Typing indicator göster
@@ -293,7 +351,7 @@ function closeCreateChannelModal() {
 }
 
 // Kanal oluşturma
-function createChannel() {
+async function createChannel() {
   const channelName = document.getElementById('channelName').value;
   const channelType = document.querySelector('input[name="channelType"]:checked').value;
   const channelPassword = document.getElementById('channelPassword').value;
@@ -798,6 +856,62 @@ function formatTime(timestamp) {
   });
 }
 
+// Profil modal fonksiyonları
+function openProfileModal() {
+  const profileModal = document.getElementById('profileModal');
+  if (profileModal) {
+    profileModal.classList.add('open');
+  }
+}
+
+function closeProfileModal() {
+  const profileModal = document.getElementById('profileModal');
+  if (profileModal) {
+    profileModal.classList.remove('open');
+  }
+}
+
+// Kanal modal fonksiyonları
+function openCreateChannelModal() {
+  const channelModal = document.getElementById('createChannelModal');
+  if (channelModal) {
+    channelModal.classList.add('open');
+  }
+}
+
+function closeCreateChannelModal() {
+  const channelModal = document.getElementById('createChannelModal');
+  if (channelModal) {
+    channelModal.classList.remove('open');
+  }
+}
+
+// Kanal değiştirme
+function switchChannel(channelName) {
+  console.log('Kanal değiştiriliyor:', channelName);
+  currentChannel = channelName;
+  
+  // Kanal başlığını güncelle
+  const channelTitle = document.getElementById('channelTitle');
+  if (channelTitle) {
+    channelTitle.textContent = channelName;
+  }
+  
+  // Mesajları temizle
+  const messages = document.getElementById('messages');
+  if (messages) {
+    messages.innerHTML = `<div class="info">🚀 ${channelName} kanalına hoş geldiniz!</div>`;
+  }
+  
+  // WebSocket ile kanal değiştir
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      type: 'join',
+      channel: channelName
+    }));
+  }
+}
+
 // DM mesaj handler'ları
 function handleDMMessage(data) {
   const dmMessages = document.getElementById('dmMessages');
@@ -888,7 +1002,7 @@ function searchUsersForAdd() {
 }
 
 // Arkadaş ekleme
-function addFriend(username) {
+async function addFriend(username) {
   console.log(`👥 Arkadaş ekleniyor: ${username}`);
   
   try {
@@ -1549,6 +1663,7 @@ window.addFriend = addFriend;
 window.sendInvite = sendInvite;
 window.copyInviteLink = copyInviteLink;
 window.switchChannel = switchChannel;
+window.sendMessage = sendMessage;
 
 // Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', () => {
