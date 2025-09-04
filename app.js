@@ -288,7 +288,7 @@ function updateSelectedHobbies() {
   if (personalInfoSection) {
     if (selectedHobbies.length >= 3) {
       personalInfoSection.style.display = 'block';
-    } else {
+  } else {
       personalInfoSection.style.display = 'none';
     }
   }
@@ -321,6 +321,38 @@ function checkHobbyLimit() {
   return true;
 }
 
+// DM başlatma
+function startDM(username) {
+  console.log(`💬 DM başlatılıyor: ${username}`);
+  // DM modalını aç veya yeni sekme aç
+  alert(`💬 ${username} ile DM başlatılıyor...`);
+}
+
+// Takip etme/takibi bırakma
+function toggleFollow(username) {
+  console.log(`👥 Takip durumu değiştiriliyor: ${username}`);
+  // Takip durumunu değiştir
+  alert(`👥 ${username} takip durumu değiştiriliyor...`);
+}
+
+// Online kullanıcıları güncelle
+function updateOnlineUsers() {
+  // WebSocket'ten online kullanıcıları al ve güncelle
+  console.log('🟢 Online kullanıcılar güncelleniyor...');
+}
+
+// Son aktiviteleri güncelle
+function updateRecentActivities() {
+  // Son aktiviteleri al ve güncelle
+  console.log('📈 Son aktiviteler güncelleniyor...');
+}
+
+// İstatistikleri güncelle
+function updateStats() {
+  // İstatistikleri al ve güncelle
+  console.log('📊 İstatistikler güncelleniyor...');
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -339,6 +371,11 @@ window.autoDetectLocation = autoDetectLocation;
 window.skipLocation = skipLocation;
 window.filterHobbies = filterHobbies;
 window.updateSelectedHobbies = updateSelectedHobbies;
+window.startDM = startDM;
+window.toggleFollow = toggleFollow;
+window.updateOnlineUsers = updateOnlineUsers;
+window.updateRecentActivities = updateRecentActivities;
+window.updateStats = updateStats;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
@@ -431,10 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         btnSend.click();
-      }
-    });
-  }
-  
+    }
+  });
+}
+
   // Auth durumunu kontrol et
   if (token) {
     const authStatus = document.getElementById('authStatus');
