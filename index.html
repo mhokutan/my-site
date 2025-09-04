@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="sidebar-section">
-                    <button id="btnCreateChannel" class="btn btn-success btn-full">➕ Kanal Oluştur</button>
+                    <button id="btnCreateChannel" class="btn btn-success btn-full" onclick="openCreateChannelModal()">➕ Kanal Oluştur</button>
                 </div>
             </aside>
 
@@ -187,10 +187,30 @@
                 <button class="close-btn" onclick="closeProfileModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <!-- Anonim kullanıcı için rastgele nickname -->
+                <div class="profile-section">
+                    <h3>🎭 Kullanıcı Adı</h3>
+                    <div class="nickname-section">
+                        <input type="text" id="userNickname" placeholder="Rastgele nickname oluşturuluyor..." readonly>
+                        <button class="btn btn-secondary" onclick="generateRandomNickname()">🎲 Yeni Nickname</button>
+                    </div>
+                </div>
+                
                 <div class="profile-section">
                     <h3>🎯 İlgi Alanlarınız</h3>
                     <div class="hobby-grid-large" id="hobbyGrid">
-                        <!-- İlgi alanları buraya yüklenecek -->
+                        <div class="hobby-item-large" data-hobby="teknoloji">💻 Teknoloji</div>
+                        <div class="hobby-item-large" data-hobby="spor">⚽ Spor</div>
+                        <div class="hobby-item-large" data-hobby="müzik">🎵 Müzik</div>
+                        <div class="hobby-item-large" data-hobby="film">🎬 Film</div>
+                        <div class="hobby-item-large" data-hobby="oyun">🎮 Oyun</div>
+                        <div class="hobby-item-large" data-hobby="sanat">🎨 Sanat</div>
+                        <div class="hobby-item-large" data-hobby="yemek">🍕 Yemek</div>
+                        <div class="hobby-item-large" data-hobby="seyahat">✈️ Seyahat</div>
+                        <div class="hobby-item-large" data-hobby="kitap">📚 Kitap</div>
+                        <div class="hobby-item-large" data-hobby="fotoğraf">📸 Fotoğraf</div>
+                        <div class="hobby-item-large" data-hobby="moda">👗 Moda</div>
+                        <div class="hobby-item-large" data-hobby="bilim">🔬 Bilim</div>
                     </div>
                 </div>
                 

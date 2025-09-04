@@ -190,6 +190,106 @@ function closeLocationModal() {
   if (locationModal) locationModal.classList.remove("open");
 }
 
+// Kanal oluşturma modalı açma
+function openCreateChannelModal() {
+  const createChannelModal = document.getElementById('createChannelModal');
+  if (createChannelModal) createChannelModal.classList.add("open");
+}
+
+// Kanal oluşturma modalı kapatma
+function closeCreateChannelModal() {
+  const createChannelModal = document.getElementById('createChannelModal');
+  if (createChannelModal) createChannelModal.classList.remove("open");
+}
+
+// Rastgele nickname oluştur
+function generateRandomNickname() {
+  const adjectives = ['Cool', 'Smart', 'Fast', 'Bright', 'Happy', 'Lucky', 'Brave', 'Wise', 'Kind', 'Funny'];
+  const nouns = ['Tiger', 'Eagle', 'Wolf', 'Fox', 'Bear', 'Lion', 'Dragon', 'Phoenix', 'Falcon', 'Panther'];
+  const numbers = Math.floor(Math.random() * 999) + 1;
+  
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  
+  const nickname = `${adjective}${noun}${numbers}`;
+  
+  const nicknameInput = document.getElementById('userNickname');
+  if (nicknameInput) {
+    nicknameInput.value = nickname;
+  }
+  
+  return nickname;
+}
+
+// Lokasyon seçme
+function selectLocation(countryCode, countryName, cityName) {
+  const locationData = {
+    country: countryName,
+    countryCode: countryCode,
+    city: cityName
+  };
+  
+  localStorage.setItem('userLocation', JSON.stringify(locationData));
+  
+  // Dil değiştir
+  const languageMap = {
+    'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
+    'TR': 'TR',
+    'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
+    'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
+    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
+  };
+  
+  const detectedLanguage = languageMap[countryCode] || 'TR';
+  if (window.onLocationChange) {
+    window.onLocationChange(detectedLanguage);
+  }
+  
+  alert(`📍 Lokasyon güncellendi: ${cityName}, ${countryName}`);
+  closeLocationModal();
+}
+
+// Otomatik lokasyon algılama
+function autoDetectLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // Basit lokasyon algılama - gerçek uygulamada API kullanılır
+        selectLocation('TR', 'Turkey', 'Istanbul');
+      },
+      (error) => {
+        console.error('Geolocation hatası:', error);
+        selectLocation('TR', 'Turkey', 'Istanbul');
+      }
+    );
+  } else {
+    selectLocation('TR', 'Turkey', 'Istanbul');
+  }
+}
+
+// Lokasyon atlama
+function skipLocation() {
+  closeLocationModal();
+}
+
+// İlgi alanları güncelleme
+function updateSelectedHobbies() {
+  const selectedHobbies = Array.from(document.querySelectorAll('.hobby-item-large.selected'))
+    .map(item => item.dataset.hobby);
+  
+  // En az 3 ilgi alanı seçildiyse kişisel bilgiler bölümünü göster
+  const personalInfoSection = document.getElementById('personalInfoSection');
+  if (personalInfoSection) {
+    if (selectedHobbies.length >= 3) {
+      personalInfoSection.style.display = 'block';
+    } else {
+      personalInfoSection.style.display = 'none';
+    }
+  }
+  
+  console.log('🎯 Seçilen ilgi alanları:', selectedHobbies);
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -200,6 +300,12 @@ window.openProfileModal = openProfileModal;
 window.closeProfileModal = closeProfileModal;
 window.openLocationModal = openLocationModal;
 window.closeLocationModal = closeLocationModal;
+window.openCreateChannelModal = openCreateChannelModal;
+window.closeCreateChannelModal = closeCreateChannelModal;
+window.generateRandomNickname = generateRandomNickname;
+window.selectLocation = selectLocation;
+window.autoDetectLocation = autoDetectLocation;
+window.skipLocation = skipLocation;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
@@ -310,6 +416,17 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Kanalları yükle
   loadChannels();
+  
+  // Rastgele nickname oluştur
+  generateRandomNickname();
+  
+  // İlgi alanları event listener'larını ekle
+  document.querySelectorAll('.hobby-item-large').forEach(item => {
+    item.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      updateSelectedHobbies();
+    });
+  });
   
   console.log('✅ App başlatıldı');
 });
