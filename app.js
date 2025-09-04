@@ -277,6 +277,12 @@ function updateSelectedHobbies() {
   const selectedHobbies = Array.from(document.querySelectorAll('.hobby-item-large.selected'))
     .map(item => item.dataset.hobby);
   
+  // Sayaç güncelle
+  const hobbyCount = document.getElementById('hobbyCount');
+  if (hobbyCount) {
+    hobbyCount.textContent = `(${selectedHobbies.length}/10)`;
+  }
+  
   // En az 3 ilgi alanı seçildiyse kişisel bilgiler bölümünü göster
   const personalInfoSection = document.getElementById('personalInfoSection');
   if (personalInfoSection) {
@@ -288,6 +294,31 @@ function updateSelectedHobbies() {
   }
   
   console.log('🎯 Seçilen ilgi alanları:', selectedHobbies);
+}
+
+// İlgi alanı arama
+function filterHobbies() {
+  const searchTerm = document.getElementById('hobbySearch').value.toLowerCase();
+  const hobbyItems = document.querySelectorAll('.hobby-item-large');
+  
+  hobbyItems.forEach(item => {
+    const hobbyText = item.textContent.toLowerCase();
+    if (hobbyText.includes(searchTerm)) {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// İlgi alanı seçim limiti kontrolü
+function checkHobbyLimit() {
+  const selectedHobbies = document.querySelectorAll('.hobby-item-large.selected');
+  if (selectedHobbies.length >= 10) {
+    // 10'dan fazla seçim yapılamaz
+    return false;
+  }
+  return true;
 }
 
 // Global fonksiyonlar
@@ -306,6 +337,8 @@ window.generateRandomNickname = generateRandomNickname;
 window.selectLocation = selectLocation;
 window.autoDetectLocation = autoDetectLocation;
 window.skipLocation = skipLocation;
+window.filterHobbies = filterHobbies;
+window.updateSelectedHobbies = updateSelectedHobbies;
 window.switchChannel = switchChannel;
 
 // Sayfa yüklendiğinde
@@ -423,7 +456,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // İlgi alanları event listener'larını ekle
   document.querySelectorAll('.hobby-item-large').forEach(item => {
     item.addEventListener('click', function() {
-      this.classList.toggle('selected');
+      // Limit kontrolü
+      if (this.classList.contains('selected')) {
+        // Seçili ise kaldır
+        this.classList.remove('selected');
+      } else {
+        // Seçili değilse, limit kontrolü yap
+        if (checkHobbyLimit()) {
+          this.classList.add('selected');
+        } else {
+          alert('En fazla 10 ilgi alanı seçebilirsiniz!');
+          return;
+        }
+      }
       updateSelectedHobbies();
     });
   });

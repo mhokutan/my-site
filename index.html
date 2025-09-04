@@ -197,7 +197,10 @@
                 </div>
                 
                 <div class="profile-section">
-                    <h3>🎯 İlgi Alanlarınız</h3>
+                    <h3>🎯 İlgi Alanlarınız <span id="hobbyCount">(0/10)</span></h3>
+                    <div class="hobby-search">
+                        <input type="text" id="hobbySearch" placeholder="İlgi alanı ara..." onkeyup="filterHobbies()">
+                    </div>
                     <div class="hobby-grid-large" id="hobbyGrid">
                         <div class="hobby-item-large" data-hobby="teknoloji">💻 Teknoloji</div>
                         <div class="hobby-item-large" data-hobby="spor">⚽ Spor</div>

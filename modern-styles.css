@@ -561,6 +561,32 @@ body {
     font-size: 1.2rem;
 }
 
+/* Hobby Search */
+.hobby-search {
+    margin-bottom: 1rem;
+}
+
+.hobby-search input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.hobby-search input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Hobby Count */
+#hobbyCount {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .container {
