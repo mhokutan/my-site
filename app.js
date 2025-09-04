@@ -1665,9 +1665,40 @@ window.copyInviteLink = copyInviteLink;
 window.switchChannel = switchChannel;
 window.sendMessage = sendMessage;
 
+// Basit lokasyon algılama (sadece bir kez)
+function detectLocationOnce() {
+  const existingLocation = localStorage.getItem('userLocation');
+  if (existingLocation) {
+    console.log('✅ Lokasyon zaten mevcut:', JSON.parse(existingLocation));
+    return;
+  }
+  
+  console.log('🌍 İlk kez lokasyon algılanıyor...');
+  
+  // Varsayılan lokasyon ayarla
+  const defaultLocation = {
+    country: 'Turkey',
+    countryCode: 'TR',
+    city: 'Istanbul',
+    region: 'Istanbul',
+    ip: 'default'
+  };
+  
+  localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+  console.log('📍 Varsayılan lokasyon ayarlandı:', defaultLocation);
+  
+  // Dil değiştir
+  if (window.onLocationChange) {
+    window.onLocationChange('TR');
+  }
+}
+
 // Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 App başlatılıyor...');
+  
+  // Lokasyon algıla (sadece bir kez)
+  detectLocationOnce();
   
   // Event listener'ları ekle
   const btnLogin = document.getElementById('btnLogin');
