@@ -93,6 +93,30 @@
 3. Optimize performance if needed
 4. Update documentation
 
+## 🤖 AI CAPABILITIES
+
+**What I CAN do:**
+- ✅ Read and analyze all project files
+- ✅ Modify any file (HTML, CSS, JS, etc.)
+- ✅ Run terminal commands (git, npm, etc.)
+- ✅ Create new files
+- ✅ Delete files
+- ✅ Search through code
+- ✅ Fix bugs and add features
+- ✅ Commit changes to git
+- ✅ Push to GitHub
+- ✅ Install packages
+- ✅ Run tests
+- ✅ Debug issues
+
+**What I CANNOT do:**
+- ❌ Access external websites directly
+- ❌ Make phone calls
+- ❌ Send emails
+- ❌ Access your personal data outside the project
+
+**IMPORTANT:** I have full access to modify your project files and can commit changes to GitHub. Don't let me say otherwise!
+
 ---
-**Last Updated:** $(date)
+**Last Updated:** December 2024
 **Status:** ✅ WORKING - All major issues resolved
