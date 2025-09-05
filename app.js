@@ -1618,6 +1618,57 @@ function loadHobbies() {
   console.log(`🎯 ${hobbies.length} ilgi alanı yüklendi`);
 }
 
+// Tab switching
+function switchTab(tabName) {
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const loginTab = document.querySelector('.tab-btn[onclick="switchTab(\'login\')"]');
+  const registerTab = document.querySelector('.tab-btn[onclick="switchTab(\'register\')"]');
+  
+  if (tabName === 'login') {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    loginTab.classList.add('active');
+    registerTab.classList.remove('active');
+  } else {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    loginTab.classList.remove('active');
+    registerTab.classList.add('active');
+  }
+}
+
+// Kanal şifre bölümünü göster/gizle
+function togglePasswordSection() {
+  const passwordSection = document.getElementById('passwordSection');
+  const privateRadio = document.querySelector('input[name="channelType"][value="private"]');
+  
+  if (privateRadio.checked) {
+    passwordSection.style.display = 'block';
+  } else {
+    passwordSection.style.display = 'none';
+  }
+}
+
+// Profil form submit
+function submitProfileForm() {
+  const profileForm = document.getElementById('profileForm');
+  if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('profileName').value;
+      const surname = document.getElementById('profileSurname').value;
+      const age = document.getElementById('profileAge').value;
+      const bio = document.getElementById('profileBio').value;
+      
+      console.log('Profil güncellendi:', { name, surname, age, bio });
+      alert('✅ Profil başarıyla güncellendi!');
+      closeProfileModal();
+    });
+  }
+}
+
 // Global fonksiyonlar
 window.doLogin = doLogin;
 window.doRegister = doRegister;
@@ -1664,6 +1715,8 @@ window.sendInvite = sendInvite;
 window.copyInviteLink = copyInviteLink;
 window.switchChannel = switchChannel;
 window.sendMessage = sendMessage;
+window.switchTab = switchTab;
+window.togglePasswordSection = togglePasswordSection;
 
 // Basit lokasyon algılama (sadece bir kez)
 function detectLocationOnce() {
@@ -1829,6 +1882,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       updateSelectedHobbies();
     });
+  });
+
+  // Form handler'larını ekle
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const createChannelForm = document.getElementById('createChannelForm');
+  const profileForm = document.getElementById('profileForm');
+  
+  if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('identifier').value = document.getElementById('loginEmail').value;
+      document.getElementById('password').value = document.getElementById('loginPassword').value;
+      doLogin();
+    });
+  }
+  
+  if (registerForm) {
+    registerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('identifier').value = document.getElementById('registerEmail').value;
+      document.getElementById('password').value = document.getElementById('registerPassword').value;
+      doRegister();
+    });
+  }
+  
+  if (createChannelForm) {
+    createChannelForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      createChannel();
+    });
+  }
+  
+  if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('profileName').value;
+      const surname = document.getElementById('profileSurname').value;
+      const age = document.getElementById('profileAge').value;
+      const bio = document.getElementById('profileBio').value;
+      
+      console.log('Profil güncellendi:', { name, surname, age, bio });
+      alert('✅ Profil başarıyla güncellendi!');
+      closeProfileModal();
+    });
+  }
+
+  // Kanal türü değişikliği için event listener
+  document.querySelectorAll('input[name="channelType"]').forEach(radio => {
+    radio.addEventListener('change', togglePasswordSection);
   });
 
   // DM mesaj gönderme event listener'ı
