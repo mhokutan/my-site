@@ -1,6 +1,6 @@
 {
   "name": "my-site",
-  "version": "4.4.3",
+  "version": "4.4.5",
   "description": "Gelişmiş sohbet uygulaması - Sponsor kanallar ve akıllı kanal sistemi",
   "main": "server.js",
   "scripts": {

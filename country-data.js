@@ -17,7 +17,13 @@ const countryData = {
   'EE': { name: 'Estonia', capital: 'Tallinn', language: 'US', region: 'Europe' },
   'ES': { name: 'Spain', capital: 'Madrid', language: 'ES', region: 'Europe' },
   'FI': { name: 'Finland', capital: 'Helsinki', language: 'US', region: 'Europe' },
-  'FR': { name: 'France', capital: 'Paris', language: 'FR', region: 'Europe' },
+  'FR': { 
+    name: 'France', 
+    capital: 'Paris', 
+    language: 'FR', 
+    region: 'Europe',
+    cities: ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg', 'Montpellier', 'Bordeaux', 'Lille', 'Rennes', 'Reims', 'Le Havre', 'Saint-Étienne', 'Toulon', 'Angers', 'Grenoble', 'Dijon', 'Nîmes', 'Aix-en-Provence']
+  },
   'GB': { name: 'United Kingdom', capital: 'London', language: 'US', region: 'Europe' },
   'GR': { name: 'Greece', capital: 'Athens', language: 'US', region: 'Europe' },
   'HR': { name: 'Croatia', capital: 'Zagreb', language: 'US', region: 'Europe' },
@@ -45,14 +51,26 @@ const countryData = {
   'SI': { name: 'Slovenia', capital: 'Ljubljana', language: 'US', region: 'Europe' },
   'SK': { name: 'Slovakia', capital: 'Bratislava', language: 'US', region: 'Europe' },
   'SM': { name: 'San Marino', capital: 'San Marino', language: 'US', region: 'Europe' },
-  'TR': { name: 'Turkey', capital: 'Istanbul', language: 'TR', region: 'Europe' },
+  'TR': { 
+    name: 'Turkey', 
+    capital: 'Istanbul', 
+    language: 'TR', 
+    region: 'Europe',
+    cities: ['Istanbul', 'Ankara', 'Izmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 'Gaziantep', 'Mersin', 'Diyarbakir', 'Samsun', 'Denizli', 'Eskisehir', 'Malatya', 'Erzurum', 'Van', 'Batman', 'Elazig', 'Isparta', 'Trabzon']
+  },
   'UA': { name: 'Ukraine', capital: 'Kiev', language: 'US', region: 'Europe' },
   'VA': { name: 'Vatican City', capital: 'Vatican City', language: 'US', region: 'Europe' },
 
   // Kuzey Amerika
   'CA': { name: 'Canada', capital: 'Ottawa', language: 'US', region: 'North America' },
   'MX': { name: 'Mexico', capital: 'Mexico City', language: 'ES', region: 'North America' },
-  'US': { name: 'United States', capital: 'Washington D.C.', language: 'US', region: 'North America' },
+  'US': { 
+    name: 'United States', 
+    capital: 'Washington D.C.', 
+    language: 'US', 
+    region: 'North America',
+    cities: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose', 'Austin', 'Jacksonville', 'Fort Worth', 'Columbus', 'Charlotte', 'San Francisco', 'Indianapolis', 'Seattle', 'Denver', 'Washington D.C.']
+  },
 
   // Güney Amerika
   'AR': { name: 'Argentina', capital: 'Buenos Aires', language: 'ES', region: 'South America' },

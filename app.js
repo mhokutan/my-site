@@ -454,7 +454,63 @@ function generateRandomNickname() {
   return nickname;
 }
 
-// Lokasyon seçme
+// Ülke seçme (şehir seçimi için)
+function selectCountry(countryCode, countryName) {
+  const countryInfo = getCountryInfo(countryCode);
+  if (!countryInfo || !countryInfo.cities) {
+    // Şehir listesi yoksa direkt başkenti seç
+    selectLocation(countryCode, countryName, countryInfo.capital);
+    return;
+  }
+  
+  // Şehir seçimi modalını göster
+  showCitySelectionModal(countryCode, countryName, countryInfo.cities);
+}
+
+// Şehir seçimi modalını göster
+function showCitySelectionModal(countryCode, countryName, cities) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>${countryName} - Şehir Seçin</h2>
+        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="city-search">
+          <input type="text" id="citySearch" placeholder="Şehir ara..." onkeyup="filterCities()">
+        </div>
+        <div class="city-options" id="cityOptions">
+          ${cities.map(city => `
+            <button class="city-btn" onclick="selectLocation('${countryCode}', '${countryName}', '${city}')">
+              ${city}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.classList.add('open');
+}
+
+// Şehir arama
+function filterCities() {
+  const searchTerm = document.getElementById('citySearch').value.toLowerCase();
+  const cityButtons = document.querySelectorAll('.city-btn');
+  
+  cityButtons.forEach(button => {
+    const cityName = button.textContent.toLowerCase();
+    if (cityName.includes(searchTerm)) {
+      button.style.display = 'block';
+    } else {
+      button.style.display = 'none';
+    }
+  });
+}
+
+// Lokasyon seçme (final)
 function selectLocation(countryCode, countryName, cityName) {
   const locationData = {
     country: countryName,
@@ -464,19 +520,9 @@ function selectLocation(countryCode, countryName, cityName) {
   
   localStorage.setItem('userLocation', JSON.stringify(locationData));
   
-  // Dil değiştir
-  const languageMap = {
-    'US': 'US', 'CA': 'US', 'GB': 'US', 'AU': 'US', 'NZ': 'US',
-    'TR': 'TR',
-    'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
-    'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
-    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES',
-    'JP': 'JP', 'JP': 'JP',
-    'KR': 'KR', 'KP': 'KR',
-    'CN': 'CN', 'TW': 'CN', 'HK': 'CN', 'MO': 'CN'
-  };
-  
-  const detectedLanguage = languageMap[countryCode] || 'US';
+  // Dil değiştir - country-data.js'den dil bilgisini al
+  const countryInfo = getCountryInfo(countryCode);
+  const detectedLanguage = countryInfo ? countryInfo.language : 'US';
   
   // Dil değiştirme fonksiyonunu çağır
   if (window.onLocationChange) {
@@ -497,6 +543,10 @@ function selectLocation(countryCode, countryName, cityName) {
   
   alert(`📍 Lokasyon güncellendi: ${cityName}, ${countryName}`);
   closeLocationModal();
+  
+  // Şehir seçimi modalını kapat
+  const cityModal = document.querySelector('.modal');
+  if (cityModal) cityModal.remove();
 }
 
 // Dinamik ülke butonları oluştur
@@ -525,7 +575,7 @@ function generateCountryButtons() {
       const button = document.createElement('button');
       button.className = 'location-btn';
       button.innerHTML = `${getCountryFlag(country.code)} ${country.name} - ${country.capital}`;
-      button.onclick = () => selectLocation(country.code, country.name, country.capital);
+      button.onclick = () => selectCountry(country.code, country.name);
       locationOptions.appendChild(button);
     });
     
@@ -598,7 +648,7 @@ function showAllCountries(region) {
       <div class="modal-body">
         <div class="location-options">
           ${countries.map(country => `
-            <button class="location-btn" onclick="selectLocation('${country.code}', '${country.name}', '${country.capital}')">
+            <button class="location-btn" onclick="selectCountry('${country.code}', '${country.name}')">
               ${getCountryFlag(country.code)} ${country.name} - ${country.capital}
             </button>
           `).join('')}
@@ -760,6 +810,252 @@ function getCountrySpecificSponsors(countryCode) {
       { name: '#iberdrola', company: 'Iberdrola', description: 'Enerji' },
       { name: '#santander', company: 'Santander', description: 'Bankacılık' },
       { name: '#inditex', company: 'Inditex', description: 'Moda ve tekstil' }
+    ],
+    // Afrika ülkeleri için sponsor kanallar
+    'ZA': [
+      { name: '#sasol', company: 'Sasol', description: 'Enerji ve kimya' },
+      { name: '#mtn', company: 'MTN', description: 'Telekomünikasyon' },
+      { name: '#shoprite', company: 'Shoprite', description: 'Perakende' }
+    ],
+    'NG': [
+      { name: '#dangote', company: 'Dangote Group', description: 'Çimento ve gıda' },
+      { name: '#mtn', company: 'MTN Nigeria', description: 'Telekomünikasyon' },
+      { name: '#access', company: 'Access Bank', description: 'Bankacılık' }
+    ],
+    'EG': [
+      { name: '#orascom', company: 'Orascom', description: 'Telekomünikasyon' },
+      { name: '#cib', company: 'CIB Bank', description: 'Bankacılık' },
+      { name: '#elaraby', company: 'El Araby Group', description: 'Elektronik' }
+    ],
+    'KE': [
+      { name: '#safaricom', company: 'Safaricom', description: 'Telekomünikasyon' },
+      { name: '#equity', company: 'Equity Bank', description: 'Bankacılık' },
+      { name: '#kcb', company: 'KCB Group', description: 'Bankacılık' }
+    ],
+    'MA': [
+      { name: '#attijariwafa', company: 'Attijariwafa Bank', description: 'Bankacılık' },
+      { name: '#maroc', company: 'Maroc Telecom', description: 'Telekomünikasyon' },
+      { name: '#oncf', company: 'ONCF', description: 'Ulaştırma' }
+    ],
+    'GH': [
+      { name: '#mtn', company: 'MTN Ghana', description: 'Telekomünikasyon' },
+      { name: '#ecobank', company: 'Ecobank', description: 'Bankacılık' },
+      { name: '#goldfields', company: 'Gold Fields', description: 'Madencilik' }
+    ],
+    'ET': [
+      { name: '#ethio', company: 'Ethio Telecom', description: 'Telekomünikasyon' },
+      { name: '#cbe', company: 'Commercial Bank of Ethiopia', description: 'Bankacılık' },
+      { name: '#ethiopian', company: 'Ethiopian Airlines', description: 'Havacılık' }
+    ],
+    'TZ': [
+      { name: '#vodacom', company: 'Vodacom Tanzania', description: 'Telekomünikasyon' },
+      { name: '#crdb', company: 'CRDB Bank', description: 'Bankacılık' },
+      { name: '#tbl', company: 'Tanzania Breweries', description: 'İçecek' }
+    ],
+    'UG': [
+      { name: '#mtn', company: 'MTN Uganda', description: 'Telekomünikasyon' },
+      { name: '#centenary', company: 'Centenary Bank', description: 'Bankacılık' },
+      { name: '#uganda', company: 'Uganda Airlines', description: 'Havacılık' }
+    ],
+    'RW': [
+      { name: '#mtn', company: 'MTN Rwanda', description: 'Telekomünikasyon' },
+      { name: '#bk', company: 'Bank of Kigali', description: 'Bankacılık' },
+      { name: '#rwandair', company: 'RwandAir', description: 'Havacılık' }
+    ],
+    'BW': [
+      { name: '#mascom', company: 'Mascom', description: 'Telekomünikasyon' },
+      { name: '#fnb', company: 'First National Bank', description: 'Bankacılık' },
+      { name: '#debswana', company: 'Debswana', description: 'Madencilik' }
+    ],
+    'NA': [
+      { name: '#mnt', company: 'MTC Namibia', description: 'Telekomünikasyon' },
+      { name: '#fnb', company: 'First National Bank', description: 'Bankacılık' },
+      { name: '#namdeb', company: 'Namdeb', description: 'Madencilik' }
+    ],
+    'ZM': [
+      { name: '#mtn', company: 'MTN Zambia', description: 'Telekomünikasyon' },
+      { name: '#zanaco', company: 'Zanaco', description: 'Bankacılık' },
+      { name: '#zccm', company: 'ZCCM-IH', description: 'Madencilik' }
+    ],
+    'ZW': [
+      { name: '#econet', company: 'Econet Wireless', description: 'Telekomünikasyon' },
+      { name: '#cbz', company: 'CBZ Bank', description: 'Bankacılık' },
+      { name: '#innscor', company: 'Innscor Africa', description: 'Gıda' }
+    ],
+    'AO': [
+      { name: '#unitel', company: 'Unitel', description: 'Telekomünikasyon' },
+      { name: '#bca', company: 'Banco BCA', description: 'Bankacılık' },
+      { name: '#sonangol', company: 'Sonangol', description: 'Enerji' }
+    ],
+    'MZ': [
+      { name: '#mcel', company: 'MCel', description: 'Telekomünikasyon' },
+      { name: '#bci', company: 'BCI Bank', description: 'Bankacılık' },
+      { name: '#cahora', company: 'Cahora Bassa', description: 'Enerji' }
+    ],
+    'MG': [
+      { name: '#telma', company: 'Telma', description: 'Telekomünikasyon' },
+      { name: '#bfv', company: 'Bank of Africa', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Madagascar', description: 'Havacılık' }
+    ],
+    'MU': [
+      { name: '#emtel', company: 'Emtel', description: 'Telekomünikasyon' },
+      { name: '#mcb', company: 'MCB Bank', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Mauritius', description: 'Havacılık' }
+    ],
+    'SC': [
+      { name: '#cable', company: 'Cable & Wireless', description: 'Telekomünikasyon' },
+      { name: '#nouvobanq', company: 'Nouvobanq', description: 'Bankacılık' },
+      { name: '#seychelles', company: 'Seychelles Airlines', description: 'Havacılık' }
+    ],
+    'CM': [
+      { name: '#mtn', company: 'MTN Cameroon', description: 'Telekomünikasyon' },
+      { name: '#afriland', company: 'Afriland First Bank', description: 'Bankacılık' },
+      { name: '#camair', company: 'Camair-Co', description: 'Havacılık' }
+    ],
+    'CI': [
+      { name: '#mtn', company: 'MTN Côte d\'Ivoire', description: 'Telekomünikasyon' },
+      { name: '#sgbci', company: 'SGBCI', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Côte d\'Ivoire', description: 'Havacılık' }
+    ],
+    'SN': [
+      { name: '#orange', company: 'Orange Senegal', description: 'Telekomünikasyon' },
+      { name: '#sgbs', company: 'SGBS', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Senegal', description: 'Havacılık' }
+    ],
+    'ML': [
+      { name: '#orange', company: 'Orange Mali', description: 'Telekomünikasyon' },
+      { name: '#bmsa', company: 'BM-SA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Mali', description: 'Havacılık' }
+    ],
+    'BF': [
+      { name: '#orange', company: 'Orange Burkina Faso', description: 'Telekomünikasyon' },
+      { name: '#coris', company: 'Coris Bank', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Burkina', description: 'Havacılık' }
+    ],
+    'NE': [
+      { name: '#moov', company: 'Moov Niger', description: 'Telekomünikasyon' },
+      { name: '#bni', company: 'BNI', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Niger', description: 'Havacılık' }
+    ],
+    'TD': [
+      { name: '#tigo', company: 'Tigo Chad', description: 'Telekomünikasyon' },
+      { name: '#sgbc', company: 'SGBC', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Chad', description: 'Havacılık' }
+    ],
+    'CF': [
+      { name: '#orange', company: 'Orange RCA', description: 'Telekomünikasyon' },
+      { name: '#bca', company: 'BCA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Centrafrique', description: 'Havacılık' }
+    ],
+    'CD': [
+      { name: '#vodacom', company: 'Vodacom DRC', description: 'Telekomünikasyon' },
+      { name: '#rawbank', company: 'Rawbank', description: 'Bankacılık' },
+      { name: '#congo', company: 'Congo Airways', description: 'Havacılık' }
+    ],
+    'CG': [
+      { name: '#airtel', company: 'Airtel Congo', description: 'Telekomünikasyon' },
+      { name: '#bic', company: 'BIC', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Congo', description: 'Havacılık' }
+    ],
+    'GA': [
+      { name: '#airtel', company: 'Airtel Gabon', description: 'Telekomünikasyon' },
+      { name: '#bicig', company: 'BICIG', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Gabon', description: 'Havacılık' }
+    ],
+    'GQ': [
+      { name: '#getesa', company: 'GETESA', description: 'Telekomünikasyon' },
+      { name: '#bange', company: 'BANGE', description: 'Bankacılık' },
+      { name: '#ceiba', company: 'Ceiba Intercontinental', description: 'Havacılık' }
+    ],
+    'ST': [
+      { name: '#cst', company: 'CST', description: 'Telekomünikasyon' },
+      { name: '#bca', company: 'BCA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air São Tomé', description: 'Havacılık' }
+    ],
+    'CV': [
+      { name: '#cvmovel', company: 'CVMóvel', description: 'Telekomünikasyon' },
+      { name: '#bca', company: 'BCA', description: 'Bankacılık' },
+      { name: '#tacv', company: 'TACV', description: 'Havacılık' }
+    ],
+    'GW': [
+      { name: '#orange', company: 'Orange Guinée-Bissau', description: 'Telekomünikasyon' },
+      { name: '#bca', company: 'BCA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Guinée-Bissau', description: 'Havacılık' }
+    ],
+    'GN': [
+      { name: '#orange', company: 'Orange Guinée', description: 'Telekomünikasyon' },
+      { name: '#bicigui', company: 'BICIGUI', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Guinée', description: 'Havacılık' }
+    ],
+    'SL': [
+      { name: '#orange', company: 'Orange Sierra Leone', description: 'Telekomünikasyon' },
+      { name: '#sierra', company: 'Sierra Leone Commercial Bank', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Sierra Leone', description: 'Havacılık' }
+    ],
+    'LR': [
+      { name: '#orange', company: 'Orange Liberia', description: 'Telekomünikasyon' },
+      { name: '#lbd', company: 'Liberian Bank for Development', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Liberia', description: 'Havacılık' }
+    ],
+    'TG': [
+      { name: '#moov', company: 'Moov Togo', description: 'Telekomünikasyon' },
+      { name: '#btc', company: 'BTC', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Togo', description: 'Havacılık' }
+    ],
+    'BJ': [
+      { name: '#moov', company: 'Moov Bénin', description: 'Telekomünikasyon' },
+      { name: '#boa', company: 'BOA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Bénin', description: 'Havacılık' }
+    ],
+    'DZ': [
+      { name: '#mobilis', company: 'Mobilis', description: 'Telekomünikasyon' },
+      { name: '#bna', company: 'BNA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Algérie', description: 'Havacılık' }
+    ],
+    'TN': [
+      { name: '#orange', company: 'Orange Tunisie', description: 'Telekomünikasyon' },
+      { name: '#biat', company: 'BIAT', description: 'Bankacılık' },
+      { name: '#tunisair', company: 'Tunisair', description: 'Havacılık' }
+    ],
+    'LY': [
+      { name: '#libyana', company: 'Libyana', description: 'Telekomünikasyon' },
+      { name: '#sahara', company: 'Sahara Bank', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Libya', description: 'Havacılık' }
+    ],
+    'SD': [
+      { name: '#zain', company: 'Zain Sudan', description: 'Telekomünikasyon' },
+      { name: '#cbos', company: 'CBOS', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Sudan', description: 'Havacılık' }
+    ],
+    'SS': [
+      { name: '#zain', company: 'Zain South Sudan', description: 'Telekomünikasyon' },
+      { name: '#bss', company: 'BSS', description: 'Bankacılık' },
+      { name: '#air', company: 'Air South Sudan', description: 'Havacılık' }
+    ],
+    'ER': [
+      { name: '#eritel', company: 'Eritel', description: 'Telekomünikasyon' },
+      { name: '#hbe', company: 'HBE', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Eritrea', description: 'Havacılık' }
+    ],
+    'DJ': [
+      { name: '#evatis', company: 'Evatis', description: 'Telekomünikasyon' },
+      { name: '#bda', company: 'BDA', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Djibouti', description: 'Havacılık' }
+    ],
+    'SO': [
+      { name: '#hormuud', company: 'Hormuud Telecom', description: 'Telekomünikasyon' },
+      { name: '#salaam', company: 'Salaam Bank', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Somalia', description: 'Havacılık' }
+    ],
+    'KM': [
+      { name: '#comores', company: 'Comores Telecom', description: 'Telekomünikasyon' },
+      { name: '#bic', company: 'BIC', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Comores', description: 'Havacılık' }
+    ],
+    'KM': [
+      { name: '#comores', company: 'Comores Telecom', description: 'Telekomünikasyon' },
+      { name: '#bic', company: 'BIC', description: 'Bankacılık' },
+      { name: '#air', company: 'Air Comores', description: 'Havacılık' }
     ]
   };
   
