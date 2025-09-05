@@ -243,7 +243,7 @@ const translations = {
     'yesterday': 'gestern'
   },
   
-  // İspanyolca
+  // İspanyolca (Arjantin, Meksika, İspanya)
   'ES': {
     'menu': 'Menú',
     'login': 'Iniciar sesión',
@@ -299,6 +299,180 @@ const translations = {
     'now': 'ahora',
     'today': 'hoy',
     'yesterday': 'ayer'
+  },
+  
+  // Japonca
+  'JP': {
+    'menu': 'メニュー',
+    'login': 'ログイン',
+    'logout': 'ログアウト',
+    'profile': 'プロフィール編集',
+    'feedback': 'フィードバック',
+    'location': '場所',
+    'sponsor': 'スポンサー',
+    'donate': '☕ コーヒーをおごる',
+    
+    'sponsorChannels': 'スポンサーチャンネル',
+    'generalChannels': '一般チャンネル',
+    'favoriteChannels': 'お気に入りチャンネル',
+    'users': 'ユーザー',
+    'following': 'フォロー中',
+    
+    'sponsorChannelsTitle': '💰 スポンサーチャンネル',
+    'generalChannelsTitle': '🌐 一般チャンネル',
+    'favoriteCitiesTitle': '🏙️ お気に入りの都市',
+    
+    'loginTitle': 'ログイン / 登録',
+    'profileTitle': 'プロフィール編集',
+    'locationTitle': '場所を設定',
+    'sponsorTitle': 'スポンサーチャンネル作成',
+    'channelTitle': '新しいチャンネル作成',
+    'hobbiesTitle': '興味',
+    
+    'email': 'メールまたは電話',
+    'password': 'パスワード',
+    'firstName': '名',
+    'lastName': '姓',
+    'gender': '性別',
+    'birth': '生年月日',
+    'country': '国',
+    'city': '都市',
+    'channelName': 'チャンネル名',
+    'channelDescription': 'チャンネル説明',
+    'channelType': 'チャンネルタイプ',
+    'public': '公開',
+    'private': '非公開',
+    'createChannel': 'チャンネル作成',
+    'loginBtn': 'ログイン',
+    'registerBtn': '登録',
+    'rememberMe': 'ログイン状態を保持',
+    'saveBtn': '保存',
+    'cancelBtn': 'キャンセル',
+    'closeBtn': '閉じる',
+    
+    'anonymous': '匿名',
+    'loggedIn': 'ログイン済み',
+    'typing': '入力中...',
+    
+    'now': '今',
+    'today': '今日',
+    'yesterday': '昨日'
+  },
+  
+  // Korece
+  'KR': {
+    'menu': '메뉴',
+    'login': '로그인',
+    'logout': '로그아웃',
+    'profile': '프로필 편집',
+    'feedback': '피드백',
+    'location': '위치',
+    'sponsor': '스폰서',
+    'donate': '☕ 커피 사주기',
+    
+    'sponsorChannels': '스폰서 채널',
+    'generalChannels': '일반 채널',
+    'favoriteChannels': '즐겨찾기 채널',
+    'users': '사용자',
+    'following': '팔로잉',
+    
+    'sponsorChannelsTitle': '💰 스폰서 채널',
+    'generalChannelsTitle': '🌐 일반 채널',
+    'favoriteCitiesTitle': '🏙️ 즐겨찾기 도시',
+    
+    'loginTitle': '로그인 / 회원가입',
+    'profileTitle': '프로필 편집',
+    'locationTitle': '위치 설정',
+    'sponsorTitle': '스폰서 채널 생성',
+    'channelTitle': '새 채널 생성',
+    'hobbiesTitle': '관심사',
+    
+    'email': '이메일 또는 전화번호',
+    'password': '비밀번호',
+    'firstName': '이름',
+    'lastName': '성',
+    'gender': '성별',
+    'birth': '생년월일',
+    'country': '국가',
+    'city': '도시',
+    'channelName': '채널명',
+    'channelDescription': '채널 설명',
+    'channelType': '채널 유형',
+    'public': '공개',
+    'private': '비공개',
+    'createChannel': '채널 생성',
+    'loginBtn': '로그인',
+    'registerBtn': '회원가입',
+    'rememberMe': '로그인 상태 유지',
+    'saveBtn': '저장',
+    'cancelBtn': '취소',
+    'closeBtn': '닫기',
+    
+    'anonymous': '익명',
+    'loggedIn': '로그인됨',
+    'typing': '입력 중...',
+    
+    'now': '지금',
+    'today': '오늘',
+    'yesterday': '어제'
+  },
+  
+  // Çince
+  'CN': {
+    'menu': '菜单',
+    'login': '登录',
+    'logout': '登出',
+    'profile': '编辑资料',
+    'feedback': '反馈',
+    'location': '位置',
+    'sponsor': '赞助商',
+    'donate': '☕ 请我喝咖啡',
+    
+    'sponsorChannels': '赞助频道',
+    'generalChannels': '普通频道',
+    'favoriteChannels': '收藏频道',
+    'users': '用户',
+    'following': '关注中',
+    
+    'sponsorChannelsTitle': '💰 赞助频道',
+    'generalChannelsTitle': '🌐 普通频道',
+    'favoriteCitiesTitle': '🏙️ 收藏城市',
+    
+    'loginTitle': '登录 / 注册',
+    'profileTitle': '编辑资料',
+    'locationTitle': '设置位置',
+    'sponsorTitle': '创建赞助频道',
+    'channelTitle': '创建新频道',
+    'hobbiesTitle': '兴趣爱好',
+    
+    'email': '邮箱或电话',
+    'password': '密码',
+    'firstName': '名',
+    'lastName': '姓',
+    'gender': '性别',
+    'birth': '出生日期',
+    'country': '国家',
+    'city': '城市',
+    'channelName': '频道名称',
+    'channelDescription': '频道描述',
+    'channelType': '频道类型',
+    'public': '公开',
+    'private': '私密',
+    'createChannel': '创建频道',
+    'loginBtn': '登录',
+    'registerBtn': '注册',
+    'rememberMe': '记住我',
+    'saveBtn': '保存',
+    'cancelBtn': '取消',
+    'closeBtn': '关闭',
+    
+    'anonymous': '匿名',
+    'loggedIn': '已登录',
+    'typing': '正在输入...',
+    
+    'now': '现在',
+    'today': '今天',
+    'yesterday': '昨天'
   }
 };
 

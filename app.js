@@ -220,15 +220,23 @@ function loadChannels() {
     });
   }
   
-  // Sponsor kanallar
+  // Sponsor kanallar - ülkeye göre
   if (sponsorChannels) {
     sponsorChannels.innerHTML = '';
-    const sponsorChannelsList = ['#heponsigorta', '#technews', '#cryptotalk', '#fitnesspro', '#foodie'];
-    sponsorChannelsList.forEach(channel => {
+    const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
+    const countryCode = userLocation.countryCode || 'TR';
+    const countrySponsors = getCountrySpecificSponsors(countryCode);
+    
+    countrySponsors.forEach(sponsor => {
       const div = document.createElement('div');
       div.className = 'channel-item sponsor';
-      div.textContent = '💰 ' + channel;
-      div.onclick = () => switchChannel(channel);
+      div.innerHTML = `
+        <div class="sponsor-info">
+          <div class="sponsor-name">💰 ${sponsor.name}</div>
+          <div class="sponsor-company">${sponsor.company}</div>
+        </div>
+      `;
+      div.onclick = () => switchChannel(sponsor.name);
       sponsorChannels.appendChild(div);
     });
   }
@@ -462,7 +470,10 @@ function selectLocation(countryCode, countryName, cityName) {
     'TR': 'TR',
     'FR': 'FR', 'BE': 'FR', 'CH': 'FR',
     'DE': 'DE', 'AT': 'DE', 'LI': 'DE',
-    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES'
+    'ES': 'ES', 'MX': 'ES', 'AR': 'ES', 'CL': 'ES', 'CO': 'ES', 'PE': 'ES', 'VE': 'ES', 'UY': 'ES',
+    'JP': 'JP', 'JP': 'JP',
+    'KR': 'KR', 'KP': 'KR',
+    'CN': 'CN', 'TW': 'CN', 'HK': 'CN', 'MO': 'CN'
   };
   
   const detectedLanguage = languageMap[countryCode] || 'US';
@@ -583,8 +594,64 @@ function updatePopularChannels(selectedHobbies) {
   console.log('🔥 Popüler kanallar güncellendi:', popularChannels);
 }
 
+// Ülkeye göre sponsor kanalları
+function getCountrySpecificSponsors(countryCode) {
+  const sponsors = {
+    'TR': [
+      { name: '#heponsigorta', company: 'Hepon Sigorta', description: 'Sigorta ve finansal hizmetler' },
+      { name: '#turkcell', company: 'Turkcell', description: 'Telekomünikasyon' },
+      { name: '#sahibinden', company: 'Sahibinden', description: 'Emlak ve araç' }
+    ],
+    'AR': [
+      { name: '#mercadolibre', company: 'MercadoLibre', description: 'E-ticaret platformu' },
+      { name: '#despegar', company: 'Despegar', description: 'Seyahat ve turizm' },
+      { name: '#globant', company: 'Globant', description: 'Yazılım geliştirme' }
+    ],
+    'JP': [
+      { name: '#sony', company: 'Sony', description: 'Elektronik ve eğlence' },
+      { name: '#toyota', company: 'Toyota', description: 'Otomotiv' },
+      { name: '#nintendo', company: 'Nintendo', description: 'Oyun konsolları' }
+    ],
+    'KR': [
+      { name: '#samsung', company: 'Samsung', description: 'Elektronik ve teknoloji' },
+      { name: '#hyundai', company: 'Hyundai', description: 'Otomotiv' },
+      { name: '#naver', company: 'Naver', description: 'İnternet servisleri' }
+    ],
+    'CN': [
+      { name: '#alibaba', company: 'Alibaba', description: 'E-ticaret' },
+      { name: '#tencent', company: 'Tencent', description: 'Teknoloji ve oyun' },
+      { name: '#baidu', company: 'Baidu', description: 'Arama motoru' }
+    ],
+    'US': [
+      { name: '#google', company: 'Google', description: 'Teknoloji ve arama' },
+      { name: '#apple', company: 'Apple', description: 'Elektronik ve yazılım' },
+      { name: '#microsoft', company: 'Microsoft', description: 'Yazılım ve bulut' }
+    ],
+    'DE': [
+      { name: '#sap', company: 'SAP', description: 'Kurumsal yazılım' },
+      { name: '#siemens', company: 'Siemens', description: 'Endüstriyel teknoloji' },
+      { name: '#bmw', company: 'BMW', description: 'Otomotiv' }
+    ],
+    'FR': [
+      { name: '#lvmh', company: 'LVMH', description: 'Lüks ürünler' },
+      { name: '#total', company: 'Total', description: 'Enerji' },
+      { name: '#orange', company: 'Orange', description: 'Telekomünikasyon' }
+    ],
+    'ES': [
+      { name: '#iberdrola', company: 'Iberdrola', description: 'Enerji' },
+      { name: '#santander', company: 'Santander', description: 'Bankacılık' },
+      { name: '#inditex', company: 'Inditex', description: 'Moda ve tekstil' }
+    ]
+  };
+  
+  return sponsors[countryCode] || sponsors['US'];
+}
+
 // Popüler kanalları oluştur
 function generatePopularChannels(selectedHobbies) {
+  const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
+  const countryCode = userLocation.countryCode || 'TR';
+  
   const channelMap = {
     'teknoloji': [
       { name: '#yapayzeka', members: '1.2K', activity: 'Yüksek' },
