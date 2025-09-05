@@ -485,10 +485,129 @@ function selectLocation(countryCode, countryName, cityName) {
     window.changeLanguage(detectedLanguage);
   }
   
+  // Sayfayı yenile ki dil değişikliği tam olarak uygulansın
+  setTimeout(() => {
+    location.reload();
+  }, 1000);
+  
+  // Kanalları yeniden yükle (sponsor kanallar güncellensin)
+  loadChannels();
+  
   console.log(`🌍 Lokasyon değişti: ${countryCode} -> ${detectedLanguage}`);
   
   alert(`📍 Lokasyon güncellendi: ${cityName}, ${countryName}`);
   closeLocationModal();
+}
+
+// Dinamik ülke butonları oluştur
+function generateCountryButtons() {
+  const locationOptions = document.querySelector('.location-options');
+  if (!locationOptions) return;
+  
+  // Mevcut butonları temizle
+  locationOptions.innerHTML = '';
+  
+  // Bölgelere göre ülkeleri grupla
+  const regions = ['Europe', 'North America', 'South America', 'Asia', 'Africa', 'Oceania'];
+  
+  regions.forEach(region => {
+    const countries = getCountriesByRegion(region);
+    if (countries.length === 0) return;
+    
+    // Bölge başlığı
+    const regionTitle = document.createElement('h4');
+    regionTitle.textContent = getRegionName(region);
+    regionTitle.className = 'region-title';
+    locationOptions.appendChild(regionTitle);
+    
+    // Bölgeye ait ülkeler
+    countries.slice(0, 8).forEach(country => { // Her bölgeden max 8 ülke
+      const button = document.createElement('button');
+      button.className = 'location-btn';
+      button.innerHTML = `${getCountryFlag(country.code)} ${country.name} - ${country.capital}`;
+      button.onclick = () => selectLocation(country.code, country.name, country.capital);
+      locationOptions.appendChild(button);
+    });
+    
+    // Daha fazla butonu
+    if (countries.length > 8) {
+      const moreButton = document.createElement('button');
+      moreButton.className = 'location-btn more-btn';
+      moreButton.innerHTML = `➕ ${countries.length - 8} ülke daha...`;
+      moreButton.onclick = () => showAllCountries(region);
+      locationOptions.appendChild(moreButton);
+    }
+  });
+}
+
+// Bölge adını al
+function getRegionName(region) {
+  const regionNames = {
+    'Europe': '🇪🇺 Avrupa',
+    'North America': '🇺🇸 Kuzey Amerika',
+    'South America': '🇦🇷 Güney Amerika',
+    'Asia': '🌏 Asya',
+    'Africa': '🌍 Afrika',
+    'Oceania': '🌊 Okyanusya'
+  };
+  return regionNames[region] || region;
+}
+
+// Ülke bayrağı emoji'si al
+function getCountryFlag(countryCode) {
+  const flagMap = {
+    'TR': '🇹🇷', 'US': '🇺🇸', 'CA': '🇨🇦', 'GB': '🇬🇧', 'DE': '🇩🇪', 'FR': '🇫🇷', 'ES': '🇪🇸',
+    'IT': '🇮🇹', 'NL': '🇳🇱', 'BE': '🇧🇪', 'CH': '🇨🇭', 'AT': '🇦🇹', 'SE': '🇸🇪', 'NO': '🇳🇴',
+    'DK': '🇩🇰', 'FI': '🇫🇮', 'PL': '🇵🇱', 'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'BG': '🇧🇬',
+    'GR': '🇬🇷', 'HR': '🇭🇷', 'SI': '🇸🇮', 'SK': '🇸🇰', 'LT': '🇱🇹', 'LV': '🇱🇻', 'EE': '🇪🇪',
+    'IE': '🇮🇪', 'PT': '🇵🇹', 'LU': '🇱🇺', 'MT': '🇲🇹', 'CY': '🇨🇾', 'IS': '🇮🇸', 'LI': '🇱🇮',
+    'MC': '🇲🇨', 'SM': '🇸🇲', 'VA': '🇻🇦', 'AD': '🇦🇩', 'AR': '🇦🇷', 'BR': '🇧🇷', 'CL': '🇨🇱',
+    'CO': '🇨🇴', 'PE': '🇵🇪', 'VE': '🇻🇪', 'UY': '🇺🇾', 'PY': '🇵🇾', 'BO': '🇧🇴', 'EC': '🇪🇨',
+    'GY': '🇬🇾', 'SR': '🇸🇷', 'GF': '🇬🇫', 'FK': '🇫🇰', 'JP': '🇯🇵', 'KR': '🇰🇷', 'CN': '🇨🇳',
+    'IN': '🇮🇳', 'ID': '🇮🇩', 'TH': '🇹🇭', 'VN': '🇻🇳', 'MY': '🇲🇾', 'SG': '🇸🇬', 'PH': '🇵🇭',
+    'TW': '🇹🇼', 'HK': '🇭🇰', 'MO': '🇲🇴', 'MN': '🇲🇳', 'KZ': '🇰🇿', 'UZ': '🇺🇿', 'KG': '🇰🇬',
+    'TJ': '🇹🇯', 'TM': '🇹🇲', 'AF': '🇦🇫', 'PK': '🇵🇰', 'BD': '🇧🇩', 'LK': '🇱🇰', 'MV': '🇲🇻',
+    'NP': '🇳🇵', 'BT': '🇧🇹', 'MM': '🇲🇲', 'LA': '🇱🇦', 'KH': '🇰🇭', 'BN': '🇧🇳', 'TL': '🇹🇱',
+    'AU': '🇦🇺', 'NZ': '🇳🇿', 'FJ': '🇫🇯', 'PG': '🇵🇬', 'SB': '🇸🇧', 'VU': '🇻🇺', 'NC': '🇳🇨',
+    'PF': '🇵🇫', 'WS': '🇼🇸', 'TO': '🇹🇴', 'KI': '🇰🇮', 'TV': '🇹🇻', 'NR': '🇳🇷', 'PW': '🇵🇼',
+    'FM': '🇫🇲', 'MH': '🇲🇭', 'MP': '🇲🇵', 'GU': '🇬🇺', 'AS': '🇦🇸', 'CK': '🇨🇰', 'NU': '🇳🇺',
+    'TK': '🇹🇰', 'PN': '🇵🇳', 'NF': '🇳🇫', 'WF': '🇼🇫', 'ZA': '🇿🇦', 'NG': '🇳🇬', 'EG': '🇪🇬',
+    'KE': '🇰🇪', 'ET': '🇪🇹', 'GH': '🇬🇭', 'MA': '🇲🇦', 'TN': '🇹🇳', 'DZ': '🇩🇿', 'LY': '🇱🇾',
+    'SD': '🇸🇩', 'SS': '🇸🇸', 'UG': '🇺🇬', 'TZ': '🇹🇿', 'RW': '🇷🇼', 'BI': '🇧🇮', 'MW': '🇲🇼',
+    'ZM': '🇿🇲', 'ZW': '🇿🇼', 'BW': '🇧🇼', 'NA': '🇳🇦', 'SZ': '🇸🇿', 'LS': '🇱🇸', 'MG': '🇲🇬',
+    'MU': '🇲🇺', 'SC': '🇸🇨', 'KM': '🇰🇲', 'DJ': '🇩🇯', 'SO': '🇸🇴', 'ER': '🇪🇷', 'CF': '🇨🇫',
+    'TD': '🇹🇩', 'CM': '🇨🇲', 'GQ': '🇬🇶', 'GA': '🇬🇦', 'CG': '🇨🇬', 'CD': '🇨🇩', 'AO': '🇦🇴',
+    'ST': '🇸🇹', 'CV': '🇨🇻', 'GW': '🇬🇼', 'GN': '🇬🇳', 'SL': '🇸🇱', 'LR': '🇱🇷', 'CI': '🇨🇮',
+    'GH': '🇬🇭', 'TG': '🇹🇬', 'BJ': '🇧🇯', 'NE': '🇳🇪', 'BF': '🇧🇫', 'ML': '🇲🇱', 'SN': '🇸🇳',
+    'GM': '🇬🇲', 'GM': '🇬🇲', 'GM': '🇬🇲'
+  };
+  return flagMap[countryCode] || '🏳️';
+}
+
+// Tüm ülkeleri göster
+function showAllCountries(region) {
+  const countries = getCountriesByRegion(region);
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>${getRegionName(region)} - Tüm Ülkeler</h2>
+        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="location-options">
+          ${countries.map(country => `
+            <button class="location-btn" onclick="selectLocation('${country.code}', '${country.name}', '${country.capital}')">
+              ${getCountryFlag(country.code)} ${country.name} - ${country.capital}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.classList.add('open');
 }
 
 // Otomatik lokasyon algılama
@@ -1930,6 +2049,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // İlgi alanlarını yükle
   loadHobbies();
+  
+  // Dinamik ülke butonlarını oluştur
+  generateCountryButtons();
   
   // İlgi alanları event listener'larını ekle
   document.querySelectorAll('.hobby-item-large').forEach(item => {
